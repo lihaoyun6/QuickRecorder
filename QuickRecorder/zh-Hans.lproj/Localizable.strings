@@ -1,0 +1,106 @@
+/* 
+  Localizable.strings
+  QuickRecorder
+
+  Created by apple on 2024/4/16.
+  
+*/
+
+"System Audio" = "录制系统声音";
+"System Audio " = "系统声音";
+"Screen Area" = "录制屏幕区域";
+"Screen" = "录制全屏画面";
+"Application" = "录制应用程序";
+"Window" = "录制窗口内容";
+"Preferences" = "偏好设置";
+"No Title" = "无标题";
+"Display " = "显示器";
+"Select Applications" = "选择应用程序";
+"Permission Required" = "需要授权";
+"QuickRecorder needs screen recording permissions, even if you only intend on recording audio." = "QuickRecorder 需要获取录屏权限\n(即使只是用来录制音频)";
+"QuickRecorder needs permission to record your microphone." = "QuickRecorder 需要获取麦克风权限来录制所需的声音";
+"Please select a folder to save output files" = "请选择录音/录屏文件的保存位置";
+"Open Settings" = "打开系统设置";
+"Quit" = "退出";
+"Please select the App(s) to record" = "请选择需要录制的应用程序, 支持多选";
+"Please select the window(s) to record" = "请选择需要录制的窗口, 支持多选";
+"Please select the screen to record" = "请选择需要录制的屏幕, 仅支持单选";
+"Refresh" = "刷新列表";
+"Start" = "开始录制";
+"Definition" = "清晰度";
+"Frame rate" = "帧速率";
+"Auto" = "自动";
+"Low (1x)" = "低(1x)";
+"Low (0.5x)" = "低(0.5x)";
+"Quality" = "输出质量";
+"Format" = "输出格式";
+"Encoder" = "编码方式";
+"Low" = "低画质";
+"Medium" = "中画质";
+"High" = "高画质";
+"Record Cursor" = "录制鼠标光标";
+//"With wallpaper" = "录制桌面壁纸";
+"Record App Sound" = "录制程序声音";
+"Record Microphone" = "录制麦克风";
+"Background" = "画面背景";
+"Wallpaper" = "桌面壁纸";
+"Yellow" = "系统黄色";
+"Green" = "系统绿色";
+"Blue" = "系统蓝色";
+"Red" = "系统红色";
+"Gray" = "灰色";
+"Black" = "纯黑色";
+"White" = "纯白色";
+"Orange" = "系统橙色";
+"Custom" = "用户预设";
+"Audio Settings" = "音频设置";
+"Video Settings" = "视频设置";
+"Exclude QuickRecorder itself" = "从录像中排除 QuickRecorder 自身";
+"Normal - 128Kbps" = "标准 - 128Kbps";
+"Good - 192Kbps" = "优质 - 192Kbps";
+"High - 256Kbps" = "高清 - 256Kbps";
+"Extreme - 320Kbps" = "极致 - 320Kbps";
+"Other Settings" = "其他设置";
+"These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC." = "录制视频时也会遵从这些设置, 但如果音频编码被设为 Opus, 则在录制 MP4 时将会回退至 AAC 编码.";
+"If enabled, all files on the Desktop will be hidden from the video when recording Screen or Finder." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
+"Exclude the \"Desktop Files\" layer" = "从录像中排除所有桌面文件";
+"Recording Delay" = "开始录制前倒数";
+"0s" = "0秒";
+"3s" = "3秒";
+"5s" = "5秒";
+"10s" = "10秒";
+"Close" = "关闭";
+"Set custom background color" = "设置用户预设颜色(自定义背景)";
+"File size: %@" = "文件大小: %@";
+"Recording: " = "正在录制: ";
+"Display " = "显示器 ";
+"Preferences…" = "设置…";
+"Stop Recording" = "停止录制";
+"Quit QuickRecorder" = "退出QuickRecorder";
+"Multiple Windows" = "多个窗口";
+"Multiple Apps" = "多个应用";
+"Unknown App" = "未知应用";
+"A Window" = "单个窗口";
+"Select output directory" = "选择保存位置";
+"Currently set to \"%@\"" = "当前保存位置为\"%@\"";
+"/Recording at " = "/录制于 ";
+"Recording Completed" = "录制结束";
+"File saved to: %@" = "文件已保存至: %@";
+"File saved to folder: %@" = "文件已保存到: %@ 目录中";
+"Launch at login" = "登录时启动";
+"Pause" = "暂停";
+"Resume" = "继续";
+"Waiting on update…" = "正在更新, 请稍等…";
+
+"failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
+"[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";
+"There needs to be at least one display connected" = "至少需要连接一台显示器";
+"capture failed" = "捕获失败";
+"unknown audio format while setting audio settings: " = "更改音频设置时设置了未知的音频格式";
+"[no defaults]" = "[无默认设置]";
+"loaded unknown audio format: " = "加载了未知的音频格式: ";
+"loaded unknown video format" = "加载了未知的视频格式";
+"unknown stream type" = "未知的流类型";
+"audio file writing issue" = "音频文件写入出错";
+"closing stream with error:\n" = "关闭流时发生错误:\n";
+"\nthis might be due to the window closing or the user stopping from the sonoma ui" = "\n这可能是有由于用户关闭了正在录制中的窗口, 或使用窗口上的附加按钮停止了录制.";
