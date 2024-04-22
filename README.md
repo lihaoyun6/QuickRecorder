@@ -7,7 +7,11 @@
 
 ## 运行截图
 <p align="center">
-<img src="./img/preview.png" width="699"/> 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./img/preview_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./img/preview.png">
+  <img alt="QuickRecorder Screenshots" src="./img/preview.png" width="840"/>
+</picture>
 </p>
 
 ## 安装与使用
@@ -24,7 +28,7 @@ brew install lihaoyun6/tap/quickrecorder
 ### 特色 / 使用:
 - 使用 SwiftUI 编写, 体积小巧轻量化. 软件大小仅 4MB 左右, 无任何累赘功能. 
 
-- 支持 ScreenCapture Kit 诸多特性: 单/多窗口追踪录制, App 录制, 最高 240FPS 等.  
+- 支持窗口录制, App 录制等模式; 支持窗口声音内录, 鼠标高亮, 隐藏桌面文件等功能. 
 - QuickRecorder 启动后直接显示主功能面板, 关闭后可以点击 Dock 栏图标再次呼出. 
 - 开始录制后 QuickRecorder 会在菜单栏显示录制指示器, 可随时暂停或查看录制时长.  
 - 更多功能陆续开发中...  

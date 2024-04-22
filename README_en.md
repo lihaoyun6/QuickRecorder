@@ -7,7 +7,11 @@
 
 ## Screenshot
 <p align="center">
-<img src="./img/preview.png" width="699"/>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./img/preview_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./img/preview.png">
+  <img alt="QuickRecorder Screenshots" src="./img/preview.png" width="840"/>
+</picture>
 </p>
 
 ## Installation and Usage
@@ -24,7 +28,7 @@ brew install lihaoyun6/tap/quickrecorder
 ### Features/Usage:
 - Written using SwiftUI, it is small and lightweight. The software is only about 4MB in size and does not have any redundant functions.
 
-- Supports many features of ScreenCapture Kit: single/multi-window tracking recording, App recording, up to 240FPS, etc.
+- Supports window recording, App recording and other modes; supports internal sound recording, mouse highlighting, hiding desktop files and other features.  
 - QuickRecorder will display the main panel after startup. And you can click the Dock bar icon to call it out any time.
 - After starting recording, QuickRecorder will display a recording indicator in the menu bar, and you can pause or check the recording duration at any time.
 - More features are being developed...
