@@ -177,7 +177,7 @@ struct WinSelector: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                             .toggleStyle(CheckboxToggleStyle())
-                        Toggle(isOn: $recordWinSound) { Text("Record App Sound").padding(.leading, 5) }
+                        Toggle(isOn: $recordWinSound) { Text("Record Window Sound").padding(.leading, 5) }
                             .toggleStyle(CheckboxToggleStyle())
                         if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
                             Toggle(isOn: $recordMic) {
@@ -225,13 +225,9 @@ struct WinSelector: View {
         }
         .frame(width: 780, height:530)
         .onReceive(timer) { t in
-            if let _ = counter {
-                if counter! <= 1 {
-                    startRecording()
-                } else {
-                    if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
-                }
-            }
+            if counter == nil { return }
+            if counter! <= 1 { startRecording(); return }
+            if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     
@@ -261,14 +257,19 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let ciContext = CIContext()
         let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent)
-        let nsImage = NSImage(cgImage: cgImage!, size: NSSize(width: cgImage!.width, height: cgImage!.height))
-        DispatchQueue.main.async {
-            if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allWindows.count {
-                let currentWindow = self.allWindows[index]
-                let thumbnail = WindowThumbnail(image: nsImage, window: currentWindow)
+        let nsImage: NSImage
+        if let cgImage = cgImage {
+            nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height))
+        } else {
+            nsImage = NSImage.unknowScreen
+        }
+        if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allWindows.count {
+            let currentWindow = self.allWindows[index]
+            let thumbnail = WindowThumbnail(image: nsImage, window: currentWindow)
+            DispatchQueue.main.async {
                 if !self.windowThumbnails.contains(where: { $0.window == currentWindow }) { self.windowThumbnails.append(thumbnail) }
-                self.streams[index].stopCapture()
             }
+            self.streams[index].stopCapture()
         }
     }
 
@@ -278,7 +279,10 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                 do {
                     self.streams.removeAll()
                     DispatchQueue.main.async { self.windowThumbnails.removeAll() }
-                    self.allWindows = SCContext.getWindows().filter({ !($0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder") })
+                    self.allWindows = SCContext.getWindows().filter({
+                        !($0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder")
+                        && $0.owningApplication?.applicationName != ""
+                    })
                     let contentFilters = self.allWindows.map { SCContentFilter(desktopIndependentWindow: $0) }
                     for contentFilter in contentFilters {
                         let streamConfiguration = SCStreamConfiguration()
@@ -295,13 +299,12 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                         self.streams.append(stream)
                     }
                 } catch {
-                    print("发生错误：\(error)")
+                    print("Get windowshot error：\(error)")
                 }
             }
         }
     }
 }
-
 
 class WindowThumbnail {
     let id = UUID()

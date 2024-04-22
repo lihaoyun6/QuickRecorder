@@ -136,22 +136,19 @@ struct AreaSelector: View {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
             }, label: {
                 Image(systemName: "xmark")
+                    .opacity(0.6)
                     .font(.system(size: 12))
                     .fontWeight(.bold)
                     .foregroundStyle(.secondary)
             })
             .buttonStyle(PlainButtonStyle())
-            .padding(.top, -11).padding(.leading, 5.5)
+            .padding(.top, -9).padding(.leading, 7)
         }
         .frame(width: 510, height:50)
         .onReceive(timer) { t in
-            if let _ = counter {
-                if counter! <= 1 {
-                    startRecording()
-                } else {
-                    if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
-                }
-            }
+            if counter == nil { return }
+            if counter! <= 1 { startRecording(); return }
+            if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     func startRecording() {
@@ -163,6 +160,7 @@ struct AreaSelector: View {
         window = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
         window.hasShadow = false
         window.level = .screenSaver
+        window.ignoresMouseEvents = true
         window.isReleasedWhenClosed = false
         window.title = "Area Overlayer".local
         window.backgroundColor = NSColor.clear
@@ -225,7 +223,6 @@ class ScreenshotOverlayView: NSView {
                 return handle
             }
         }
-        
         return .none
     }
     
@@ -326,10 +323,8 @@ class ScreenshotOverlayView: NSView {
             } else {
                 //dragIng = false
                 // 创建新矩形
-                let origin = NSPoint(x: min(initialLocation.x, currentLocation.x),
-                                     y: min(initialLocation.y, currentLocation.y))
-                let size = NSSize(width: abs(currentLocation.x - initialLocation.x),
-                                  height: abs(currentLocation.y - initialLocation.y))
+                let origin = NSPoint(x: min(initialLocation.x, currentLocation.x), y: min(initialLocation.y, currentLocation.y))
+                let size = NSSize(width: abs(currentLocation.x - initialLocation.x), height: abs(currentLocation.y - initialLocation.y))
                 self.selectionRect = NSRect(origin: origin, size: size)
                 //initialLocation = currentLocation
             }
@@ -346,7 +341,7 @@ class ScreenshotOverlayView: NSView {
         if let rect = selectionRect {
             SCContext.screenArea = rect
             //let rectArray = [Int(rect.origin.x), Int(rect.origin.y), Int(rect.size.width), Int(rect.size.height)]
-            //UserDefaults.standard.setValue(rectArray, forKey: "screenArea")
+            //ud.setValue(rectArray, forKey: "screenArea")
         }
     }
 }
@@ -364,6 +359,7 @@ class ScreenshotWindow: NSWindow {
         self.isReleasedWhenClosed = false
         self.contentView = overlayView
         NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.keyDown, handler: myKeyDownEvent)
+        
     }
 
     func myKeyDownEvent(event: NSEvent) -> NSEvent {

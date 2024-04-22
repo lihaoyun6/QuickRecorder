@@ -10,16 +10,18 @@ import ServiceManagement
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
-    @AppStorage("audioFormat")  private var audioFormat: AudioFormat = .aac
-    @AppStorage("audioQuality") private var audioQuality: AudioQuality = .high
-    @AppStorage("videoFormat")  private var videoFormat: VideoFormat = .mp4
-    @AppStorage("encoder")      private var encoder: Encoder = .h264
-    @AppStorage("hideSelf")     private var hideSelf: Bool = true
-    @AppStorage("countdown")    private var countdown: Int = 0
-    @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
-    @AppStorage("saveDirectory") private var saveDirectory: String?
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var userColor: Color = Color.black
+    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    @AppStorage("audioFormat")   private var audioFormat: AudioFormat = .aac
+    @AppStorage("audioQuality")  private var audioQuality: AudioQuality = .high
+    @AppStorage("videoFormat")   private var videoFormat: VideoFormat = .mp4
+    @AppStorage("encoder")       private var encoder: Encoder = .h264
+    @AppStorage("hideSelf")      private var hideSelf: Bool = true
+    @AppStorage("countdown")     private var countdown: Int = 0
+    @AppStorage("saveDirectory") private var saveDirectory: String?
+    @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
+    @AppStorage("highlightMouse")   private var highlightMouse: Bool = false
+    
     
     var body: some View {
         VStack {
@@ -34,10 +36,7 @@ struct SettingsView: View {
                             Text("H.264").tag(Encoder.h264)
                             Text("H.265").tag(Encoder.h265)
                         }.padding([.leading, .trailing], 10)
-                    }.frame(maxWidth: .infinity).padding(.top, 10)
-                    Toggle(isOn: $hideSelf) {
-                        Text("Exclude QuickRecorder itself")
-                    }.toggleStyle(CheckboxToggleStyle()).padding(.bottom, 6)
+                    }.frame(maxWidth: .infinity).padding(.top, 10).padding(.bottom, 7)
                 }
                 GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
                     Form() {
@@ -70,6 +69,19 @@ struct SettingsView: View {
                         }.padding([.leading, .trailing], 10)
                     }.frame(maxWidth: .infinity).padding(.top, 10)
                     ColorPicker("Set custom background color", selection: $userColor)
+                    Toggle(isOn: $hideSelf) {
+                        Text("Exclude QuickRecorder itself")
+                    }
+                    .padding(.bottom, 6)
+                    .toggleStyle(CheckboxToggleStyle())
+                    .onChange(of: hideSelf) {_ in Task { if hideSelf { highlightMouse = false }}}
+                    Toggle(isOn: $highlightMouse) {
+                        Text("Highlight the mouse cursor")
+                    }
+                    .toggleStyle(CheckboxToggleStyle())
+                    .onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
+                    Text("Not available for \"Single Window Capture\"")
+                        .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 1).fixedSize(horizontal: false, vertical: true)
                     Toggle(isOn: $hideDesktopFiles) {
                         Text("Exclude the \"Desktop Files\" layer")
                     }.toggleStyle(CheckboxToggleStyle())
@@ -87,7 +99,6 @@ struct SettingsView: View {
                 Divider()
                 
                 HStack {
-                    //Text("QuickRecorder \(getVersion()) (\(getBuild()))").foregroundColor(.secondary.opacity(0.5))
                     VStack {
                         HStack(spacing: 15){
                             Toggle(isOn: $launchAtLogin) {}
@@ -116,8 +127,8 @@ struct SettingsView: View {
                 }.padding(.top, 1.5)
             }.frame(width: 260).padding([.leading, .trailing], 16).padding([.top, .bottom], 13)
         }
-        .onAppear{ userColor = UserDefaults.standard.color(forKey: "userColor") ?? Color.black }
-        .onDisappear{ UserDefaults.standard.setColor(userColor, forKey: "userColor") }
+        .onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
+        .onDisappear{ ud.setColor(userColor, forKey: "userColor") }
     }
     
     func updateOutputDirectory() { // todo: re-sandbox
@@ -180,20 +191,6 @@ extension AppDelegate {
             if sender.state == .off { try SMAppService.mainApp.unregister() }
         }catch{
             print("Failed to \(sender.state == .on ? "enable" : "disable") launch at login: \(error.localizedDescription)")
-        }
-    }
-    
-    @objc func openPreferences() {
-        NSApp.activate(ignoringOtherApps: true)
-        if #available(macOS 14, *) {
-            NSApp.mainMenu?.items.first?.submenu?.item(at: 2)?.performAction()
-        }else if #available(macOS 13, *) {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        } else {
-            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
-        for w in NSApplication.shared.windows {
-            if w.level.rawValue == 0 || w.level.rawValue == 3 { w.level = .floating }
         }
     }
 }

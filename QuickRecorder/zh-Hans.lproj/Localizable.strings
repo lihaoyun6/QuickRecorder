@@ -41,6 +41,7 @@
 "Record Cursor" = "录制鼠标光标";
 //"With wallpaper" = "录制桌面壁纸";
 "Record App Sound" = "录制程序声音";
+"Record Window Sound" = "录制窗口声音";
 "Record Microphone" = "录制麦克风";
 "Background" = "画面背景";
 "Wallpaper" = "桌面壁纸";
@@ -55,7 +56,9 @@
 "Custom" = "用户预设";
 "Audio Settings" = "音频设置";
 "Video Settings" = "视频设置";
-"Exclude QuickRecorder itself" = "从录像中排除 QuickRecorder 自身";
+"Exclude QuickRecorder itself" = "排除 QuickRecorder 窗口";
+"Highlight the mouse cursor" = "为鼠标光标添加高亮效果";
+"Not available for \"Single Window Capture\"" = "此功能不适用于\"录制单个窗口\"的情况";
 "Normal - 128Kbps" = "标准 - 128Kbps";
 "Good - 192Kbps" = "优质 - 192Kbps";
 "High - 256Kbps" = "高清 - 256Kbps";
@@ -75,7 +78,6 @@
 "Recording: " = "正在录制: ";
 "Display " = "显示器 ";
 "Preferences…" = "设置…";
-"Stop Recording" = "停止录制";
 "Quit QuickRecorder" = "退出QuickRecorder";
 "Multiple Windows" = "多个窗口";
 "Multiple Apps" = "多个应用";
@@ -88,8 +90,9 @@
 "File saved to: %@" = "文件已保存至: %@";
 "File saved to folder: %@" = "文件已保存到: %@ 目录中";
 "Launch at login" = "登录时启动";
-"Pause" = "暂停";
-"Resume" = "继续";
+"Pause" = "暂停录制";
+"Resume" = "继续录制";
+"Stop Recording" = "结束录制";
 "Waiting on update…" = "正在更新, 请稍等…";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

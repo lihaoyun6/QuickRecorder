@@ -207,20 +207,16 @@ struct ScreenSelector: View {
             .padding(.top, -5)
         }
         .frame(width: 780, height:530)
-        .onAppear{
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        .onReceive(timer) { t in
+            if counter == nil { return }
+            if counter! <= 1 { startRecording(); return }
+            if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
+        }
+        /*.onAppear{
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 if viewModel.screenThumbnails.count == 1 { selected = viewModel.screenThumbnails[0].screen }
             }
-        }
-        .onReceive(timer) { t in
-            if let _ = counter {
-                if counter! <= 1 {
-                    startRecording()
-                } else {
-                    if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
-                }
-            }
-        }
+        }*/
     }
     
     func startRecording() {
@@ -243,19 +239,34 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
         }
     }
     
+    func getWallpaper(_ display: SCDisplay) -> NSImage {
+        guard let screen = display.nsScreen else { return NSImage.unknowScreen }
+        guard let url = NSWorkspace.shared.desktopImageURL(for: screen) else { return NSImage.unknowScreen }
+        do {
+            var wallpaper: NSImage?
+            try wallpaper = NSImage(data: Data(contentsOf: url))
+            if let w = wallpaper { return w }
+        } catch {
+            print("load wallpaper error: \(error)")
+        }
+        return NSImage.unknowScreen
+    }
+    
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let ciContext = CIContext()
         let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent)
-        let nsImage = NSImage(cgImage: cgImage!, size: NSSize(width: cgImage!.width, height: cgImage!.height))
-        DispatchQueue.main.async {
-            if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allScreens.count {
-                let currentScreen = self.allScreens[index]
-                let thumbnail = ScreenThumbnail(image: nsImage, screen: currentScreen)
+        var nsImage: NSImage?
+        if let cgImage = cgImage { nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height)) }
+        if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allScreens.count {
+            if nsImage == nil { nsImage = self.getWallpaper(self.allScreens[index]) }
+            let currentScreen = self.allScreens[index]
+            let thumbnail = ScreenThumbnail(image: nsImage!, screen: currentScreen)
+            DispatchQueue.main.async {
                 if !self.screenThumbnails.contains(where: { $0.screen == currentScreen }) { self.screenThumbnails.append(thumbnail) }
-                self.streams[index].stopCapture()
             }
+            self.streams[index].stopCapture()
         }
     }
 
@@ -265,9 +276,8 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                 do {
                     self.streams.removeAll()
                     DispatchQueue.main.async { self.screenThumbnails.removeAll() }
-                    if let screens = SCContext.availableContent?.displays {
-                        self.allScreens = screens
-                    }
+                    guard let screens = SCContext.availableContent?.displays else { return }
+                    self.allScreens = screens
                     let qrSelf = SCContext.getSelf()
                     let contentFilters = self.allScreens.map { SCContentFilter(display: $0, excludingApplications: qrSelf != nil ? [qrSelf!] : [], exceptingWindows: []) }
                     for contentFilter in contentFilters {
@@ -285,13 +295,12 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                         self.streams.append(stream)
                     }
                 } catch {
-                    print("发生错误：\(error)")
+                    print("Get screenshot error：\(error)")
                 }
             }
         }
     }
 }
-
 
 class ScreenThumbnail {
     let id = UUID()

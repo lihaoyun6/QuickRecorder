@@ -9,8 +9,10 @@ import AVFAudio
 import AVFoundation
 import Foundation
 import ScreenCaptureKit
+import UserNotifications
 
 class SCContext {
+    static var audioSettings: [String : Any]!
     static var isPaused = false
     static var screenArea: NSRect?
     static let audioEngine = AVAudioEngine()
@@ -28,7 +30,7 @@ class SCContext {
     static var application: [SCRunningApplication]?
     static var streamType: StreamType?
     static var availableContent: SCShareableContent?
-    static let excludedApps = ["", "com.apple.dock", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status"]
+    static let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status"]
     
     static func updateAvailableContent(completion: @escaping () -> Void) {
         SCShareableContent.getExcludingDesktopWindows(false, onScreenWindowsOnly: false) { content, error in
@@ -54,7 +56,7 @@ class SCContext {
         for app in getWindows(isOnScreen: isOnScreen, hideSelf: hideSelf).map({ $0.owningApplication }) {
             if !apps.contains(app!) { apps.append(app!) }
         }
-        if hideSelf && UserDefaults.standard.bool(forKey: "hideSelf") { apps = apps.filter({$0.bundleIdentifier != Bundle.main.bundleIdentifier}) }
+        if hideSelf && ud.bool(forKey: "hideSelf") { apps = apps.filter({$0.bundleIdentifier != Bundle.main.bundleIdentifier}) }
         return apps
     }
     
@@ -72,7 +74,7 @@ class SCContext {
             && $0.frame.height > 40
         }
         if isOnScreen { windows = windows.filter({$0.isOnScreen == true}) }
-        if hideSelf && UserDefaults.standard.bool(forKey: "hideSelf") { windows = windows.filter({$0.owningApplication?.bundleIdentifier != Bundle.main.bundleIdentifier}) }
+        if hideSelf && ud.bool(forKey: "hideSelf") { windows = windows.filter({$0.owningApplication?.bundleIdentifier != Bundle.main.bundleIdentifier}) }
         return windows
     }
     
@@ -100,8 +102,27 @@ class SCContext {
         return nil
     }
     
+    static func updateAudioSettings() {
+        audioSettings = [AVSampleRateKey : 48000, AVNumberOfChannelsKey : 2] // reset audioSettings
+        switch ud.string(forKey: "audioFormat") {
+        case AudioFormat.aac.rawValue:
+            audioSettings[AVFormatIDKey] = kAudioFormatMPEG4AAC
+            audioSettings[AVEncoderBitRateKey] = ud.integer(forKey: "audioQuality") * 1000
+        case AudioFormat.alac.rawValue:
+            audioSettings[AVFormatIDKey] = kAudioFormatAppleLossless
+            audioSettings[AVEncoderBitDepthHintKey] = 16
+        case AudioFormat.flac.rawValue:
+            audioSettings[AVFormatIDKey] = kAudioFormatFLAC
+        case AudioFormat.opus.rawValue:
+            audioSettings[AVFormatIDKey] = ud.string(forKey: "videoFormat") != VideoFormat.mp4.rawValue ? kAudioFormatOpus : kAudioFormatMPEG4AAC
+            audioSettings[AVEncoderBitRateKey] =  ud.integer(forKey: "audioQuality") * 1000
+        default:
+            assertionFailure("unknown audio format while setting audio settings: ".local + (ud.string(forKey: "audioFormat") ?? "[no defaults]".local))
+        }
+    }
+    
     static func getBackgroundColor() -> CGColor {
-        let color = UserDefaults.standard.string(forKey: "background")
+        let color = ud.string(forKey: "background")
         if color == BackgroundType.wallpaper.rawValue { return CGColor.black }
         switch color {
         case "black": backgroundColor = CGColor.black
@@ -112,16 +133,16 @@ class SCContext {
         case "green": backgroundColor = NSColor.systemGreen.cgColor
         case "blue": backgroundColor = NSColor.systemBlue.cgColor
         case "red": backgroundColor = NSColor.systemRed.cgColor
-        default: backgroundColor = UserDefaults.standard.cgColor(forKey: "userColor") ?? CGColor.black
+        default: backgroundColor = ud.cgColor(forKey: "userColor") ?? CGColor.black
         }
         return backgroundColor
     }
     
     static func performMicCheck() async {
-        guard UserDefaults.standard.bool(forKey: "recordMic") == true else { return }
+        guard ud.bool(forKey: "recordMic") == true else { return }
         if await AVCaptureDevice.requestAccess(for: .audio) { return }
 
-        UserDefaults.standard.setValue(false, forKey: "recordMic")
+        ud.setValue(false, forKey: "recordMic")
         DispatchQueue.main.async {
             let alert = NSAlert()
             alert.messageText = "Permission Required".local
@@ -157,4 +178,81 @@ class SCContext {
         }
     }
     
+    static func getRecordingSize() -> String {
+        do {
+            if let filePath = filePath {
+                let fileAttr = try FileManager.default.attributesOfItem(atPath: filePath)
+                let byteFormat = ByteCountFormatter()
+                byteFormat.allowedUnits = [.useMB]
+                byteFormat.countStyle = .file
+                return byteFormat.string(fromByteCount: fileAttr[FileAttributeKey.size] as! Int64)
+            }
+        } catch {
+            print(String(format: "failed to fetch file for size indicator: %@".local, error.localizedDescription))
+        }
+        return "Unknown".local
+    }
+    
+    static func getRecordingLength() -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.minute, .second]
+        formatter.zeroFormattingBehavior = .pad
+        formatter.unitsStyle = .positional
+        if isPaused { return formatter.string(from: timePassed) ?? "Unknown".local }
+        timePassed = Date.now.timeIntervalSince(startTime ?? Date.now)
+        return formatter.string(from: timePassed) ?? "Unknown".local
+    }
+    
+    static func pauseRecording() {
+        isPaused.toggle()
+        if !isPaused { startTime = Date.now - SCContext.timePassed }
+    }
+    
+    static func stopRecording() {
+        statusBarItem.isVisible = false
+        mousePointer.orderOut(nil)
+        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
+
+        if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
+        if stream != nil {
+            stream.stopCapture()
+        }
+        stream = nil
+        if streamType != .systemaudio {
+            let dispatchGroup = DispatchGroup()
+            dispatchGroup.enter()
+            vwInput.markAsFinished()
+            awInput.markAsFinished()
+            if recordMic {
+                micInput.markAsFinished()
+                audioEngine.inputNode.removeTap(onBus: 0)
+                audioEngine.stop()
+            }
+            vW.finishWriting {
+                startTime = nil
+                dispatchGroup.leave()
+            }
+            dispatchGroup.wait()
+        }
+        isPaused = false
+        streamType = nil
+        audioFile = nil // close audio file
+        window = nil
+        screen = nil
+        startTime = nil
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Recording Completed".local
+        if let filePath = filePath {
+            content.body = String(format: "File saved to: %@".local, filePath)
+        } else {
+            content.body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
+        }
+        content.sound = UNNotificationSound.default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "azayaka.completed.\(Date.now)", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
+        }
+    }
 }

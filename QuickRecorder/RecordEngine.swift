@@ -13,6 +13,7 @@ import AVFAudio
 
 extension AppDelegate {
     @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?) {
+        if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor() }
         switch type {
         case "window":  SCContext.streamType = .window
         case "display": SCContext.streamType = .screen
@@ -22,7 +23,7 @@ extension AppDelegate {
             default: return // if we don't even know what to record I don't think we should even try
         }
         //statusBarItem.menu = nil
-        updateAudioSettings()
+        SCContext.updateAudioSettings()
         // file preparation
         if let screens = screens {
             SCContext.screen = SCContext.availableContent!.displays.first(where: { $0 == screens })
@@ -34,15 +35,17 @@ extension AppDelegate {
             SCContext.application = SCContext.availableContent!.applications.filter({ applications.contains($0) })
         }
         
+        let quickrRecorder = SCContext.getSelf()
         let dockApp = SCContext.availableContent!.applications.first(where: { $0.bundleIdentifier.description == "com.apple.dock" })
         let wallpaper = SCContext.availableContent!.windows.filter({ $0.title != "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
         let dockWindow = SCContext.availableContent!.windows.first(where: { $0.title == "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
+        let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         
         if SCContext.streamType == .window {
-            if let allWindow = SCContext.window {
-                var includ = allWindow
+            if var includ = SCContext.window {
                 if includ.count > 1 {
+                    if ud.bool(forKey: "highlightMouse") { includ += mouseWindow }
                     if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
                     filter = SCContentFilter(display: SCContext.screen!, including: includ)
                 } else {
@@ -52,9 +55,9 @@ extension AppDelegate {
             
         } else {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
-                var excluded = [SCRunningApplication]()
+                let excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
-                if ud.bool(forKey: "hideSelf") { if let qrSelf = SCContext.getSelf() { excluded.append(qrSelf) }}
+                //if ud.bool(forKey: "hideSelf") { if let qrSelf = SCContext.getSelf() { excluded.append(qrSelf) }}
                 if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
                 filter = SCContentFilter(display: SCContext.screen ?? SCContext.availableContent!.displays.first!, excludingApplications: excluded, exceptingWindows: except)
@@ -64,6 +67,7 @@ extension AppDelegate {
                 var except = [SCWindow]()
                 let withFinder = includ.map{ $0.bundleIdentifier }.contains("com.apple.finder")
                 if withFinder && ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
+                if ud.bool(forKey: "highlightMouse") { if let qr = quickrRecorder { includ.append(qr) }}
                 if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except.append(dockWindow!)}}
                 filter = SCContentFilter(display: SCContext.screen ?? SCContext.availableContent!.displays.first!, including: includ, exceptingWindows: except)
                 
@@ -73,30 +77,6 @@ extension AppDelegate {
             prepareAudioRecording()
         }
         Task { await record(audioOnly: SCContext.streamType == .systemaudio, filter: filter!) }
-
-        // while recording, keep a timer which updates the menu's stats
-        updateTimer?.invalidate()
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            self.updateMenu()
-        }
-        RunLoop.current.add(updateTimer!, forMode: .common) // required to have the menu update while open
-        updateTimer?.fire()
-    }
-    
-    func getDesktopName() -> String {
-        if let desktopURL = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first {
-            do {
-                var localizedName: AnyObject?
-                try (desktopURL as NSURL).getResourceValue(&localizedName, forKey: .localizedNameKey)
-                
-                if let localizedNameString = localizedName as? String {
-                    return localizedNameString
-                }
-            } catch {
-                print("Error：\(error)")
-            }
-        }
-        return "Desktop"
     }
 
     func record(audioOnly: Bool, filter: SCContentFilter) async {
@@ -131,8 +111,8 @@ extension AppDelegate {
         }
         conf.showsCursor = ud.bool(forKey: "showMouse")
         conf.capturesAudio = ud.bool(forKey: "recordWinSound")
-        conf.sampleRate = audioSettings["AVSampleRateKey"] as! Int
-        conf.channelCount = audioSettings["AVNumberOfChannelsKey"] as! Int
+        conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
+        conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
 
         SCContext.stream = SCStream(filter: filter, configuration: conf, delegate: self)
         do {
@@ -149,73 +129,7 @@ extension AppDelegate {
             return
         }
 
-        DispatchQueue.main.async { [self] in
-            updateIcon()
-            //createMenu()
-        }
-    }
-    
-    @objc func pauseRecording() {
-        SCContext.isPaused.toggle()
-        if !SCContext.isPaused {
-            SCContext.startTime = Date.now - SCContext.timePassed
-        }
-    }
-
-    @objc func stopRecording() {
-        //statusBarItem.menu = nil
-        if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
-        if SCContext.stream != nil {
-            SCContext.stream.stopCapture()
-        }
-        SCContext.stream = nil
-        if SCContext.streamType != .systemaudio {
-            closeVideo()
-        }
-        SCContext.streamType = nil
-        SCContext.audioFile = nil // close audio file
-        SCContext.window = nil
-        SCContext.screen = nil
-        SCContext.startTime = nil
-        updateTimer?.invalidate()
-
-        DispatchQueue.main.async { [self] in
-            updateIcon()
-            //createMenu()
-        }
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Recording Completed".local
-        if let filePath = SCContext.filePath {
-            content.body = String(format: "File saved to: %@".local, filePath)
-        } else {
-            content.body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
-        }
-        content.sound = UNNotificationSound.default
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "azayaka.completed.\(Date.now)", content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
-        }
-    }
-
-    func updateAudioSettings() {
-        audioSettings = [AVSampleRateKey : 48000, AVNumberOfChannelsKey : 2] // reset audioSettings
-        switch ud.string(forKey: "audioFormat") {
-        case AudioFormat.aac.rawValue:
-            audioSettings[AVFormatIDKey] = kAudioFormatMPEG4AAC
-            audioSettings[AVEncoderBitRateKey] = ud.integer(forKey: "audioQuality") * 1000
-        case AudioFormat.alac.rawValue:
-            audioSettings[AVFormatIDKey] = kAudioFormatAppleLossless
-            audioSettings[AVEncoderBitDepthHintKey] = 16
-        case AudioFormat.flac.rawValue:
-            audioSettings[AVFormatIDKey] = kAudioFormatFLAC
-        case AudioFormat.opus.rawValue:
-            audioSettings[AVFormatIDKey] = ud.string(forKey: "videoFormat") != VideoFormat.mp4.rawValue ? kAudioFormatOpus : kAudioFormatMPEG4AAC
-            audioSettings[AVEncoderBitRateKey] =  ud.integer(forKey: "audioQuality") * 1000
-        default:
-            assertionFailure("unknown audio format while setting audio settings: ".local + (ud.string(forKey: "audioFormat") ?? "[no defaults]".local))
-        }
+        DispatchQueue.main.async { [self] in updateStatusBar() }
     }
 
     func prepareAudioRecording() {
@@ -228,7 +142,7 @@ extension AppDelegate {
         default: assertionFailure("loaded unknown audio format: ".local + fileEnding)
         }
         SCContext.filePath = "\(getFilePath()).\(fileEnding)"
-        SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
+        SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
     }
 
     func getFilePath() -> String {
@@ -236,36 +150,17 @@ extension AppDelegate {
         dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"
         return ud.string(forKey: "saveDirectory")! + "/Recording at ".local + dateFormatter.string(from: Date())
     }
-
-    func getRecordingLength() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.minute, .second]
-        formatter.zeroFormattingBehavior = .pad
-        formatter.unitsStyle = .positional
-        if SCContext.isPaused { return formatter.string(from: SCContext.timePassed) ?? "Unknown".local }
-        SCContext.timePassed = Date.now.timeIntervalSince(SCContext.startTime ?? Date.now)
-        return formatter.string(from: SCContext.timePassed) ?? "Unknown".local
-    }
-
-    func getRecordingSize() -> String {
-        do {
-            if let filePath = SCContext.filePath {
-                let fileAttr = try FileManager.default.attributesOfItem(atPath: filePath)
-                let byteFormat = ByteCountFormatter()
-                byteFormat.allowedUnits = [.useMB]
-                byteFormat.countStyle = .file
-                return byteFormat.string(fromByteCount: fileAttr[FileAttributeKey.size] as! Int64)
-            }
-        } catch {
-            print(String(format: "failed to fetch file for size indicator: %@".local, error.localizedDescription))
-        }
-        return "Unknown".local
-    }
 }
 
 extension NSScreen {
     var displayID: CGDirectDisplayID? {
         return deviceDescription[NSDeviceDescriptionKey(rawValue: "NSScreenNumber")] as? CGDirectDisplayID
+    }
+}
+
+extension SCDisplay {
+    var nsScreen: NSScreen? {
+        return NSScreen.screens.first(where: { $0.displayID == self.displayID })
     }
 }
 
@@ -299,8 +194,8 @@ extension AppDelegate {
         ]
         SCContext.recordMic = ud.bool(forKey: "recordMic")
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
-        SCContext.awInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings)
-        SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: audioSettings)
+        SCContext.awInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.audioSettings)
+        SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.audioSettings)
         SCContext.vwInput.expectsMediaDataInRealTime = true
         SCContext.awInput.expectsMediaDataInRealTime = true
         SCContext.micInput.expectsMediaDataInRealTime = true
@@ -327,23 +222,6 @@ extension AppDelegate {
             try! SCContext.audioEngine.start()
         }
         SCContext.vW.startWriting()
-    }
-
-    func closeVideo() {
-        let dispatchGroup = DispatchGroup()
-        dispatchGroup.enter()
-        SCContext.vwInput.markAsFinished()
-        SCContext.awInput.markAsFinished()
-        if SCContext.recordMic {
-            SCContext.micInput.markAsFinished()
-            SCContext.audioEngine.inputNode.removeTap(onBus: 0)
-            SCContext.audioEngine.stop()
-        }
-        SCContext.vW.finishWriting {
-            SCContext.startTime = nil
-            dispatchGroup.leave()
-        }
-        dispatchGroup.wait()
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
@@ -389,7 +267,7 @@ extension AppDelegate {
               "\nthis might be due to the window closing or the user stopping from the sonoma ui".local)
         DispatchQueue.main.async {
             SCContext.stream = nil
-            self.stopRecording()
+            SCContext.stopRecording()
         }
     }
 }

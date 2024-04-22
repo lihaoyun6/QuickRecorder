@@ -199,13 +199,9 @@ struct AppSelector: View {
         }
         .frame(width: 780, height:530)
         .onReceive(timer) { t in
-            if let _ = counter {
-                if counter! <= 1 {
-                    startRecording()
-                } else {
-                    if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
-                }
-            }
+            if counter == nil { return }
+            if counter! <= 1 { startRecording(); return }
+            if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     
