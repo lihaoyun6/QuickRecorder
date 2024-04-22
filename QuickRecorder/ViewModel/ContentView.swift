@@ -176,7 +176,7 @@ struct ContentView: View {
         window.isReleasedWhenClosed = false
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
-        window.orderFront(self)
+        window.makeKeyAndOrderFront(self)
     }
 }
 
