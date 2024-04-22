@@ -61,7 +61,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var filter: SCContentFilter?
     
     func mousePointerReLocation(event: NSEvent) {
-        if !ud.bool(forKey: "highlightMouse") || hideMousePointer || SCContext.stream == nil { mousePointer.orderOut(nil); return }
+        if !ud.bool(forKey: "highlightMouse")
+            || hideMousePointer
+            || SCContext.stream == nil
+            || SCContext.streamType == .window
+        { mousePointer.orderOut(nil); return }
         let mouseLocation = event.locationInWindow
         var windowFrame = mousePointer.frame
         windowFrame.origin = NSPoint(x: mouseLocation.x - windowFrame.width / 2, y: mouseLocation.y - windowFrame.height / 2)
@@ -145,6 +149,6 @@ enum VideoFormat: String { case mov, mp4 }
 
 enum Encoder: String { case h264, h265 }
 
-enum StreamType: Int { case screen, window, application, screenarea, systemaudio }
+enum StreamType: Int { case screen, window, windows, application, screenarea, systemaudio }
 
 enum BackgroundType: String { case wallpaper, black, white, red, green, yellow, orange, gray, blue, custom }

@@ -15,6 +15,7 @@ extension AppDelegate {
     @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?) {
         switch type {
         case "window":  SCContext.streamType = .window
+        case "windows":  SCContext.streamType = .windows
         case "display": SCContext.streamType = .screen
         case "application": SCContext.streamType = .application
         case "area": SCContext.streamType = .screenarea
@@ -43,17 +44,17 @@ extension AppDelegate {
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         
-        if SCContext.streamType == .window {
+        if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
                 if includ.count > 1 {
                     if ud.bool(forKey: "highlightMouse") { includ += mouseWindow }
                     if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
                     filter = SCContentFilter(display: SCContext.screen!, including: includ)
                 } else {
+                    SCContext.streamType = .window
                     filter = SCContentFilter(desktopIndependentWindow: includ[0])
                 }
             }
-            
         } else {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
                 let excluded = [SCRunningApplication]()
@@ -228,7 +229,7 @@ extension AppDelegate {
         guard sampleBuffer.isValid else { return }
         switch outputType {
             case .screen:
-            if SCContext.screen == nil && SCContext.window == nil && SCContext.application == nil { break }
+            if (SCContext.screen == nil && SCContext.window == nil && SCContext.application == nil) || SCContext.streamType == .systemaudio { break }
             guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
                   let attachments = attachmentsArray.first else { return }
             guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,

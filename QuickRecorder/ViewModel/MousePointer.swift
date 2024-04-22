@@ -20,7 +20,7 @@ struct MousePointerView: View {
                     ZStack {
                         Circle()
                             .stroke(style: StrokeStyle(lineWidth: 4))
-                            .foregroundColor(getStrokeColor(event).opacity(0.2))
+                            .foregroundColor(getStrokeColor(event).opacity(0.3))
                             .padding(4)
                         Circle()
                             .stroke(style: StrokeStyle(lineWidth: 4))
@@ -46,7 +46,7 @@ struct MousePointerView: View {
         case .rightMouseDown, .rightMouseDragged, .leftMouseDown, .leftMouseDragged, .otherMouseDown, .otherMouseDragged:
             return 0.8
         default:
-            return 0.2
+            return 0.3
         }
     }
     

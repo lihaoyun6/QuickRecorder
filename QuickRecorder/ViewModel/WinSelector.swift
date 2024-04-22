@@ -234,7 +234,7 @@ struct WinSelector: View {
     func startRecording() {
         if let w = NSApplication.shared.windows.first(where: { $0.title == "Window Selector" }) { w.close() }
         if let screen = SCContext.getSCDisplayWithMouse(){
-            appDelegate.prepRecord(type: "window", screens: screen, windows: selected, applications: nil)
+            appDelegate.prepRecord(type: (selected.count<2 ? "window" : "windows") , screens: screen, windows: selected, applications: nil)
         }
         
     }
