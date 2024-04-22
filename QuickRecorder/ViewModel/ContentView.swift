@@ -24,7 +24,7 @@ struct ContentView: View {
                     Spacer()
                     Button(action: {
                         closeMainWindow()
-                        appDelegate.prepRecord(type: "audio", screens: nil, windows: nil, applications: nil)
+                        appDelegate.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                     }, label: {
                         SelectorView(title: "System Audio".local, symbol: "waveform")
                             .cornerRadius(8)

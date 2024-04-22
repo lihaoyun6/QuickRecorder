@@ -111,7 +111,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "encoder": Encoder.h264.rawValue,
                 "saveDirectory": saveDirectory,
-                //"screenArea": [100, 100, 600, 450],
                 "showMouse": true,
                 "recordMic": false,
                 "recordWinSound": true,

@@ -281,6 +281,7 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                     DispatchQueue.main.async { self.windowThumbnails.removeAll() }
                     self.allWindows = SCContext.getWindows().filter({
                         !($0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder")
+                        && $0.owningApplication?.bundleIdentifier != Bundle.main.bundleIdentifier
                         && $0.owningApplication?.applicationName != ""
                     })
                     let contentFilters = self.allWindows.map { SCContentFilter(desktopIndependentWindow: $0) }

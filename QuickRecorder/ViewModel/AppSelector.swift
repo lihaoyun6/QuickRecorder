@@ -222,7 +222,9 @@ class AppSelectorViewModel: ObservableObject {
     
     func updateAppList() {
         SCContext.updateAvailableContent{
-            DispatchQueue.main.async { self.allApps = SCContext.getApps() }
+            DispatchQueue.main.async {
+                self.allApps = SCContext.getApps().filter({ $0.bundleIdentifier != Bundle.main.bundleIdentifier })
+            }
         }
     }
 }
