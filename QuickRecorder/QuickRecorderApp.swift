@@ -130,7 +130,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         mousePointer.ignoresMouseEvents = true
         mousePointer.isReleasedWhenClosed = false
         mousePointer.backgroundColor = NSColor.clear
-        if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor() }
+        //if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor() }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }

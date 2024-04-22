@@ -128,7 +128,7 @@ extension AppDelegate {
             assertionFailure("capture failed".local)
             return
         }
-
+        registerGlobalMouseMonitor()
         DispatchQueue.main.async { [self] in updateStatusBar() }
     }
 
