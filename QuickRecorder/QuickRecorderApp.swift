@@ -61,13 +61,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var filter: SCContentFilter?
     
     func mousePointerReLocation(event: NSEvent) {
-        if hideMousePointer { mousePointer.orderOut(nil); return }
+        if !ud.bool(forKey: "highlightMouse") || hideMousePointer || SCContext.stream == nil { mousePointer.orderOut(nil); return }
         let mouseLocation = event.locationInWindow
         var windowFrame = mousePointer.frame
-        if SCContext.stream != nil && !hideMousePointer { mousePointer.orderFront(nil) } //mousePointer.orderOut(nil)
         windowFrame.origin = NSPoint(x: mouseLocation.x - windowFrame.width / 2, y: mouseLocation.y - windowFrame.height / 2)
         mousePointer.contentView = NSHostingView(rootView: MousePointerView(event: event))
         mousePointer.setFrameOrigin(windowFrame.origin)
+        mousePointer.orderFront(nil)
     }
     
     func registerGlobalMouseMonitor() {
@@ -126,7 +126,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         mousePointer.ignoresMouseEvents = true
         mousePointer.isReleasedWhenClosed = false
         mousePointer.backgroundColor = NSColor.clear
-        
+        if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor() }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }

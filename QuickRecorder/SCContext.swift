@@ -210,8 +210,8 @@ class SCContext {
     
     static func stopRecording() {
         statusBarItem.isVisible = false
-        mousePointer.orderOut(nil)
-        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
+        //mousePointer.orderOut(nil)
+        //if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
 
         if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
         if stream != nil {

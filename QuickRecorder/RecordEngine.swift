@@ -27,12 +27,14 @@ extension AppDelegate {
         if let screens = screens {
             SCContext.screen = SCContext.availableContent!.displays.first(where: { $0 == screens })
         } else { SCContext.streamType = nil; return }
+        
         if let windows = windows {
             SCContext.window = SCContext.availableContent!.windows.filter({ windows.contains($0) })
-        } else { SCContext.streamType = nil; return }
+        } else { if SCContext.streamType == .window { SCContext.streamType = nil; return } }
+        
         if let applications = applications {
             SCContext.application = SCContext.availableContent!.applications.filter({ applications.contains($0) })
-        } else { SCContext.streamType = nil; return }
+        } else { if SCContext.streamType == .application { SCContext.streamType = nil; return } }
         
         let quickrRecorder = SCContext.getSelf()
         let dockApp = SCContext.availableContent!.applications.first(where: { $0.bundleIdentifier.description == "com.apple.dock" })
@@ -44,7 +46,7 @@ extension AppDelegate {
         if SCContext.streamType == .window {
             if var includ = SCContext.window {
                 if includ.count > 1 {
-                    if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor(); includ += mouseWindow }
+                    if ud.bool(forKey: "highlightMouse") { includ += mouseWindow }
                     if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
                     filter = SCContentFilter(display: SCContext.screen!, including: includ)
                 } else {
@@ -54,7 +56,6 @@ extension AppDelegate {
             
         } else {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
-                if ud.bool(forKey: "highlightMouse") && SCContext.streamType != .systemaudio { registerGlobalMouseMonitor() }
                 let excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
                 //if ud.bool(forKey: "hideSelf") { if let qrSelf = SCContext.getSelf() { excluded.append(qrSelf) }}
@@ -63,7 +64,6 @@ extension AppDelegate {
                 filter = SCContentFilter(display: SCContext.screen ?? SCContext.availableContent!.displays.first!, excludingApplications: excluded, exceptingWindows: except)
             }
             if SCContext.streamType == .application {
-                if ud.bool(forKey: "highlightMouse") { registerGlobalMouseMonitor() }
                 var includ = SCContext.application!
                 var except = [SCWindow]()
                 let withFinder = includ.map{ $0.bundleIdentifier }.contains("com.apple.finder")
@@ -74,9 +74,7 @@ extension AppDelegate {
                 
             }
         }
-        if SCContext.streamType == .systemaudio {
-            prepareAudioRecording()
-        }
+        if SCContext.streamType == .systemaudio { prepareAudioRecording() }
         Task { await record(audioOnly: SCContext.streamType == .systemaudio, filter: filter!) }
     }
 
