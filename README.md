@@ -2,7 +2,7 @@
 <p align="center">
 <img src="./QuickRecorder/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width="200" height="200" />
 <h1 align="center">QuickRecorder</h1>
-<h3 align="center">多功能、轻量化、高性能的 macOS 屏幕录制功能<br><a href="./README_en.md">[English Version]</a> 
+<h3 align="center">多功能、轻量化、高性能的 macOS 屏幕录制工具<br><a href="./README_en.md">[English Version]</a> 
 </p>
 
 ## 运行截图
