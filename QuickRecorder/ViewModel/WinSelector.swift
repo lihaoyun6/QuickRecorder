@@ -285,14 +285,19 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                         && $0.owningApplication?.applicationName != ""
                     })
                     let contentFilters = self.allWindows.map { SCContentFilter(desktopIndependentWindow: $0) }
-                    for contentFilter in contentFilters {
+                    for (index, contentFilter) in contentFilters.enumerated() {
                         let streamConfiguration = SCStreamConfiguration()
-                        streamConfiguration.width = Int(contentFilter.contentRect.width * 0.5)
-                        streamConfiguration.height = Int(contentFilter.contentRect.height * 0.5)
+                        let width = self.allWindows[index].frame.width
+                        let height = self.allWindows[index].frame.height
+                        var factor = 0.5
+                        if width < 200 && height < 200 { factor = 1.0 }
+                        streamConfiguration.width = Int(width * factor)
+                        streamConfiguration.height = Int(height * factor)
                         streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
                         streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
                         streamConfiguration.capturesAudio = false
                         streamConfiguration.showsCursor = false
+                        streamConfiguration.scalesToFit = true
                         streamConfiguration.queueDepth = 3
                         let stream = SCStream(filter: contentFilter, configuration: streamConfiguration, delegate: self)
                         try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)

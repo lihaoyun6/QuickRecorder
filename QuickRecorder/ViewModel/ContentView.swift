@@ -80,7 +80,8 @@ struct ContentView: View {
                     Spacer()
                 }.padding([.top, .bottom], 10)
             }
-            HStack {
+
+            if #available(macOS 14.0, *) {
                 Button(action: {
                     closeMainWindow()
                 }, label: {
@@ -89,18 +90,10 @@ struct ContentView: View {
                         .fontWeight(.bold)
                         .foregroundStyle(.secondary)
                         .onHover{ hovering in xmarkGlowing = hovering }
-                }).buttonStyle(PlainButtonStyle())
-                Spacer()
-                Button(action: {
-                    NSApp.orderFrontStandardAboutPanel(nil)
-                }, label: {
-                    Image(systemName: "info.circle")
-                        .opacity(infoGlowing ? 1.0 : 0.4)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
-                        .onHover{ hovering in infoGlowing = hovering }
-                }).buttonStyle(PlainButtonStyle())
-            }.padding([.leading, .trailing, .top], 7)
+                })
+                .buttonStyle(PlainButtonStyle())
+                .padding([.leading, .trailing, .top], 7)
+            }
         }.frame(width: 800)
     }
     
@@ -133,7 +126,7 @@ struct ContentView: View {
         }
     }
     
-    func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "Main Window".local }) { w.close() } }
+    func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() } }
     
     func showAreaSelector() {
         guard let screen = SCContext.getScreenWithMouse() else { return }

@@ -44,7 +44,7 @@ struct StatusBarItem: View {
                     .offset(x: 0.5)
             }
         }.onTapGesture {}
-        .padding([.leading,.trailing], 4).padding(.top, -2)
+        .padding([.leading,.trailing], 4)
         .onReceive(updateTimer) { t in recordingLength = SCContext.getRecordingLength() }
         .onHover { hovering in hideMousePointer = hovering }
     }
@@ -54,8 +54,14 @@ extension AppDelegate: NSMenuDelegate {
     func updateStatusBar() {
         if SCContext.streamType == nil { statusBarItem.isVisible = false; return }
         guard let button = statusBarItem.button else { return }
-        let iconView = NSHostingView(rootView: StatusBarItem())
-        iconView.frame = NSRect(x: 0, y: 1, width: 116, height: 22)
+        var padding = -1.0
+        var height = 21
+        if #available(macOS 14.0, *) {
+            padding = -2.0
+            height = 22
+        }
+        let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, padding))
+        iconView.frame = NSRect(x: 0, y: 1, width: 116, height: height)
         button.subviews = [iconView]
         button.frame = iconView.frame
         button.setAccessibilityLabel("QuickRecorder")

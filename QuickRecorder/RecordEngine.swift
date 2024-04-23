@@ -37,7 +37,8 @@ extension AppDelegate {
             SCContext.application = SCContext.availableContent!.applications.filter({ applications.contains($0) })
         } else { if SCContext.streamType == .application { SCContext.streamType = nil; return } }
         
-        let quickrRecorder = SCContext.getSelf()
+        let qrSelf = SCContext.getSelf()
+        let qrWindows = SCContext.getSelfWindows()
         let dockApp = SCContext.availableContent!.applications.first(where: { $0.bundleIdentifier.description == "com.apple.dock" })
         let wallpaper = SCContext.availableContent!.windows.filter({ $0.title != "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
         let dockWindow = SCContext.availableContent!.windows.first(where: { $0.title == "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
@@ -49,7 +50,8 @@ extension AppDelegate {
                 if includ.count > 1 {
                     if ud.bool(forKey: "highlightMouse") { includ += mouseWindow }
                     if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
-                    filter = SCContentFilter(display: SCContext.screen!, including: includ)
+                    filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ)
+                    if #available(macOS 14.2, *) { filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
                 } else {
                     SCContext.streamType = .window
                     filter = SCContentFilter(desktopIndependentWindow: includ[0])
@@ -59,20 +61,22 @@ extension AppDelegate {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
                 let excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
-                //if ud.bool(forKey: "hideSelf") { if let qrSelf = SCContext.getSelf() { excluded.append(qrSelf) }}
+                if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
                 if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
-                filter = SCContentFilter(display: SCContext.screen ?? SCContext.availableContent!.displays.first!, excludingApplications: excluded, exceptingWindows: except)
+                filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
+                if #available(macOS 14.2, *) { filter?.includeMenuBar = (SCContext.streamType == .screen && ud.bool(forKey: "includeMenuBar")) }
             }
             if SCContext.streamType == .application {
                 var includ = SCContext.application!
                 var except = [SCWindow]()
                 let withFinder = includ.map{ $0.bundleIdentifier }.contains("com.apple.finder")
                 if withFinder && ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
-                if ud.bool(forKey: "highlightMouse") { if let qr = quickrRecorder { includ.append(qr) }}
+                if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
+                if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
                 if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except.append(dockWindow!)}}
-                filter = SCContentFilter(display: SCContext.screen ?? SCContext.availableContent!.displays.first!, including: includ, exceptingWindows: except)
-                
+                filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ, exceptingWindows: except)
+                if #available(macOS 14.2, *) { filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
             }
         }
         if SCContext.streamType == .systemaudio { prepareAudioRecording() }
@@ -80,13 +84,38 @@ extension AppDelegate {
     }
 
     func record(audioOnly: Bool, filter: SCContentFilter) async {
+        SCContext.timeOffset = CMTimeMake(value: 0, timescale: 0)
+        SCContext.isPaused = false
+        SCContext.isResume = false
+        
         let conf = SCStreamConfiguration()
         conf.width = 2
         conf.height = 2
         
         if !audioOnly {
-            conf.width = Int(filter.contentRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
-            conf.height = Int(filter.contentRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+            if #available(macOS 14.0, *) {
+                conf.width = Int(filter.contentRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+                conf.height = Int(filter.contentRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+            } else {
+                guard let pointPixelScale = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).nsScreen?.backingScaleFactor else { return }
+                if SCContext.streamType == .application || SCContext.streamType == .windows || SCContext.streamType == .screen {
+                    let frame = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).frame
+                    conf.width = Int(frame.width)
+                    conf.height = Int(frame.height)
+                }
+                if SCContext.streamType == .window {
+                    let frame = SCContext.window![0].frame
+                    conf.width = Int(frame.width)
+                    conf.height = Int(frame.height)
+                }
+                if SCContext.streamType == .screenarea {
+                    let frame = SCContext.screenArea!
+                    conf.width = Int(frame.width)
+                    conf.height = Int(frame.height)
+                }
+                conf.width = conf.width * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScale) : 1)
+                conf.height = conf.height * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScale) : 1)
+            }
             if ud.integer(forKey: "highRes") == 0 {
                 conf.width = Int(conf.width/2)
                 conf.height = Int(conf.height/2)
@@ -118,11 +147,7 @@ extension AppDelegate {
         do {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global())
-            if !audioOnly {
-                initVideo(conf: conf)
-            } else {
-                SCContext.startTime = Date.now
-            }
+            if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
             try await SCContext.stream.startCapture()
         } catch {
             assertionFailure("capture failed".local)
@@ -227,10 +252,23 @@ extension AppDelegate {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }
+        var SampleBuffer = sampleBuffer
+        if SCContext.isResume {
+            SCContext.isResume = false
+            var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
+            guard let last = SCContext.lastPTS else { return }
+            if last.flags.contains(CMTimeFlags.valid) {
+                if SCContext.timeOffset.flags.contains(CMTimeFlags.valid) { pts = CMTimeSubtract(pts, SCContext.timeOffset) }
+                let off = CMTimeSubtract(pts, last)
+                print("adding \(CMTimeGetSeconds(off)) to \(CMTimeGetSeconds(SCContext.timeOffset)) (pts \(CMTimeGetSeconds(SCContext.timeOffset)))")
+                if SCContext.timeOffset.value == 0 { SCContext.timeOffset = off } else { SCContext.timeOffset = CMTimeAdd(SCContext.timeOffset, off) }
+            }
+            SCContext.lastPTS?.flags = []
+        }
         switch outputType {
             case .screen:
             if (SCContext.screen == nil && SCContext.window == nil && SCContext.application == nil) || SCContext.streamType == .systemaudio { break }
-            guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
+            guard let attachmentsArray = CMSampleBufferGetSampleAttachmentsArray(SampleBuffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]],
                   let attachments = attachmentsArray.first else { return }
             guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,
                   let status = SCFrameStatus(rawValue: statusRawValue),
@@ -238,25 +276,29 @@ extension AppDelegate {
 
             if SCContext.vW != nil && SCContext.vW?.status == .writing, SCContext.startTime == nil {
                 SCContext.startTime = Date.now
-                SCContext.vW.startSession(atSourceTime: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+                SCContext.vW.startSession(atSourceTime: CMSampleBufferGetPresentationTimeStamp(SampleBuffer))
             }
-
-            if SCContext.vwInput.isReadyForMoreMediaData {
-                SCContext.vwInput.append(sampleBuffer)
-            }
+            if (SCContext.timeOffset.value > 0) { SampleBuffer = SCContext.adjustTime(sample: SampleBuffer, by: SCContext.timeOffset) ?? sampleBuffer }
+            var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
+            let dur = CMSampleBufferGetDuration(SampleBuffer)
+            if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
+            SCContext.lastPTS = pts
+            if SCContext.vwInput.isReadyForMoreMediaData { SCContext.vwInput.append(SampleBuffer) }
+            
             break
             case .audio:
             if SCContext.streamType == .systemaudio { // write directly to file if not video recording
-                    guard let samples = sampleBuffer.asPCMBuffer else { return }
-                    do {
-                        try SCContext.audioFile?.write(from: samples)
-                    }
-                    catch { assertionFailure("audio file writing issue".local) }
-                } else { // otherwise send the audio data to AVAssetWriter
-                    if SCContext.awInput.isReadyForMoreMediaData {
-                        SCContext.awInput.append(sampleBuffer)
-                    }
-                }
+                guard let samples = SampleBuffer.asPCMBuffer else { return }
+                do { try SCContext.audioFile?.write(from: samples) }
+                catch { assertionFailure("audio file writing issue".local) }
+            } else { // otherwise send the audio data to AVAssetWriter
+                if (SCContext.timeOffset.value > 0) { SampleBuffer = SCContext.adjustTime(sample: SampleBuffer, by: SCContext.timeOffset) ?? sampleBuffer }
+                var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
+                let dur = CMSampleBufferGetDuration(SampleBuffer)
+                if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
+                SCContext.lastPTS = pts
+                if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
+            }
             @unknown default:
             assertionFailure("unknown stream type".local)
         }

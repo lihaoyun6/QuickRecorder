@@ -14,6 +14,10 @@ import UserNotifications
 class SCContext {
     static var audioSettings: [String : Any]!
     static var isPaused = false
+    static var isResume = false
+    static var lastPTS: CMTime?
+    static var lsatPts: CMTime?
+    static var timeOffset = CMTimeMake(value: 0, timescale: 0)
     static var screenArea: NSRect?
     static let audioEngine = AVAudioEngine()
     static var backgroundColor: CGColor = CGColor.black
@@ -49,6 +53,13 @@ class SCContext {
     
     static func getSelf() -> SCRunningApplication? {
         return getApps(isOnScreen: false, hideSelf: false).first(where: { Bundle.main.bundleIdentifier == $0.bundleIdentifier })
+    }
+    
+    static func getSelfWindows() -> [SCWindow]? {
+        return SCContext.availableContent!.windows.filter( {
+            guard let title = $0.title else { return false }
+            return $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier && title != "Mouse Pointer".local
+        })
     }
     
     static func getApps(isOnScreen: Bool = true, hideSelf: Bool = true) -> [SCRunningApplication] {
@@ -87,6 +98,12 @@ class SCContext {
         let icon = NSImage(systemSymbolName: "questionmark.app.dashed", accessibilityDescription: "blank icon")
         icon!.size = NSSize(width: 69, height: 69)
         return icon
+    }
+    
+    static func getScreenWithMouse() -> NSScreen? {
+        let mouseLocation = NSEvent.mouseLocation
+        let screenWithMouse = NSScreen.screens.first(where: { NSMouseInRect(mouseLocation, $0.frame, false) })
+        return screenWithMouse
     }
     
     static func getSCDisplayWithMouse() -> SCDisplay? {
@@ -156,13 +173,6 @@ class SCContext {
         }
     }
     
-    static func getScreenWithMouse() -> NSScreen? {
-        let mouseLocation = NSEvent.mouseLocation
-        let screens = NSScreen.screens
-        let screenWithMouse = (screens.first { NSMouseInRect(mouseLocation, $0.frame, false) })
-        return screenWithMouse
-    }
-    
     private static func requestPermissions() {
         DispatchQueue.main.async {
             let alert = NSAlert()
@@ -205,7 +215,10 @@ class SCContext {
     
     static func pauseRecording() {
         isPaused.toggle()
-        if !isPaused { startTime = Date.now - SCContext.timePassed }
+        if !isPaused {
+            isResume = true
+            startTime = Date.now.addingTimeInterval(-1) - SCContext.timePassed
+        }
     }
     
     static func stopRecording() {
@@ -255,4 +268,22 @@ class SCContext {
             if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
         }
     }
+    
+    static func adjustTime(sample: CMSampleBuffer, by offset: CMTime) -> CMSampleBuffer? {
+        guard CMSampleBufferGetFormatDescription(sample) != nil else { return nil }
+        
+        var timingInfo = [CMSampleTimingInfo](repeating: CMSampleTimingInfo(), count: Int(CMSampleBufferGetNumSamples(sample)))
+        CMSampleBufferGetSampleTimingInfoArray(sample, entryCount: timingInfo.count, arrayToFill: &timingInfo, entriesNeededOut: nil)
+        
+        for i in 0..<timingInfo.count {
+            timingInfo[i].decodeTimeStamp = CMTimeSubtract(timingInfo[i].decodeTimeStamp, offset)
+            timingInfo[i].presentationTimeStamp = CMTimeSubtract(timingInfo[i].presentationTimeStamp, offset)
+        }
+        
+        var outSampleBuffer: CMSampleBuffer?
+        CMSampleBufferCreateCopyWithNewTiming(allocator: nil, sampleBuffer: sample, sampleTimingEntryCount: timingInfo.count, sampleTimingArray: &timingInfo, sampleBufferOut: &outSampleBuffer)
+        
+        return outSampleBuffer
+    }
+
 }

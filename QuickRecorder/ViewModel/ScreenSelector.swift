@@ -280,10 +280,10 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                     self.allScreens = screens
                     let qrSelf = SCContext.getSelf()
                     let contentFilters = self.allScreens.map { SCContentFilter(display: $0, excludingApplications: qrSelf != nil ? [qrSelf!] : [], exceptingWindows: []) }
-                    for contentFilter in contentFilters {
+                    for (index, contentFilter) in contentFilters.enumerated() {
                         let streamConfiguration = SCStreamConfiguration()
-                        streamConfiguration.width = Int(contentFilter.contentRect.width * 0.5)
-                        streamConfiguration.height = Int(contentFilter.contentRect.height * 0.5)
+                        streamConfiguration.width = Int(self.allScreens[index].frame.width)
+                        streamConfiguration.height = Int(self.allScreens[index].frame.height)
                         streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
                         streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
                         streamConfiguration.capturesAudio = false

@@ -21,6 +21,7 @@ struct SettingsView: View {
     @AppStorage("saveDirectory") private var saveDirectory: String?
     @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
     @AppStorage("highlightMouse")   private var highlightMouse: Bool = false
+    @AppStorage("includeMenuBar")   private var includeMenuBar: Bool = false
     
     
     var body: some View {
@@ -74,12 +75,21 @@ struct SettingsView: View {
                     }
                     .padding(.bottom, 6)
                     .toggleStyle(CheckboxToggleStyle())
-                    .onChange(of: hideSelf) {_ in Task { if hideSelf { highlightMouse = false }}}
+                    //.onChange(of: hideSelf) {_ in Task { if hideSelf { highlightMouse = false }}}
+                    if #available(macOS 14.2, *) {
+                        Toggle(isOn: $includeMenuBar) {
+                            Text("Include MenuBar")
+                        }
+                        .padding(.bottom, 6)
+                        .toggleStyle(CheckboxToggleStyle())
+                        Text("Not available for \"Single Window Capture\"")
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 1).fixedSize(horizontal: false, vertical: true)
+                    }
                     Toggle(isOn: $highlightMouse) {
                         Text("Highlight the mouse cursor")
                     }
                     .toggleStyle(CheckboxToggleStyle())
-                    .onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
+                    //.onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
                     Text("Not available for \"Single Window Capture\"")
                         .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 1).fixedSize(horizontal: false, vertical: true)
                     Toggle(isOn: $hideDesktopFiles) {
@@ -97,7 +107,6 @@ struct SettingsView: View {
                     Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent)).font(.footnote).foregroundColor(Color.gray)
                 }.frame(maxWidth: .infinity).padding(.top, 1)
                 Divider()
-                
                 HStack {
                     VStack {
                         HStack(spacing: 15){

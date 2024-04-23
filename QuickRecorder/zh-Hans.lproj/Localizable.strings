@@ -94,6 +94,7 @@
 "Resume" = "继续录制";
 "Stop Recording" = "结束录制";
 "Waiting on update…" = "正在更新, 请稍等…";
+"Include MenuBar" = "在录像中录制菜单栏画面";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";

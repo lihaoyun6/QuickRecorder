@@ -28,12 +28,13 @@ struct QuickRecorderApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .navigationTitle("Main Window".local)
+                .navigationTitle("QuickReader".local)
                 .fixedSize()
                 .onAppear { setMainWindow() }
         }
-        .windowStyle(HiddenTitleBarWindowStyle())
+        //.windowStyle(HiddenTitleBarWindowStyle())
         .windowResizability(.contentSize)
+        .commands { CommandGroup(replacing: .newItem) {} }
         
         Settings {
             SettingsView()
@@ -42,7 +43,7 @@ struct QuickRecorderApp: App {
     }
     
     func setMainWindow() {
-        for w in NSApplication.shared.windows.filter({ $0.title == "Main Window".local }) {
+        for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) {
             w.level = .floating
             w.styleMask = [.fullSizeContentView]
             w.isMovableByWindowBackground = true
@@ -110,15 +111,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "frameRate": 60,
                 "highRes": 2,
                 "hideSelf": true,
+                "highlightMouse" : false,
                 "hideDesktopFiles": false,
+                "includeMenuBar": true,
                 "videoQuality": 1.0,
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "encoder": Encoder.h264.rawValue,
                 "saveDirectory": saveDirectory,
                 "showMouse": true,
                 "recordMic": false,
-                "recordWinSound": true,
-                "highlightMouse" : true
+                "recordWinSound": true
             ]
         )
         
