@@ -56,7 +56,7 @@
 "Custom" = "用户预设";
 "Audio Settings" = "音频设置";
 "Video Settings" = "视频设置";
-"Exclude QuickRecorder itself" = "排除 QuickRecorder 窗口";
+"Exclude QuickRecorder itself" = "排除QuickRecorder窗口";
 "Highlight the mouse cursor" = "为鼠标光标添加高亮效果";
 "Not available for \"Single Window Capture\"" = "此功能不适用于\"录制单个窗口\"的情况";
 "Normal - 128Kbps" = "标准 - 128Kbps";

@@ -73,17 +73,16 @@ struct SettingsView: View {
                     Toggle(isOn: $hideSelf) {
                         Text("Exclude QuickRecorder itself")
                     }
-                    .padding(.bottom, 6)
+                    .padding(.bottom, 7)
                     .toggleStyle(CheckboxToggleStyle())
                     //.onChange(of: hideSelf) {_ in Task { if hideSelf { highlightMouse = false }}}
                     if #available(macOS 14.2, *) {
                         Toggle(isOn: $includeMenuBar) {
                             Text("Include MenuBar")
                         }
-                        .padding(.bottom, 6)
                         .toggleStyle(CheckboxToggleStyle())
                         Text("Not available for \"Single Window Capture\"")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 1).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
                     }
                     Toggle(isOn: $highlightMouse) {
                         Text("Highlight the mouse cursor")
@@ -91,7 +90,7 @@ struct SettingsView: View {
                     .toggleStyle(CheckboxToggleStyle())
                     //.onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
                     Text("Not available for \"Single Window Capture\"")
-                        .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 1).fixedSize(horizontal: false, vertical: true)
+                        .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
                     Toggle(isOn: $hideDesktopFiles) {
                         Text("Exclude the \"Desktop Files\" layer")
                     }.toggleStyle(CheckboxToggleStyle())
