@@ -44,6 +44,11 @@ extension AppDelegate {
         let dockWindow = SCContext.availableContent!.windows.first(where: { $0.title == "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
+        let appBlackList = ud.string(forKey: "appBlackList")?.split(separator: ",").map{ $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let excliudedApps = SCContext.availableContent!.applications.filter({
+            guard let apps = appBlackList else { return false }
+            return apps.contains($0.applicationName)
+        })
         
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
@@ -59,8 +64,9 @@ extension AppDelegate {
             }
         } else {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
-                let excluded = [SCRunningApplication]()
+                var excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
+                excluded += excliudedApps
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
                 if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }

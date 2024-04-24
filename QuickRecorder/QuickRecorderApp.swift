@@ -105,6 +105,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         
         ud.register( // default defaults (used if not set)
             defaults: [
+                "appBlackList": "",
                 "audioFormat": AudioFormat.aac.rawValue,
                 "audioQuality": AudioQuality.high.rawValue,
                 "background": BackgroundType.wallpaper.rawValue,

@@ -66,6 +66,7 @@
 "Other Settings" = "其他设置";
 "These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC." = "录制视频时也会遵从这些设置, 但如果音频编码被设为 Opus, 则在录制 MP4 时将会回退至 AAC 编码.";
 "If enabled, all files on the Desktop will be hidden from the video when recording Screen or Finder." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
+"These apps will be excluded when recording \"Screen\" or \"Screen Area\" (app names separated by commas)" = "在录制\"全屏画面\"或\"屏幕区域\"的时候将不会录制这些 App 的画面 (填写 App 名称, 以英文逗号分隔)";
 "Exclude the \"Desktop Files\" layer" = "从录像中排除所有桌面文件";
 "Recording Delay" = "开始录制前倒数";
 "0s" = "0秒";
@@ -83,8 +84,8 @@
 "Multiple Apps" = "多个应用";
 "Unknown App" = "未知应用";
 "A Window" = "单个窗口";
-"Select output directory" = "选择保存位置";
-"Currently set to \"%@\"" = "当前保存位置为\"%@\"";
+"Select output directory" = "选择存储位置";
+"Currently set to \"%@\"" = "当前保存在 \"%@\"";
 "/Recording at " = "/录制于 ";
 "Recording Completed" = "录制结束";
 "File saved to: %@" = "文件已保存至: %@";
@@ -95,6 +96,7 @@
 "Stop Recording" = "结束录制";
 "Waiting on update…" = "正在更新, 请稍等…";
 "Include MenuBar" = "在录像中录制菜单栏画面";
+"Excluded Apps" = "App 排除列表";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";
