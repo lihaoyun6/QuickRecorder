@@ -71,7 +71,7 @@ extension AppDelegate {
                 if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
                 filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
-                if #available(macOS 14.2, *) { filter?.includeMenuBar = (SCContext.streamType == .screen && ud.bool(forKey: "includeMenuBar")) }
+                if #available(macOS 14.2, *) { filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
             }
             if SCContext.streamType == .application {
                 var includ = SCContext.application!
