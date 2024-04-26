@@ -46,27 +46,29 @@ struct AreaSelector: View {
             VStack(spacing: 15) {
                 HStack{
                     Spacer()
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text("Definition")
-                        Text("Frame rate")
+                        if #available(macOS 13, *) { Text("Frame rate") }
                     }
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Picker("", selection: $highRes) {
                             Text("Auto").tag(2)
                             Text("Low (1x)").tag(1)
                             Text("Low (0.5x)").tag(0)
                         }.buttonStyle(.borderless)
-                        Picker("", selection: $frameRate) {
-                            Text("240 FPS").tag(240)
-                            Text("144 FPS").tag(144)
-                            Text("120 FPS").tag(120)
-                            Text("90 FPS").tag(90)
-                            Text("60 FPS").tag(60)
-                            Text("30 FPS").tag(30)
-                            Text("24 FPS").tag(24)
-                            Text("15 FPS").tag(15)
-                            Text("10 FPS").tag(10)
-                        }.buttonStyle(.borderless)
+                        if #available(macOS 13, *) {
+                            Picker("", selection: $frameRate) {
+                                Text("240 FPS").tag(240)
+                                Text("144 FPS").tag(144)
+                                Text("120 FPS").tag(120)
+                                Text("90 FPS").tag(90)
+                                Text("60 FPS").tag(60)
+                                Text("30 FPS").tag(30)
+                                Text("24 FPS").tag(24)
+                                Text("15 FPS").tag(15)
+                                Text("10 FPS").tag(10)
+                            }.buttonStyle(.borderless)
+                        }
                     }.scaledToFit()
                     Divider()
                     VStack(alignment: .leading, spacing: 12) {
