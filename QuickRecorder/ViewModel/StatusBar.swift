@@ -46,7 +46,10 @@ struct StatusBarItem: View {
         }.onTapGesture {}
         .padding([.leading,.trailing], 4)
         .onReceive(updateTimer) { t in recordingLength = SCContext.getRecordingLength() }
-        .onHover { hovering in hideMousePointer = hovering }
+        .onHover { hovering in
+            hideMousePointer = hovering
+            hideScreenMagnifier = hovering
+        }
     }
 }
 

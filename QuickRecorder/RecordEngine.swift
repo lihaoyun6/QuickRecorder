@@ -12,7 +12,7 @@ import AVFoundation
 import AVFAudio
 
 extension AppDelegate {
-    @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?) {
+    @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?, fastStart: Bool = false) {
         switch type {
         case "window":  SCContext.streamType = .window
         case "windows":  SCContext.streamType = .windows
@@ -55,11 +55,11 @@ extension AppDelegate {
                 if includ.count > 1 {
                     if ud.bool(forKey: "highlightMouse") { includ += mouseWindow }
                     if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
-                    filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ)
-                    if #available(macOS 14.2, *) { filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
+                    SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ)
+                    if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
                 } else {
                     SCContext.streamType = .window
-                    filter = SCContentFilter(desktopIndependentWindow: includ[0])
+                    SCContext.filter = SCContentFilter(desktopIndependentWindow: includ[0])
                 }
             }
         } else {
@@ -70,8 +70,8 @@ extension AppDelegate {
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
                 if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
-                filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
-                if #available(macOS 14.2, *) { filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
+                SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
+                if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
             }
             if SCContext.streamType == .application {
                 var includ = SCContext.application!
@@ -81,15 +81,15 @@ extension AppDelegate {
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
                 if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
                 if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except.append(dockWindow!)}}
-                filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ, exceptingWindows: except)
-                if #available(macOS 14.2, *) { filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
+                SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ, exceptingWindows: except)
+                if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
             }
         }
         if SCContext.streamType == .systemaudio { prepareAudioRecording() }
-        Task { await record(audioOnly: SCContext.streamType == .systemaudio, filter: filter!) }
+        Task { await record(audioOnly: SCContext.streamType == .systemaudio, filter: SCContext.filter!, fastStart: fastStart) }
     }
 
-    func record(audioOnly: Bool, filter: SCContentFilter) async {
+    func record(audioOnly: Bool, filter: SCContentFilter, fastStart: Bool = true) async {
         SCContext.timeOffset = CMTimeMake(value: 0, timescale: 0)
         SCContext.isPaused = false
         SCContext.isResume = false
@@ -103,7 +103,7 @@ extension AppDelegate {
                 conf.width = Int(filter.contentRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
                 conf.height = Int(filter.contentRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
             } else {
-                guard let pointPixelScale = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).nsScreen?.backingScaleFactor else { return }
+                guard let pointPixelScaleOld = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).nsScreen?.backingScaleFactor else { return }
                 if SCContext.streamType == .application || SCContext.streamType == .windows || SCContext.streamType == .screen {
                     let frame = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).frame
                     conf.width = Int(frame.width)
@@ -119,8 +119,8 @@ extension AppDelegate {
                     conf.width = Int(frame.width)
                     conf.height = Int(frame.height)
                 }
-                conf.width = conf.width * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScale) : 1)
-                conf.height = conf.height * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScale) : 1)
+                conf.width = conf.width * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
+                conf.height = conf.height * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
             }
             if ud.integer(forKey: "highRes") == 0 {
                 conf.width = Int(conf.width/2)
@@ -129,30 +129,36 @@ extension AppDelegate {
         }
 
         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(ud.integer(forKey: "frameRate")))
-        if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue {
-            conf.backgroundColor = SCContext.getBackgroundColor()
-        }
+        if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
         if SCContext.streamType == .screenarea {
             if let nsRect = SCContext.screenArea {
                 let newY = SCContext.screen!.frame.height - nsRect.size.height - nsRect.origin.y
                 conf.sourceRect = CGRect(x: nsRect.origin.x, y: newY, width: nsRect.size.width, height: nsRect.size.height)
-                conf.width = Int(conf.sourceRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
-                conf.height = Int(conf.sourceRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+                if #available(macOS 14.0, *) {
+                    conf.width = Int(conf.sourceRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+                    conf.height = Int(conf.sourceRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(filter.pointPixelScale) : 1)
+                } else {
+                    guard let pointPixelScaleOld = (SCContext.screen ?? SCContext.getSCDisplayWithMouse()!).nsScreen?.backingScaleFactor else { return }
+                    conf.width = Int(conf.sourceRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
+                    conf.height = Int(conf.sourceRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
+                }
                 if ud.integer(forKey: "highRes") == 0 {
                     conf.width = Int(conf.width/2)
                     conf.height = Int(conf.height/2)
                 }
             }
         }
-        conf.showsCursor = ud.bool(forKey: "showMouse")
-        conf.capturesAudio = ud.bool(forKey: "recordWinSound")
-        conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
-        conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
+        conf.showsCursor = ud.bool(forKey: "showMouse") || fastStart
+        if #available(macOS 13, *) {
+            conf.capturesAudio = ud.bool(forKey: "recordWinSound") || fastStart
+            conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
+            conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
+        }
 
         SCContext.stream = SCStream(filter: filter, configuration: conf, delegate: self)
         do {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
-            try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global())
+            if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
             if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
             try await SCContext.stream.startCapture()
         } catch {
@@ -256,6 +262,16 @@ extension AppDelegate {
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
+        if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
+            SCContext.saveFrame = false
+            if #available(macOS 13.0, *) {
+                let url = URL(filePath: "\(getFilePath()).png")
+                sampleBuffer.nsImage?.saveToFile(url)
+            } else {
+                let url = URL(fileURLWithPath: "\(getFilePath()).png")
+                sampleBuffer.nsImage?.saveToFile(url)
+            }
+        }
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }
         var SampleBuffer = sampleBuffer
@@ -329,6 +345,18 @@ extension CMSampleBuffer {
             guard let format = AVAudioFormat(standardFormatWithSampleRate: absd.mSampleRate, channels: absd.mChannelsPerFrame) else { return nil }
             return AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: audioBufferList.unsafePointer)
         }
+    }
+    
+    var nsImage: NSImage? {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(self) else { return nil }
+        CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let context = CIContext()
+        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+            return NSImage(cgImage: cgImage, size: NSSize.zero)
+        }
+        return nil
     }
 }
 

@@ -151,17 +151,19 @@ struct AppSelector: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                             .toggleStyle(CheckboxToggleStyle())
-                        Toggle(isOn: $recordWinSound) { Text("Record App Sound").padding(.leading, 5) }
-                            .toggleStyle(CheckboxToggleStyle())
+                        if #available(macOS 13, *) {
+                            Toggle(isOn: $recordWinSound) { Text("App's Audio").padding(.leading, 5) }
+                                .toggleStyle(CheckboxToggleStyle())
+                        }
                         if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
                             Toggle(isOn: $recordMic) {
-                                Text("Record Microphone").padding(.leading, 5)
+                                Text("Microphone").padding(.leading, 5)
                             }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) {
                                 Task { await SCContext.performMicCheck() }
                             }
                         } else {
                             Toggle(isOn: $recordMic) {
-                                Text("Record Microphone").padding(.leading, 5)
+                                Text("Microphone").padding(.leading, 5)
                             }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) { _ in
                                 Task { await SCContext.performMicCheck() }
                             }

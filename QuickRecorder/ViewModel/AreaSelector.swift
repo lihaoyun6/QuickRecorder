@@ -88,17 +88,19 @@ struct AreaSelector: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                             .toggleStyle(CheckboxToggleStyle())
-                        Toggle(isOn: $recordWinSound) { Text("Record App Sound").padding(.leading, 5) }
-                            .toggleStyle(CheckboxToggleStyle())
+                        if #available(macOS 13, *) {
+                            Toggle(isOn: $recordWinSound) { Text("App's Audio").padding(.leading, 5) }
+                                .toggleStyle(CheckboxToggleStyle())
+                        }
                         if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
                             Toggle(isOn: $recordMic) {
-                                Text("Record Microphone").padding(.leading, 5)
+                                Text("Microphone").padding(.leading, 5)
                             }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) {
                                 Task { await SCContext.performMicCheck() }
                             }
                         } else {
                             Toggle(isOn: $recordMic) {
-                                Text("Record Microphone").padding(.leading, 5)
+                                Text("Microphone").padding(.leading, 5)
                             }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) { _ in
                                 Task { await SCContext.performMicCheck() }
                             }
@@ -127,24 +129,24 @@ struct AreaSelector: View {
                         }
                     })
                     .buttonStyle(PlainButtonStyle())
+                    Spacer()
                 }
-                .padding(.leading, 10).padding(.trailing, 20)
+                //.padding(.leading, 10).padding(.trailing, 20)
                 Spacer()
-            }
-            .padding(.top, -3)
+            }.padding(.top, -3)
             Button(action: {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
             }, label: {
                 Image(systemName: "xmark")
                     .opacity(0.6)
                     .font(.system(size: 12))
-                    .fontWeight(.bold)
+                    //.fontWeight(.bold)
                     .foregroundStyle(.secondary)
             })
             .buttonStyle(PlainButtonStyle())
             .padding(.top, -9).padding(.leading, 7)
         }
-        .frame(width: 510, height:50)
+        .frame(width: 590, height:50)
         .onReceive(timer) { t in
             if counter == nil { return }
             if counter! <= 1 { startRecording(); return }

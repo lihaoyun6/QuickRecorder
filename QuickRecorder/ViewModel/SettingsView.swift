@@ -7,11 +7,12 @@
 
 import SwiftUI
 import ServiceManagement
+import KeyboardShortcuts
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var userColor: Color = Color.black
-    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    @State private var launchAtLogin = false
     @AppStorage("encoder")          private var encoder: Encoder = .h264
     @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
@@ -61,7 +62,7 @@ struct SettingsView: View {
                         Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
                             .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 8).padding(.top, 4).fixedSize(horizontal: false, vertical: true)
                     }
-                }.frame(width: 260)
+                }.frame(width: 270)
                 VStack(alignment: .center) {
                     GroupBox(label: Text("Other Settings".local).fontWeight(.bold)) {
                         Form() {
@@ -93,8 +94,27 @@ struct SettingsView: View {
                         Text("If enabled, all files on the Desktop will be hidden from the video when recording Screen or Finder.")
                             .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 8).fixedSize(horizontal: false, vertical: true)
                     }
-                }.frame(width: 260)
+                }.frame(width: 270)
             }//.padding(.bottom, 0.5)
+            if #unavailable(macOS 14.2) { Spacer().frame(height: 16) }
+            GroupBox(label: Text("Shortcuts Settings".local).fontWeight(.bold)) {
+                HStack{
+                    Spacer()
+                    Form(){
+                        KeyboardShortcuts.Recorder("Pause / Resume", name: .pauseResume)
+                        KeyboardShortcuts.Recorder("Stop Recording", name: .stop)
+                        KeyboardShortcuts.Recorder("Save Frame", name: .saveFrame)
+                        
+                    }
+                    Spacer()
+                    Form() {
+                        KeyboardShortcuts.Recorder("Record Current Screen", name: .startWithScreen)
+                        KeyboardShortcuts.Recorder("Record Current Window", name: .startWithWindow)
+                        KeyboardShortcuts.Recorder("Toggle Screen Magnifier", name: .screenMagnifier)
+                    }
+                    Spacer()
+                }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity).padding(5)
+            }.frame(width: 557).padding(.top, -8).fixedSize()
             GroupBox(label: Text("Excluded Apps".local).fontWeight(.bold)) {
                 VStack(spacing: 5.5) {
                     TextEditor(text: $appBlackList)
@@ -102,7 +122,7 @@ struct SettingsView: View {
                     Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\" (app names separated by commas)")
                         .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
                 }
-            }.frame(width: 537, height: 90).padding(.top, -8)
+            }.frame(width: 557, height: 90).padding(.bottom, 3)
             Divider()
             HStack {
                 HStack(spacing: 10) {
@@ -114,25 +134,27 @@ struct SettingsView: View {
                     Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent)).font(.footnote).foregroundColor(Color.gray)
                 }.padding(.leading, 0.5)
                 Spacer()
-                VStack {
-                    HStack(spacing: 15){
-                        Toggle(isOn: $launchAtLogin) {}
-                            .offset(x: 10)
-                            .toggleStyle(.switch)
-                            .onChange(of: launchAtLogin) { newValue in
-                                do {
-                                    if newValue {
-                                        try SMAppService.mainApp.register()
-                                    } else {
-                                        try SMAppService.mainApp.unregister()
+                if #available(macOS 13, *) {
+                    VStack {
+                        HStack(spacing: 15){
+                            Toggle(isOn: $launchAtLogin) {}
+                                .offset(x: 10)
+                                .toggleStyle(.switch)
+                                .onChange(of: launchAtLogin) { newValue in
+                                    do {
+                                        if newValue {
+                                            try SMAppService.mainApp.register()
+                                        } else {
+                                            try SMAppService.mainApp.unregister()
+                                        }
+                                    }catch{
+                                        print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)")
                                     }
-                                }catch{
-                                    print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)")
                                 }
-                            }
-                        Text("Launch at login")
-                    }
-                }.padding(.trailing, 14)
+                            Text("Launch at login")
+                        }
+                    }.padding(.trailing, 14)
+                }
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
@@ -143,7 +165,10 @@ struct SettingsView: View {
                 
         }
         .padding([.leading, .trailing], 17).padding([.top, .bottom], 12)
-        .onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
+        .onAppear{
+            userColor = ud.color(forKey: "userColor") ?? Color.black
+            if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }
+        }
         .onDisappear{ ud.setColor(userColor, forKey: "userColor") }
     }
     
@@ -199,7 +224,18 @@ extension UserDefaults {
     }
 }
 
+extension KeyboardShortcuts.Name {
+    static let startWithScreen = Self("startWithScreen")
+    static let startWithWindow = Self("startWithWindow")
+    static let screenMagnifier = Self("screenMagnifier")
+    static let saveFrame = Self("saveFrame")
+    static let pauseResume = Self("pauseResume")
+    static let stop = Self("stop")
+}
+
+
 extension AppDelegate {
+    @available(macOS 13.0, *)
     @objc func setLoginItem(_ sender: NSMenuItem) {
         sender.state = sender.state == .on ? .off : .on
         do {

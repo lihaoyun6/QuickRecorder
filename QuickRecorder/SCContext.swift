@@ -12,7 +12,11 @@ import ScreenCaptureKit
 import UserNotifications
 
 class SCContext {
+    static var filter: SCContentFilter?
     static var audioSettings: [String : Any]!
+    static var frameCache: CMSampleBuffer?
+    static var showMagnifier = false
+    static var saveFrame = false
     static var isPaused = false
     static var isResume = false
     static var lastPTS: CMTime?
@@ -142,15 +146,15 @@ class SCContext {
         let color = ud.string(forKey: "background")
         if color == BackgroundType.wallpaper.rawValue { return CGColor.black }
         switch color {
-        case "black": backgroundColor = CGColor.black
-        case "white": backgroundColor = CGColor.white
-        case "gray": backgroundColor = NSColor.systemGray.cgColor
-        case "yellow": backgroundColor = NSColor.systemYellow.cgColor
-        case "orange": backgroundColor = NSColor.systemOrange.cgColor
-        case "green": backgroundColor = NSColor.systemGreen.cgColor
-        case "blue": backgroundColor = NSColor.systemBlue.cgColor
-        case "red": backgroundColor = NSColor.systemRed.cgColor
-        default: backgroundColor = ud.cgColor(forKey: "userColor") ?? CGColor.black
+            case "black": backgroundColor = CGColor.black
+            case "white": backgroundColor = CGColor.white
+            case "gray": backgroundColor = NSColor.systemGray.cgColor
+            case "yellow": backgroundColor = NSColor.systemYellow.cgColor
+            case "orange": backgroundColor = NSColor.systemOrange.cgColor
+            case "green": backgroundColor = NSColor.systemGreen.cgColor
+            case "blue": backgroundColor = NSColor.systemBlue.cgColor
+            case "red": backgroundColor = NSColor.systemRed.cgColor
+            default: backgroundColor = ud.cgColor(forKey: "userColor") ?? CGColor.black
         }
         return backgroundColor
     }
@@ -224,6 +228,7 @@ class SCContext {
     static func stopRecording() {
         statusBarItem.isVisible = false
         mousePointer.orderOut(nil)
+        screenMagnifier.orderOut(nil)
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
 
         if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }

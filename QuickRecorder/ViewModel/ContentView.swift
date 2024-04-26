@@ -22,15 +22,17 @@ struct ContentView: View {
                     //.environment(\.colorScheme, .dark)
                 HStack {
                     Spacer()
-                    Button(action: {
-                        closeMainWindow()
-                        appDelegate.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
-                    }, label: {
-                        SelectorView(title: "System Audio".local, symbol: "waveform")
-                            .cornerRadius(8)
-                    })
-                    .buttonStyle(PlainButtonStyle())
-                    Divider().frame(height: 70)
+                    if #available(macOS 13, *) {
+                        Button(action: {
+                            closeMainWindow()
+                            appDelegate.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                        }, label: {
+                            SelectorView(title: "System Audio".local, symbol: "waveform")
+                                .cornerRadius(8)
+                        })
+                        .buttonStyle(PlainButtonStyle())
+                        Divider().frame(height: 70)
+                    }
                     Button(action: {
                         closeMainWindow()
                         createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
@@ -78,9 +80,8 @@ struct ContentView: View {
                         SettingsView()
                     }
                     Spacer()
-                }.padding([.top, .bottom], 10)
+                }.padding([.top, .bottom], 10).padding([.leading, .trailing], 19.5)
             }
-
             if #available(macOS 14.0, *) {
                 Button(action: {
                     closeMainWindow()
@@ -94,7 +95,7 @@ struct ContentView: View {
                 .buttonStyle(PlainButtonStyle())
                 .padding([.leading, .trailing, .top], 7)
             }
-        }.frame(width: 800)
+        }//.frame(width: 800)
     }
     
     struct SelectorView: View {
