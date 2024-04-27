@@ -87,6 +87,7 @@
 "Select output directory" = "选择存储位置";
 "Currently set to \"%@\"" = "当前保存在 \"%@\"";
 "/Recording at " = "/录制于 ";
+"/Capturing at " = "/捕获于 ";
 "Recording Completed" = "录制结束";
 "File saved to: %@" = "文件已保存至: %@";
 "File saved to folder: %@" = "文件已保存到: %@ 目录中";

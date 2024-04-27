@@ -49,15 +49,17 @@ struct SettingsView: View {
                                 Text("FLAC (Lossless)").tag(AudioFormat.flac)
                                 Text("Opus").tag(AudioFormat.opus)
                             }.padding([.leading, .trailing, .bottom], 10)
-                            Picker("Quality", selection: $audioQuality) {
-                                if audioFormat == .alac || audioFormat == .flac {
-                                    Text("Lossless").tag(audioQuality)
-                                }
-                                Text("Normal - 128Kbps").tag(AudioQuality.normal)
-                                Text("Good - 192Kbps").tag(AudioQuality.good)
-                                Text("High - 256Kbps").tag(AudioQuality.high)
-                                Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
-                            }.padding([.leading, .trailing], 10).disabled(audioFormat == .alac || audioFormat == .flac)
+                            if #available(macOS 13, *) {
+                                Picker("Quality", selection: $audioQuality) {
+                                    if audioFormat == .alac || audioFormat == .flac {
+                                        Text("Lossless").tag(audioQuality)
+                                    }
+                                    Text("Normal - 128Kbps").tag(AudioQuality.normal)
+                                    Text("Good - 192Kbps").tag(AudioQuality.good)
+                                    Text("High - 256Kbps").tag(AudioQuality.high)
+                                    Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
+                                }.padding([.leading, .trailing], 10).disabled(audioFormat == .alac || audioFormat == .flac)
+                            }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
                             .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 8).padding(.top, 4).fixedSize(horizontal: false, vertical: true)

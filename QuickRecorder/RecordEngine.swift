@@ -182,10 +182,10 @@ extension AppDelegate {
         SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
     }
 
-    func getFilePath() -> String {
+    func getFilePath(capture: Bool = false) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"
-        return ud.string(forKey: "saveDirectory")! + "/Recording at ".local + dateFormatter.string(from: Date())
+        return ud.string(forKey: "saveDirectory")! + (capture ? "/Capturing at ".local : "/Recording at ".local) + dateFormatter.string(from: Date())
     }
 }
 
@@ -265,10 +265,10 @@ extension AppDelegate {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
             if #available(macOS 13.0, *) {
-                let url = URL(filePath: "\(getFilePath()).png")
+                let url = URL(filePath: "\(getFilePath(capture: true)).png")
                 sampleBuffer.nsImage?.saveToFile(url)
             } else {
-                let url = URL(fileURLWithPath: "\(getFilePath()).png")
+                let url = URL(fileURLWithPath: "\(getFilePath(capture: true)).png")
                 sampleBuffer.nsImage?.saveToFile(url)
             }
         }
