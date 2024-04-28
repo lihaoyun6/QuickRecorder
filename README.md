@@ -16,7 +16,7 @@
 
 ## 安装与使用
 ### 系统版本要求:
-- macOS 13.0 及更高版本  
+- macOS 12.3 及更高版本  
 
 ### 安装:
 可[点此前往](../../releases/latest)下载最新版安装文件. 或使用homebrew安装:  
@@ -29,7 +29,7 @@ brew install lihaoyun6/tap/quickrecorder
 - 使用 SwiftUI 编写, 体积小巧轻量化. 软件大小仅 4MB 左右, 无任何累赘功能. 
 
 - 支持窗口录制, App 录制等模式; 支持窗口声音内录, 鼠标高亮, 隐藏桌面文件等功能. 
-- QuickRecorder 启动后直接显示主功能面板, 关闭后可以点击 Dock 栏图标再次呼出. 
+- 完整支持 macOS 14.2 新增的 **[演讲者前置](https://support.apple.com/zh-cn/guide/facetime/fctm6333f4bd/mac)** 特性, 可在录屏的同时叠加实时摄像头画面.  
 - 开始录制后 QuickRecorder 会在菜单栏显示录制指示器, 可随时暂停或查看录制时长.  
 - 更多功能陆续开发中...  
 
