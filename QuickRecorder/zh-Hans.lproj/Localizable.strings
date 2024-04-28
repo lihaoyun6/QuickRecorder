@@ -38,7 +38,7 @@
 "Low" = "低画质";
 "Medium" = "中画质";
 "High" = "高画质";
-"Save Frame" = "保存当前帧截图";
+"Save Current Frame" = "保存当前帧截图";
 "Record Cursor" = "录制鼠标光标";
 "System Audio" = "录制系统声音";
 "App's Audio" = "录制App声音";
@@ -65,8 +65,8 @@
 "Extreme - 320Kbps" = "极致 - 320Kbps";
 "Other Settings" = "其他设置";
 "These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC." = "录制视频时也会遵从这些设置, 但如果音频编码被设为 Opus, 则在录制 MP4 时将会回退至 AAC 编码.";
-"If enabled, all files on the Desktop will be hidden from the video when recording Screen or Finder." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
-"These apps will be excluded when recording \"Screen\" or \"Screen Area\" (app names separated by commas)" = "在录制\"全屏画面\"或\"屏幕区域\"的时候将不会录制这些 App 的画面 (填写 App 名称, 以英文逗号分隔)";
+"If enabled, all files on the Desktop will be hidden from the video when recording." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
+"These apps will be excluded when recording \"Screen\" or \"Screen Area\"\n* But if the app is launched after the recording starts, it cannot be excluded." = "在录制 \"全屏画面\" 或 \"屏幕区域\" 的时候将不会录制这些 App 的画面 (点 + 添加App)\n* 但如果列表中的 App 在录屏开始后才被启动, 则无法被排除在录制画面之外.";
 "Exclude the \"Desktop Files\" layer" = "从录像中排除所有桌面文件";
 "Recording Delay" = "开始录制前倒数";
 "0s" = "0秒";
@@ -74,7 +74,7 @@
 "5s" = "5秒";
 "10s" = "10秒";
 "Close" = "关闭";
-"Set custom background color" = "设置用户预设颜色(自定义背景)";
+"Set custom background color:" = "设置用户预设颜色(自定义背景):";
 "File size: %@" = "文件大小: %@";
 "Recording: " = "正在录制: ";
 "Display " = "显示器 ";
@@ -84,7 +84,7 @@
 "Multiple Apps" = "多个应用";
 "Unknown App" = "未知应用";
 "A Window" = "单个窗口";
-"Select output directory" = "选择存储位置";
+"Select save folder" = "选择存储位置";
 "Currently set to \"%@\"" = "当前保存在 \"%@\"";
 "/Recording at " = "/录制于 ";
 "/Capturing at " = "/捕获于 ";
@@ -96,12 +96,17 @@
 "Take Screenshot" = "截图当前屏幕";
 "Pause / Resume" = "暂停/继续录制";
 "Stop Recording" = "结束屏幕录制";
+"Record System Audio" = "录制系统声音";
 "Record Current Screen" = "录制当前屏幕";
-"Record Current Window" = "录制当前窗口";
-"Toggle Screen Magnifier" = "切换屏幕放大器";
+"Record Topmost Window" = "录制当前窗口";
+"Toggle Screen Magnifier" = "显示/隐藏屏幕放大器";
 "Waiting on update…" = "正在更新, 请稍等…";
 "Include MenuBar" = "在录像中录制菜单栏画面";
 "Excluded Apps" = "App 排除列表";
+"Disabled" = "不使用";
+"Record with Camera:" = "录制摄像头:";
+"Presenter Overlay Camera:" = "\"演讲者前置\"摄像头:";
+"Can only be turned off on macOS 14.2 or later!" = "此选项仅 macOS 14.2 或更高版本系统可中可被关闭!";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";

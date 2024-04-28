@@ -13,13 +13,13 @@ struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var userColor: Color = Color.black
     @State private var launchAtLogin = false
+    @State private var fakeTrue = true
     @AppStorage("encoder")          private var encoder: Encoder = .h264
     @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
     @AppStorage("countdown")        private var countdown: Int = 0
-    @AppStorage("appBlackList")     private var appBlackList: String = ""
     @AppStorage("saveDirectory")    private var saveDirectory: String?
     @AppStorage("highlightMouse")   private var highlightMouse: Bool = false
     @AppStorage("includeMenuBar")   private var includeMenuBar: Bool = false
@@ -34,12 +34,12 @@ struct SettingsView: View {
                             Picker("Format", selection: $videoFormat) {
                                 Text("MOV").tag(VideoFormat.mov)
                                 Text("MP4").tag(VideoFormat.mp4)
-                            }.padding([.leading, .trailing, .bottom], 10)
+                            }.padding([.leading, .trailing, .bottom], 11)
                             Picker("Encoder", selection: $encoder) {
                                 Text("H.264").tag(Encoder.h264)
                                 Text("H.265").tag(Encoder.h265)
                             }.padding([.leading, .trailing], 10)
-                        }.frame(maxWidth: .infinity).padding([.top, .bottom], 10)
+                        }.frame(maxWidth: .infinity).padding([.top, .bottom], 11)
                     }//.padding(.bottom, 7)
                     GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
                         Form() {
@@ -48,7 +48,7 @@ struct SettingsView: View {
                                 Text("ALAC (Lossless)").tag(AudioFormat.alac)
                                 Text("FLAC (Lossless)").tag(AudioFormat.flac)
                                 Text("Opus").tag(AudioFormat.opus)
-                            }.padding([.leading, .trailing, .bottom], 10)
+                            }.padding([.leading, .trailing, .bottom], 11)
                             if #available(macOS 13, *) {
                                 Picker("Quality", selection: $audioQuality) {
                                     if audioFormat == .alac || audioFormat == .flac {
@@ -60,78 +60,83 @@ struct SettingsView: View {
                                     Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
                                 }.padding([.leading, .trailing], 10).disabled(audioFormat == .alac || audioFormat == .flac)
                             }
-                        }.frame(maxWidth: .infinity).padding(.top, 10)
+                        }.frame(maxWidth: .infinity).padding(.top, 11)
                         Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 8).padding(.top, 4).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, 4).fixedSize(horizontal: false, vertical: true)
                     }
                 }.frame(width: 270)
-                VStack(alignment: .center) {
+                VStack {
                     GroupBox(label: Text("Other Settings".local).fontWeight(.bold)) {
-                        Form() {
-                            Picker("Recording Delay", selection: $countdown) {
-                                Text("0s").tag(0)
-                                Text("3s").tag(3)
-                                Text("5s").tag(5)
-                                Text("10s").tag(10)
-                            }.padding([.leading, .trailing], 10)
-                        }.frame(maxWidth: .infinity).padding(.top, 10)
-                        ColorPicker("Set custom background color", selection: $userColor)
-                        //.onChange(of: hideSelf) {_ in Task { if hideSelf { highlightMouse = false }}}
-                        Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
-                            .padding(.bottom, 4)
-                            .toggleStyle(CheckboxToggleStyle())
-                        if #available(macOS 14.2, *) {
-                            Toggle(isOn: $includeMenuBar) { Text("Include MenuBar") }
-                                .toggleStyle(CheckboxToggleStyle())
+                        VStack(alignment: .leading){
+                            Form() {
+                                Picker("Recording Delay", selection: $countdown) {
+                                    Text("0s").tag(0)
+                                    Text("3s").tag(3)
+                                    Text("5s").tag(5)
+                                    Text("10s").tag(10)
+                                }.padding([.leading, .trailing], 10)
+                            }.frame(maxWidth: .infinity).padding(.top, 10)
+                            ColorPicker("Set custom background color:", selection: $userColor).padding([.leading, .trailing], 10)
+                            Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
+                                .padding([.leading, .trailing], 10)
+                                .padding(.bottom, 9)
+                                .toggleStyle(.checkbox)
+                            if #available(macOS 14.2, *) {
+                                Toggle(isOn: $includeMenuBar) { Text("Include MenuBar") }
+                                    .padding([.leading, .trailing], 10)
+                                    .toggleStyle(.checkbox)
+                                Text("Not available for \"Single Window Capture\"")
+                                    .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.leading, 24).padding(.top, -7).fixedSize(horizontal: false, vertical: true)
+                            } else {
+                                Toggle(isOn: $fakeTrue) { Text("Include MenuBar") }
+                                    .padding([.leading, .trailing], 10)
+                                    .toggleStyle(.checkbox)
+                                    .disabled(true)
+                                Text("Can only be turned off on macOS 14.2 or later!")
+                                    .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.leading, 5).padding(.top, -7).fixedSize(horizontal: false, vertical: true).disabled(true)
+                            }
+                            Toggle(isOn: $highlightMouse) { Text("Highlight the mouse cursor") }
+                                .padding([.leading, .trailing], 10)
+                                .toggleStyle(.checkbox)
+                            //.onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
                             Text("Not available for \"Single Window Capture\"")
-                                .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
+                                .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.leading, 24).padding(.top, -7).fixedSize(horizontal: false, vertical: true)
+                            Toggle(isOn: $hideDesktopFiles) { Text("Exclude the \"Desktop Files\" layer") }
+                                .padding([.leading, .trailing], 10)
+                                .toggleStyle(.checkbox)
+                            Text("If enabled, all files on the Desktop will be hidden from the video when recording.")
+                                .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.leading, 24).padding(.top, -7).fixedSize(horizontal: false, vertical: true)
                         }
-                        Toggle(isOn: $highlightMouse) { Text("Highlight the mouse cursor") }
-                            .toggleStyle(CheckboxToggleStyle())
-                        //.onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
-                        Text("Not available for \"Single Window Capture\"")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
-                        Toggle(isOn: $hideDesktopFiles) { Text("Exclude the \"Desktop Files\" layer") }
-                            .toggleStyle(CheckboxToggleStyle())
-                        Text("If enabled, all files on the Desktop will be hidden from the video when recording Screen or Finder.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.bottom, 8).fixedSize(horizontal: false, vertical: true)
                     }
                 }.frame(width: 270)
-            }//.padding(.bottom, 0.5)
-            if #unavailable(macOS 14.2) { Spacer().frame(height: 16) }
-            GroupBox(label: Text("Shortcuts Settings".local).fontWeight(.bold)) {
-                HStack{
-                    Spacer()
+            }
+            HStack(alignment: .top, spacing: 17){
+                GroupBox(label: Text("Shortcuts Settings".local).fontWeight(.bold)) {
                     Form(){
-                        KeyboardShortcuts.Recorder("Pause / Resume", name: .pauseResume)
                         KeyboardShortcuts.Recorder("Stop Recording", name: .stop)
-                        KeyboardShortcuts.Recorder("Save Frame", name: .saveFrame)
-                        
-                    }
-                    Spacer()
-                    Form() {
+                        KeyboardShortcuts.Recorder("Pause / Resume", name: .pauseResume)
+                        KeyboardShortcuts.Recorder("Record System Audio", name: .startWithAudio)
                         KeyboardShortcuts.Recorder("Record Current Screen", name: .startWithScreen)
-                        KeyboardShortcuts.Recorder("Record Current Window", name: .startWithWindow)
+                        KeyboardShortcuts.Recorder("Record Topmost Window", name: .startWithWindow)
+                        KeyboardShortcuts.Recorder("Save Current Frame", name: .saveFrame)
                         KeyboardShortcuts.Recorder("Toggle Screen Magnifier", name: .screenMagnifier)
+                    }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity).padding(6)
+                }.frame(width: 320).fixedSize()
+                GroupBox(label: Text("Excluded Apps".local).fontWeight(.bold)) {
+                    VStack(spacing: 5.5) {
+                        BundleSelector()
+                        Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\"\n* But if the app is launched after the recording starts, it cannot be excluded.")
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
                     }
-                    Spacer()
-                }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity).padding(5)
-            }.frame(width: 557).padding(.top, -8).fixedSize()
-            GroupBox(label: Text("Excluded Apps".local).fontWeight(.bold)) {
-                VStack(spacing: 5.5) {
-                    TextEditor(text: $appBlackList)
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\" (app names separated by commas)")
-                        .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
-                }
-            }.frame(width: 557, height: 90).padding(.bottom, 3)
+                }.frame(width: 220)
+            }
             Divider()
             HStack {
                 HStack(spacing: 10) {
                     Button(action: {
                         updateOutputDirectory()
                     }, label: {
-                        Text("Select output directory").padding([.leading, .trailing], 10)
+                        Text("Select save folder").padding([.leading, .trailing], 10)
                     })
                     Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent)).font(.footnote).foregroundColor(Color.gray)
                 }.padding(.leading, 0.5)
@@ -227,6 +232,7 @@ extension UserDefaults {
 }
 
 extension KeyboardShortcuts.Name {
+    static let startWithAudio = Self("startWithAudio")
     static let startWithScreen = Self("startWithScreen")
     static let startWithWindow = Self("startWithWindow")
     static let screenMagnifier = Self("screenMagnifier")

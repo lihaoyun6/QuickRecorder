@@ -47,5 +47,8 @@ brew install lihaoyun6/tap/quickrecorder
 [Azayaka](https://github.com/Mnpn/Azayaka) @Mnpn
 > The source of inspiration and part of the code of the screen recording engine comes from the Azayaka project, and I am also one of the code contributors to this project
 
+[KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) @sindresorhus  
+> QuickRecorder uses this swift library to handle shortcut key events    
+
 [ChatGPT](https://chat.openai.com) @OpenAI
 > Note: Part of the code in this project was generated or refactored using ChatGPT.

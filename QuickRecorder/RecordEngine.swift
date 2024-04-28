@@ -44,11 +44,12 @@ extension AppDelegate {
         let dockWindow = SCContext.availableContent!.windows.first(where: { $0.title == "Dock" && $0.owningApplication?.bundleIdentifier == "com.apple.dock" })
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
-        let appBlackList = ud.string(forKey: "appBlackList")?.split(separator: ",").map{ $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-        let excliudedApps = SCContext.availableContent!.applications.filter({
-            guard let apps = appBlackList else { return false }
-            return apps.contains($0.applicationName)
-        })
+        var appBlackList = [String]()
+        if let savedData = UserDefaults.standard.data(forKey: "hiddenApps"),
+           let decodedApps = try? JSONDecoder().decode([AppInfo].self, from: savedData) {
+            appBlackList = (decodedApps as [AppInfo]).map({ $0.bundleID })
+        }
+        let excliudedApps = SCContext.availableContent!.applications.filter({ appBlackList.contains($0.bundleIdentifier) })
         
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
@@ -160,6 +161,7 @@ extension AppDelegate {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
             if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
+            if !audioOnly && SCContext.recordCam != "Disabled".local { recordingCamera(withName: SCContext.recordCam) }
             try await SCContext.stream.startCapture()
         } catch {
             assertionFailure("capture failed".local)
@@ -261,6 +263,20 @@ extension AppDelegate {
         SCContext.vW.startWriting()
     }
     
+    func outputVideoEffectDidStart(for stream: SCStream) {
+        print("[Presenter Overlay ON]")
+        isPresenterON = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.isCameraReady = true
+        }
+    }
+    
+    func outputVideoEffectDidStop(for stream: SCStream) {
+        print("[Presenter Overlay OFF]")
+        isPresenterON = false
+        isCameraReady = false
+    }
+    
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
@@ -295,7 +311,7 @@ extension AppDelegate {
             guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,
                   let status = SCFrameStatus(rawValue: statusRawValue),
                   status == .complete else { return }
-
+            
             if SCContext.vW != nil && SCContext.vW?.status == .writing, SCContext.startTime == nil {
                 SCContext.startTime = Date.now
                 SCContext.vW.startSession(atSourceTime: CMSampleBufferGetPresentationTimeStamp(SampleBuffer))
@@ -305,8 +321,27 @@ extension AppDelegate {
             let dur = CMSampleBufferGetDuration(SampleBuffer)
             if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
             SCContext.lastPTS = pts
-            if SCContext.vwInput.isReadyForMoreMediaData { SCContext.vwInput.append(SampleBuffer) }
-            
+            if SCContext.vwInput.isReadyForMoreMediaData {
+                if #available(macOS 14.2, *) {
+                    if let rect = attachments[.presenterOverlayContentRect] as? [String: Any]{
+                        var type = "np"
+                        let off = (rect["X"] as! CGFloat == .infinity)
+                        let small = (rect["X"] as! CGFloat == 0.0)
+                        let big = (!off && !small)
+                        if off { type = "OFF" } else if small { type = "Small" } else if big { type = "Big" }
+                        if type != presenterType {
+                            print("Presenter Overlay set to \"\(type)\"!")
+                            isCameraReady = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                self.isCameraReady = true
+                            }
+                            presenterType = type
+                        }
+                    }
+                }
+                if isPresenterON && !isCameraReady { break }
+                SCContext.vwInput.append(SampleBuffer)
+            }
             break
             case .audio:
             if SCContext.streamType == .systemaudio { // write directly to file if not video recording

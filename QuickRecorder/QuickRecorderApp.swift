@@ -14,6 +14,7 @@ import UserNotifications
 import KeyboardShortcuts
 import ServiceManagement
 
+var isSonoma = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -73,8 +74,11 @@ extension Scene {
     }
 }
 
-class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOutput  {
+class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOutput, AVCaptureVideoDataOutputSampleBufferDelegate  {
     var filter: SCContentFilter?
+    var isCameraReady = false
+    var isPresenterON = false
+    var presenterType = "no"
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -130,13 +134,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        if #available(macOS 14.2, *) { isSonoma = true }
+        
         SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
         
         ud.register( // default defaults (used if not set)
             defaults: [
-                "appBlackList": "",
                 "audioFormat": AudioFormat.aac.rawValue,
                 "audioQuality": AudioQuality.high.rawValue,
                 "background": BackgroundType.wallpaper.rawValue,
@@ -176,12 +181,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { [] in SCContext.showMagnifier.toggle() }
         KeyboardShortcuts.onKeyDown(for: .stop) { [] in if SCContext.stream != nil { SCContext.stopRecording() }}
         KeyboardShortcuts.onKeyDown(for: .pauseResume) { [] in if SCContext.stream != nil { SCContext.pauseRecording() }}
+        KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in
+            for w in NSApp.windows { w.close() }
+            prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
+        }
         KeyboardShortcuts.onKeyDown(for: .startWithScreen) {[self] in
-            for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
+            for w in NSApp.windows { w.close() }
             prepRecord(type: "display", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
         }
         KeyboardShortcuts.onKeyDown(for: .startWithWindow) { [self] in
-            for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
+            for w in NSApp.windows { w.close() }
             let frontmostApp = NSWorkspace.shared.frontmostApplication
             if let pid = frontmostApp?.processIdentifier {
                 let options: CGWindowListOption = .optionOnScreenOnly
@@ -203,6 +212,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }
+        
         if #available(macOS 13, *) {
             if firstRun && (SMAppService.mainApp.status == .enabled) {
                 firstRun = false

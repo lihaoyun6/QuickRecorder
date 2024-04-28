@@ -12,13 +12,16 @@ import ScreenCaptureKit
 import UserNotifications
 
 class SCContext {
+    static var recordCam = "Disabled".local
+    static var captureSession: AVCaptureSession!
+    static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
     static var audioSettings: [String : Any]!
-    static var frameCache: CMSampleBuffer?
     static var showMagnifier = false
     static var saveFrame = false
     static var isPaused = false
     static var isResume = false
+    static var isSkipFrame = false
     static var lastPTS: CMTime?
     static var lsatPts: CMTime?
     static var timeOffset = CMTimeMake(value: 0, timescale: 0)
@@ -232,9 +235,8 @@ class SCContext {
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
 
         if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
-        if stream != nil {
-            stream.stopCapture()
-        }
+        
+        if stream != nil { stream.stopCapture() }
         stream = nil
         if streamType != .systemaudio {
             let dispatchGroup = DispatchGroup()
@@ -248,6 +250,7 @@ class SCContext {
             }
             vW.finishWriting {
                 startTime = nil
+                if let sesson = captureSession { if sesson.isRunning { sesson.stopRunning() }}
                 dispatchGroup.leave()
             }
             dispatchGroup.wait()
@@ -272,6 +275,12 @@ class SCContext {
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
         }
+    }
+    
+    static func getCameras() -> [String] {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified)
+        let cameras = ["Disabled".local] + discoverySession.devices.map { $0.localizedName }
+        return cameras
     }
     
     static func adjustTime(sample: CMSampleBuffer, by offset: CMTime) -> CMSampleBuffer? {

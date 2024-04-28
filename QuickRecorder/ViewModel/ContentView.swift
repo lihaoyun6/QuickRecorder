@@ -30,7 +30,7 @@ struct ContentView: View {
                             SelectorView(title: "System Audio".local, symbol: "waveform")
                                 .cornerRadius(8)
                         })
-                        .buttonStyle(PlainButtonStyle())
+                        .buttonStyle(.plain)
                         Divider().frame(height: 70)
                     }
                     Button(action: {
@@ -39,7 +39,7 @@ struct ContentView: View {
                     }, label: {
                         SelectorView(title: "Screen".local, symbol: "tv.inset.filled")
                             .cornerRadius(8)
-                    }).buttonStyle(PlainButtonStyle())
+                    }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
@@ -49,7 +49,7 @@ struct ContentView: View {
                         SelectorView(title: "Screen Area".local, symbol: "viewfinder")
                             .cornerRadius(8)
                     })
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
@@ -57,7 +57,7 @@ struct ContentView: View {
                     }, label: {
                         SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
                             .cornerRadius(8)
-                    }).buttonStyle(PlainButtonStyle())
+                    }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
@@ -65,7 +65,7 @@ struct ContentView: View {
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow")
                             .cornerRadius(8)
-                    }).buttonStyle(PlainButtonStyle())
+                    }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         showSettings = true
@@ -75,7 +75,7 @@ struct ContentView: View {
                         SelectorView(title: "Preferences".local, symbol: "gearshape")
                             .cornerRadius(8)
                     })
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(.plain)
                     .sheet(isPresented: $showSettings) {
                         SettingsView()
                     }
@@ -92,7 +92,7 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                         .onHover{ hovering in xmarkGlowing = hovering }
                 })
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(.plain)
                 .padding([.leading, .trailing, .top], 7)
             }
         }//.frame(width: 800)
@@ -137,10 +137,10 @@ struct ContentView: View {
         screenshotWindow.makeKeyAndOrderFront(nil)
         screenshotWindow.orderFrontRegardless()
         let wX = (screen.frame.width - 510) / 2
-        let wY = screen.visibleFrame.minY + 50
+        let wY = screen.visibleFrame.minY + 70
         var window = NSWindow()
         let contentView = NSHostingView(rootView: AreaSelector())
-        contentView.frame = NSRect(x: wX, y: wY, width: 510, height: 50)
+        contentView.frame = NSRect(x: wX, y: wY, width: 510, height: 70)
         window = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
         window.level = .screenSaver
         window.title = "Start Recording".local

@@ -50,5 +50,8 @@ brew install lihaoyun6/tap/quickrecorder
 [Azayaka](https://github.com/Mnpn/Azayaka) @Mnpn  
 > 灵感来源以及屏幕录制引擎的部分代码来自于 Azayaka 项目, 同时我也是此项目的代码贡献者之一   
 
+[KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) @sindresorhus  
+> QuickRecorder 使用此swift库来处理快捷键事件  
+
 [ChatGPT](https://chat.openai.com) @OpenAI  
 > 注: 本项目部分代码使用 ChatGPT 生成或重构整理

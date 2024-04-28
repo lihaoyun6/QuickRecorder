@@ -29,6 +29,8 @@ struct WinSelector: View {
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
     @AppStorage("highRes")         private var highRes: Int = 2
     @AppStorage("countdown")      private var countdown: Int = 0
+    @State private var recordCam = "Disabled".local
+    @State private var cameras = SCContext.getCameras()
     
     var body: some View {
         ZStack {
@@ -102,7 +104,7 @@ struct WinSelector: View {
                                                 .truncationMode(.tail)
                                                 .frame(width: 160)
                                         }
-                                    }).buttonStyle(PlainButtonStyle())
+                                    }).buttonStyle(.plain)
                                 }
                             }
                         }
@@ -111,7 +113,6 @@ struct WinSelector: View {
                     }
                 }
                 .frame(height: 420)
-
                 HStack{
                     Button(action: {
                         self.viewModel.setupStreams()
@@ -126,78 +127,91 @@ struct WinSelector: View {
                                 .font(.system(size: 12))
                         }
                         
-                    }).buttonStyle(PlainButtonStyle())
+                    }).buttonStyle(.plain)
                     Spacer()
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Definition")
-                        Text("Frame rate")
-                    }
-                    VStack(alignment: .leading, spacing: 12) {
-                        Picker("", selection: $highRes) {
-                            Text("Auto").tag(2)
-                            Text("Low (1x)").tag(1)
-                            Text("Low (0.5x)").tag(0)
-                        }.buttonStyle(.borderless)
-                        Picker("", selection: $frameRate) {
-                            Text("240 FPS").tag(240)
-                            Text("144 FPS").tag(144)
-                            Text("120 FPS").tag(120)
-                            Text("90 FPS").tag(90)
-                            Text("60 FPS").tag(60)
-                            Text("30 FPS").tag(30)
-                            Text("24 FPS").tag(24)
-                            Text("15 FPS").tag(15)
-                            Text("10 FPS").tag(10)
-                        }.buttonStyle(.borderless)
-                    }.scaledToFit()
-                    Divider()
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Quality")
-                        Text("Background")
-                    }.padding(.leading, 8)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Picker("", selection: $videoQuality) {
-                            Text("Low").tag(0.3)
-                            Text("Medium").tag(0.7)
-                            Text("High").tag(1.0)
-                        }.buttonStyle(.borderless)
-                        Picker("", selection: $background) {
-                            Text("Wallpaper").tag(BackgroundType.wallpaper)
-                            Text("Black").tag(BackgroundType.black)
-                            Text("White").tag(BackgroundType.white)
-                            Text("Gray").tag(BackgroundType.gray)
-                            Text("Yellow").tag(BackgroundType.yellow)
-                            Text("Orange").tag(BackgroundType.orange)
-                            Text("Green").tag(BackgroundType.green)
-                            Text("Blue").tag(BackgroundType.blue)
-                            Text("Red").tag(BackgroundType.red)
-                            Text("Custom").tag(BackgroundType.custom)
-                        }.buttonStyle(.borderless)
-                    }.scaledToFit()
-                    Divider()
-                    VStack(alignment: .leading, spacing: 3) {
-                        Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
-                            .toggleStyle(CheckboxToggleStyle())
-                        if #available(macOS 13, *) {
-                            Toggle(isOn: $recordWinSound) { Text("App's Audio").padding(.leading, 5) }
-                                .toggleStyle(CheckboxToggleStyle())
-                        }
-                        if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
-                            Toggle(isOn: $recordMic) {
-                                Text("Microphone").padding(.leading, 5)
-                            }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) {
-                                Task { await SCContext.performMicCheck() }
+                    VStack(spacing: 6) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Definition")
+                                Text("Frame rate")
                             }
-                        } else {
-                            Toggle(isOn: $recordMic) {
-                                Text("Microphone").padding(.leading, 5)
-                            }.toggleStyle(CheckboxToggleStyle()).onChange(of: recordMic) { _ in
-                                Task { await SCContext.performMicCheck() }
+                            VStack(alignment: .leading, spacing: 12) {
+                                Picker("", selection: $highRes) {
+                                    Text("Auto").tag(2)
+                                    Text("Low (1x)").tag(1)
+                                    Text("Low (0.5x)").tag(0)
+                                }.buttonStyle(.borderless)
+                                Picker("", selection: $frameRate) {
+                                    Text("240 FPS").tag(240)
+                                    Text("144 FPS").tag(144)
+                                    Text("120 FPS").tag(120)
+                                    Text("90 FPS").tag(90)
+                                    Text("60 FPS").tag(60)
+                                    Text("30 FPS").tag(30)
+                                    Text("24 FPS").tag(24)
+                                    Text("15 FPS").tag(15)
+                                    Text("10 FPS").tag(10)
+                                }.buttonStyle(.borderless)
+                            }.scaledToFit()
+                            Divider().padding([.top, .bottom], -10)
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Quality")
+                                Text("Background")
+                            }.padding(.leading, 8)
+                            VStack(alignment: .leading, spacing: 12) {
+                                Picker("", selection: $videoQuality) {
+                                    Text("Low").tag(0.3)
+                                    Text("Medium").tag(0.7)
+                                    Text("High").tag(1.0)
+                                }.buttonStyle(.borderless)
+                                Picker("", selection: $background) {
+                                    Text("Wallpaper").tag(BackgroundType.wallpaper)
+                                    Text("Black").tag(BackgroundType.black)
+                                    Text("White").tag(BackgroundType.white)
+                                    Text("Gray").tag(BackgroundType.gray)
+                                    Text("Yellow").tag(BackgroundType.yellow)
+                                    Text("Orange").tag(BackgroundType.orange)
+                                    Text("Green").tag(BackgroundType.green)
+                                    Text("Blue").tag(BackgroundType.blue)
+                                    Text("Red").tag(BackgroundType.red)
+                                    Text("Custom").tag(BackgroundType.custom)
+                                }.buttonStyle(.borderless)
+                            }.scaledToFit()
+                            Divider().padding([.top, .bottom], -10)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
+                                    .toggleStyle(.checkbox)
+                                if #available(macOS 13, *) {
+                                    Toggle(isOn: $recordWinSound) { Text("App's Audio").padding(.leading, 5) }
+                                        .toggleStyle(.checkbox)
+                                }
+                                if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
+                                    Toggle(isOn: $recordMic) {
+                                        Text("Microphone").padding(.leading, 5)
+                                    }.toggleStyle(.checkbox).onChange(of: recordMic) {
+                                        Task { await SCContext.performMicCheck() }
+                                    }
+                                } else {
+                                    Toggle(isOn: $recordMic) {
+                                        Text("Microphone").padding(.leading, 5)
+                                    }.toggleStyle(.checkbox).onChange(of: recordMic) { _ in
+                                        Task { await SCContext.performMicCheck() }
+                                    }
+                                }
                             }
+                            .scaleEffect(0.8)
+                            .padding(.leading, -4)
+                        }
+                        if #available(macOS 14.2, *) {
+                            Picker("Presenter Overlay Camera:", selection: $recordCam) {
+                                ForEach(cameras, id: \.self) { cameraName in
+                                    Text(cameraName)
+                                }
+                            }
+                            .buttonStyle(.borderless)
+                            .onDisappear{ SCContext.recordCam = recordCam }
                         }
                     }
-                    .scaleEffect(0.8)
-                    .padding(.leading, -4)
                     Spacer()
                     Button(action: {
                         if counter == 0 { startRecording() }
@@ -218,10 +232,10 @@ struct WinSelector: View {
                             }
                         }
                     })
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(.plain)
                     .disabled(selected.count < 1)
                 }
-                .padding([.leading, .trailing], 50)
+                .padding([.leading, .trailing], 50).padding(.top, isSonoma ? -6 : 0)
                 Spacer()
             }
             .padding(.top, -5)

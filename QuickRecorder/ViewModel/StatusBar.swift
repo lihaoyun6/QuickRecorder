@@ -27,7 +27,7 @@ struct StatusBarItem: View {
                         .font(.system(size: 16))
                         .foregroundStyle(.white)
                         .frame(width: 16, alignment: .center)
-                }).buttonStyle(PlainButtonStyle())
+                }).buttonStyle(.plain)
                 Button(action: {
                     SCContext.pauseRecording()
                     isPassed = SCContext.isPaused
@@ -36,7 +36,7 @@ struct StatusBarItem: View {
                         .font(.system(size: 16))
                         .foregroundStyle(.white)
                         .frame(width: 16, alignment: .center)
-                }).buttonStyle(PlainButtonStyle())
+                }).buttonStyle(.plain)
                 Spacer().frame(width: 0)
                 Text(recordingLength)
                     .foregroundStyle(.white)
