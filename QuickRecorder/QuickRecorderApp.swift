@@ -14,7 +14,6 @@ import UserNotifications
 import KeyboardShortcuts
 import ServiceManagement
 
-var isSonoma = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -26,6 +25,7 @@ let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquiv
 let updateTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
+let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
 
 @main
 struct QuickRecorderApp: App {
@@ -37,8 +37,7 @@ struct QuickRecorderApp: App {
                 .navigationTitle("QuickReader".local)
                 .fixedSize()
                 .onAppear { setMainWindow() }
-        }
-        .commands { CommandGroup(replacing: .newItem) {} }
+        }.commands { CommandGroup(replacing: .newItem) {} }
         .myWindowIsContentResizable()
         
         Settings {
@@ -96,7 +95,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func screenMagnifierReLocation(event: NSEvent) {
-        if !SCContext.showMagnifier
+        if !SCContext.isMagnifierEnabled
             || hideScreenMagnifier
         { screenMagnifier.orderOut(nil); return }
         let mouseLocation = event.locationInWindow
@@ -133,9 +132,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         return false
     }
     
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            createNewWindow(view: VideoTrimmerView(videoURL: url), title: "Video Trimmer".local, random: true)
+            for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
+        }
+    }
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        if #available(macOS 14.2, *) { isSonoma = true }
-        
         SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
@@ -154,10 +158,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "videoQuality": 1.0,
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "encoder": Encoder.h264.rawValue,
+                "poSafeDelay": 1,
                 "saveDirectory": saveDirectory,
                 "showMouse": true,
                 "recordMic": false,
-                "recordWinSound": true
+                "recordWinSound": true,
+                "trimAfterRecord": false
             ]
         )
         
@@ -178,7 +184,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         screenMagnifier.backgroundColor = NSColor.clear
         
         KeyboardShortcuts.onKeyDown(for: .saveFrame) { [] in SCContext.saveFrame = true }
-        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { [] in SCContext.showMagnifier.toggle() }
+        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { [] in SCContext.isMagnifierEnabled.toggle() }
         KeyboardShortcuts.onKeyDown(for: .stop) { [] in if SCContext.stream != nil { SCContext.stopRecording() }}
         KeyboardShortcuts.onKeyDown(for: .pauseResume) { [] in if SCContext.stream != nil { SCContext.pauseRecording() }}
         KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in

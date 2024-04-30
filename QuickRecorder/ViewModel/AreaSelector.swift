@@ -37,11 +37,9 @@ struct AreaSelector: View {
     @AppStorage("recordMic")       private var recordMic: Bool = false
     @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
-    @AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
+    //@AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
     @AppStorage("highRes")         private var highRes: Int = 2
     @AppStorage("countdown")      private var countdown: Int = 0
-    @State private var recordCam = "Disabled".local
-    @State private var cameras = SCContext.getCameras()
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
@@ -121,15 +119,6 @@ struct AreaSelector: View {
                             .scaleEffect(0.8)
                             .padding(.leading, -4)
                         }
-                        if #available(macOS 14.2, *) {
-                            Picker("Presenter Overlay Camera:", selection: $recordCam) {
-                                ForEach(cameras, id: \.self) { cameraName in
-                                    Text(cameraName)
-                                }
-                            }
-                            .buttonStyle(.borderless)
-                            .onDisappear{ SCContext.recordCam = recordCam }
-                        }
                     }
                     Divider()
                     Spacer()
@@ -162,13 +151,13 @@ struct AreaSelector: View {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
             }, label: {
                 Image(systemName: "xmark")
-                    .font(.system(size: 12))
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundStyle(.secondary)
             })
             .buttonStyle(.plain)
             .padding(.top, -7).padding(.leading, 9)
         }
-        .frame(width: 590, height: 70)
+        .frame(width: 590, height: 50)
         .onReceive(timer) { t in
             if counter == nil { return }
             if counter! <= 1 { startRecording(); return }

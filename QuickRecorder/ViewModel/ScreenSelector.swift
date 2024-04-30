@@ -25,11 +25,9 @@ struct ScreenSelector: View {
     @AppStorage("recordMic")       private var recordMic: Bool = false
     @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
-    @AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
+    //@AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
     @AppStorage("highRes")         private var highRes: Int = 2
     @AppStorage("countdown")      private var countdown: Int = 0
-    @State private var recordCam = "Disabled".local
-    @State private var cameras = SCContext.getCameras()
     
     var body: some View {
         ZStack {
@@ -193,15 +191,6 @@ struct ScreenSelector: View {
                             .scaleEffect(0.8)
                             .padding(.leading, -4)
                         }
-                        if #available(macOS 14.2, *) {
-                            Picker("Presenter Overlay Camera:", selection: $recordCam) {
-                                ForEach(cameras, id: \.self) { cameraName in
-                                    Text(cameraName)
-                                }
-                            }
-                            .buttonStyle(.borderless)
-                            .onDisappear{ SCContext.recordCam = recordCam }
-                        }
                     }
                     Spacer()
                     Button(action: {
@@ -226,7 +215,7 @@ struct ScreenSelector: View {
                     .buttonStyle(.plain)
                     .disabled(selected == nil)
                 }
-                .padding([.leading, .trailing], 50).padding(.top, isSonoma ? -6 : 0)
+                .padding([.leading, .trailing], 50)
                 Spacer()
             }
             .padding(.top, -5)

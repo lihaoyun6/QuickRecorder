@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
     @State private var xmarkGlowing = false
@@ -154,24 +155,25 @@ struct ContentView: View {
         window.isMovableByWindowBackground = true
         window.makeKeyAndOrderFront(self)
     }
-    
-    func createNewWindow(view: some View, title: String, area: Bool = false) {
-        guard let screen = SCContext.getScreenWithMouse() else { return }
-        
-        let wX = (screen.frame.width - 780) / 2
-        let wY = (screen.frame.height - 530) / 2 + 100
-        var window = NSWindow()
-        let contentView = NSHostingView(rootView: view)
-        contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 530)
-        window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
-        window.title = title
-        window.contentView = contentView
-        window.titleVisibility = .hidden
-        window.isReleasedWhenClosed = false
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
-        window.makeKeyAndOrderFront(self)
-    }
+}
+
+func createNewWindow(view: some View, title: String, random: Bool = false) {
+    guard let screen = SCContext.getScreenWithMouse() else { return }
+    var seed = 0.0
+    if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
+    let wX = (screen.frame.width - 780) / 2 + seed
+    let wY = (screen.frame.height - 530) / 2 + 100 + seed
+    var window = NSWindow()
+    let contentView = NSHostingView(rootView: view)
+    contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 530)
+    window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+    window.title = title
+    window.contentView = contentView
+    window.titleVisibility = .hidden
+    window.titlebarAppearsTransparent = true
+    window.isMovableByWindowBackground = true
+    window.isReleasedWhenClosed = false
+    window.makeKeyAndOrderFront(nil)
 }
 
 /*#Preview {

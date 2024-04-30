@@ -37,14 +37,14 @@ struct BundleSelector: View {
             }.padding(.top, -14.5)
         }
         .onAppear {
-            if let savedData = UserDefaults.standard.data(forKey: "hiddenApps"),
+            if let savedData = ud.data(forKey: "hiddenApps"),
                let decodedApps = try? JSONDecoder().decode([AppInfo].self, from: savedData) {
                 Bundles = decodedApps
             }
         }
         .onDisappear {
             if let encodedData = try? JSONEncoder().encode(Bundles) {
-                UserDefaults.standard.set(encodedData, forKey: "hiddenApps")
+                ud.set(encodedData, forKey: "hiddenApps")
             }
         }
         .fileImporter(isPresented: $isShowingFilePicker, allowedContentTypes: [.application]) { result in

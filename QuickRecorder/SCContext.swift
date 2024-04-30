@@ -17,7 +17,7 @@ class SCContext {
     static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
     static var audioSettings: [String : Any]!
-    static var showMagnifier = false
+    static var isMagnifierEnabled = false
     static var saveFrame = false
     static var isPaused = false
     static var isResume = false
@@ -65,7 +65,10 @@ class SCContext {
     static func getSelfWindows() -> [SCWindow]? {
         return SCContext.availableContent!.windows.filter( {
             guard let title = $0.title else { return false }
-            return $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier && title != "Mouse Pointer".local
+            return $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier
+            && title != "Mouse Pointer".local
+            && title != "Screen Magnifier".local
+            && title != "Camera Overlayer".local
         })
     }
     
@@ -124,6 +127,12 @@ class SCContext {
             }
         }
         return nil
+    }
+    
+    static func getFilePath(capture: Bool = false) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"
+        return ud.string(forKey: "saveDirectory")! + (capture ? "/Capturing at ".local : "/Recording at ".local) + dateFormatter.string(from: Date())
     }
     
     static func updateAudioSettings() {
@@ -220,6 +229,13 @@ class SCContext {
         return formatter.string(from: timePassed) ?? "Unknown".local
     }
     
+    static func isCameraRunning() -> Bool {
+        if let session = captureSession {
+            return session.isRunning
+        }
+        return false
+    }
+    
     static func pauseRecording() {
         isPaused.toggle()
         if !isPaused {
@@ -230,6 +246,7 @@ class SCContext {
     
     static func stopRecording() {
         statusBarItem.isVisible = false
+        recordCam = "Disabled".local
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
@@ -250,10 +267,15 @@ class SCContext {
             }
             vW.finishWriting {
                 startTime = nil
-                if let sesson = captureSession { if sesson.isRunning { sesson.stopRunning() }}
                 dispatchGroup.leave()
             }
             dispatchGroup.wait()
+        }
+        DispatchQueue.main.async {
+            if isCameraRunning() {
+                if camWindow.isVisible { camWindow.close() }
+                captureSession!.stopRunning()
+            }
         }
         isPaused = false
         streamType = nil
@@ -271,9 +293,13 @@ class SCContext {
         }
         content.sound = UNNotificationSound.default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "azayaka.completed.\(Date.now)", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "quickrecorder.completed.\(Date.now)", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
+        }
+        
+        if ud.bool(forKey: "trimAfterRecord") {
+            createNewWindow(view: VideoTrimmerView(videoURL: URL(fileURLWithPath: filePath)), title: "Video Trimmer".local)
         }
     }
     

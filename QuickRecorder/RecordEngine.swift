@@ -45,7 +45,7 @@ extension AppDelegate {
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         var appBlackList = [String]()
-        if let savedData = UserDefaults.standard.data(forKey: "hiddenApps"),
+        if let savedData = ud.data(forKey: "hiddenApps"),
            let decodedApps = try? JSONDecoder().decode([AppInfo].self, from: savedData) {
             appBlackList = (decodedApps as [AppInfo]).map({ $0.bundleID })
         }
@@ -69,7 +69,7 @@ extension AppDelegate {
                 var except = [SCWindow]()
                 excluded += excliudedApps
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
-                if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
+                //if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
                 SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
@@ -180,14 +180,8 @@ extension AppDelegate {
             case AudioFormat.opus.rawValue: fileEnding = "ogg"
         default: assertionFailure("loaded unknown audio format: ".local + fileEnding)
         }
-        SCContext.filePath = "\(getFilePath()).\(fileEnding)"
+        SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
         SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
-    }
-
-    func getFilePath(capture: Bool = false) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"
-        return ud.string(forKey: "saveDirectory")! + (capture ? "/Capturing at ".local : "/Recording at ".local) + dateFormatter.string(from: Date())
     }
 }
 
@@ -215,7 +209,7 @@ extension AppDelegate {
         default: assertionFailure("loaded unknown video format".local)
         }
 
-        SCContext.filePath = "\(getFilePath()).\(fileEnding)"
+        SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
         SCContext.vW = try? AVAssetWriter.init(outputURL: URL(fileURLWithPath: SCContext.filePath), fileType: fileType!)
         let encoderIsH265 = ud.string(forKey: "encoder") == Encoder.h265.rawValue
         let fpsMultiplier: Double = Double(ud.integer(forKey: "frameRate"))/8
@@ -264,9 +258,10 @@ extension AppDelegate {
     }
     
     func outputVideoEffectDidStart(for stream: SCStream) {
+        DispatchQueue.main.async { camWindow.close() }
         print("[Presenter Overlay ON]")
         isPresenterON = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(ud.integer(forKey: "poSafeDelay"))) {
             self.isCameraReady = true
         }
     }
@@ -275,16 +270,19 @@ extension AppDelegate {
         print("[Presenter Overlay OFF]")
         isPresenterON = false
         isCameraReady = false
+        DispatchQueue.main.async {
+            if SCContext.stream != nil { camWindow.orderFront(self) }
+        }
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
             if #available(macOS 13.0, *) {
-                let url = URL(filePath: "\(getFilePath(capture: true)).png")
+                let url = URL(filePath: "\(SCContext.getFilePath(capture: true)).png")
                 sampleBuffer.nsImage?.saveToFile(url)
             } else {
-                let url = URL(fileURLWithPath: "\(getFilePath(capture: true)).png")
+                let url = URL(fileURLWithPath: "\(SCContext.getFilePath(capture: true)).png")
                 sampleBuffer.nsImage?.saveToFile(url)
             }
         }
@@ -332,7 +330,7 @@ extension AppDelegate {
                         if type != presenterType {
                             print("Presenter Overlay set to \"\(type)\"!")
                             isCameraReady = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(ud.integer(forKey: "poSafeDelay"))) {
                                 self.isCameraReady = true
                             }
                             presenterType = type

@@ -8,44 +8,62 @@
 import SwiftUI
 
 struct StatusBarItem: View {
+    @State private var isPopoverShowing = false
     @State private var recordingLength = "00:00"
     @State private var isPassed = SCContext.isPaused
     @AppStorage("saveDirectory") private var saveDirectory: String?
     @AppStorage("highlightMouse") private var highlightMouse: Bool = false
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(Color.mypurple)
-                .shadow(color: .black.opacity(0.3), radius: 4)
-                .cornerRadius(4)
-            HStack(spacing: 4) {
-                Button(action: {
-                    SCContext.stopRecording()
-                }, label: {
-                    Image(systemName: "stop.circle.fill")
-                        .font(.system(size: 16))
+        HStack(spacing: 0) {
+            ZStack {
+                Rectangle()
+                    .fill(Color.mypurple)
+                    .shadow(color: .black.opacity(0.3), radius: 4)
+                    .cornerRadius(4)
+                HStack(spacing: 4) {
+                    Button(action: {
+                        SCContext.stopRecording()
+                    }, label: {
+                        Image(systemName: "stop.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.white)
+                            .frame(width: 16, alignment: .center)
+                    }).buttonStyle(.plain)
+                    Button(action: {
+                        SCContext.pauseRecording()
+                        isPassed = SCContext.isPaused
+                    }, label: {
+                        Image(systemName: isPassed ? "play.circle.fill" : "pause.circle.fill")
+                            .font(.system(size: 16))
+                            .foregroundStyle(.white)
+                            .frame(width: 16, alignment: .center)
+                    }).buttonStyle(.plain)
+                    Text(recordingLength)
                         .foregroundStyle(.white)
-                        .frame(width: 16, alignment: .center)
-                }).buttonStyle(.plain)
-                Button(action: {
-                    SCContext.pauseRecording()
-                    isPassed = SCContext.isPaused
-                }, label: {
-                    Image(systemName: isPassed ? "play.circle.fill" : "pause.circle.fill")
-                        .font(.system(size: 16))
-                        .foregroundStyle(.white)
-                        .frame(width: 16, alignment: .center)
-                }).buttonStyle(.plain)
-                Spacer().frame(width: 0)
-                Text(recordingLength)
-                    .foregroundStyle(.white)
-                    .font(.system(size: 15).monospaced())
-                    .offset(x: 0.5)
+                        .font(.system(size: 15).monospaced())
+                        .offset(x: 0.5)
+                }
             }
-        }.onTapGesture {}
-        .padding([.leading,.trailing], 4)
-        .onReceive(updateTimer) { t in recordingLength = SCContext.getRecordingLength() }
+            .frame(width: 106)
+            .padding([.leading,.trailing], 4)
+            .onReceive(updateTimer) { t in recordingLength = SCContext.getRecordingLength() }
+            Button(action:{
+                isPopoverShowing.toggle()
+            }, label: {
+                ZStack {
+                    Rectangle()
+                        .fill(SCContext.isCameraRunning() ? Color.mygreen : .gray)
+                        .shadow(color: .black.opacity(0.3), radius: 4)
+                        .cornerRadius(4)
+                    Image("camera")
+                        .foregroundStyle(.white)
+                }.frame(width: 36).padding([.leading,.trailing], 4)
+            })
+            .buttonStyle(.plain)
+            .popover(isPresented: $isPopoverShowing) { CameraPopoverView() }
+        }
+        .onTapGesture {}
         .onHover { hovering in
             hideMousePointer = hovering
             hideScreenMagnifier = hovering
@@ -64,7 +82,7 @@ extension AppDelegate: NSMenuDelegate {
             height = 22
         }
         let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, padding))
-        iconView.frame = NSRect(x: 0, y: 1, width: 116, height: height)
+        iconView.frame = NSRect(x: 0, y: 1, width: 158, height: height)
         button.subviews = [iconView]
         button.frame = iconView.frame
         button.setAccessibilityLabel("QuickRecorder")
