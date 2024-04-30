@@ -183,6 +183,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         screenMagnifier.isReleasedWhenClosed = false
         screenMagnifier.backgroundColor = NSColor.clear
         
+        camWindow.title = "Camera Overlayer".local
+        camWindow.hasShadow = true
+        camWindow.level = .floating
+        camWindow.isReleasedWhenClosed = false
+        camWindow.isMovableByWindowBackground = true
+        camWindow.backgroundColor = NSColor.clear
+        
         KeyboardShortcuts.onKeyDown(for: .saveFrame) { [] in SCContext.saveFrame = true }
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { [] in SCContext.isMagnifierEnabled.toggle() }
         KeyboardShortcuts.onKeyDown(for: .stop) { [] in if SCContext.stream != nil { SCContext.stopRecording() }}

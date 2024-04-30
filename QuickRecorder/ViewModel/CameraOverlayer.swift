@@ -13,16 +13,8 @@ import AVFoundation
 extension AppDelegate {
     func startCameraOverlayer(){
         guard let screen = SCContext.getScreenWithMouse() else { return }
-        //camWindow.contentViewController = CameraVC()
         camWindow.contentView = NSHostingView(rootView: SwiftCameraView())
         camWindow.setFrameOrigin(NSPoint(x: screen.visibleFrame.width/2-100, y: screen.visibleFrame.height/2-100))
-        //camWindow.minSize = NSSize(width: 100, height: 100)
-        camWindow.title = "Camera Overlayer".local
-        camWindow.isMovableByWindowBackground = true
-        camWindow.isReleasedWhenClosed = false
-        camWindow.hasShadow = true
-        camWindow.backgroundColor = NSColor.clear
-        camWindow.level = .floating
         camWindow.contentView?.wantsLayer = true
         camWindow.contentView?.layer?.cornerRadius = 5
         camWindow.contentView?.layer?.masksToBounds = true
@@ -93,9 +85,8 @@ struct SwiftCameraView: View {
                                 .offset(y: -1)
                         }
                         .opacity(hover ? 0.8 : 0.2)
-                        .padding(10)
                         .onHover{ hovering in hover = hovering }
-                    }).buttonStyle(.plain)
+                    }).buttonStyle(.plain).padding(10)
                 }.frame(width: geometry.size.width, height: geometry.size.height)
                 if SCContext.streamType == .window {
                     Text("Unable to use camera overlayer when recording a single window, please use \"Presenter Overlay\"")
