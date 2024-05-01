@@ -14,6 +14,7 @@ import UserNotifications
 class SCContext {
     static var recordCam = "Disabled".local
     static var captureSession: AVCaptureSession!
+    static var previewSession: AVCaptureSession!
     static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
     static var audioSettings: [String : Any]!
@@ -177,12 +178,10 @@ class SCContext {
 
         ud.setValue(false, forKey: "recordMic")
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "Permission Required".local
-            alert.informativeText = "QuickRecorder needs permission to record your microphone.".local
-            alert.addButton(withTitle: "Open Settings".local)
-            alert.addButton(withTitle: "Quit".local)
-            alert.alertStyle = .critical
+            let alert = AppDelegate.shared.createAlert(title: "Permission Required",
+                                                       message: "QuickRecorder needs permission to record your microphone.",
+                                                       button1: "Open Settings",
+                                                       button2: "Quit")
             if alert.runModal() == .alertFirstButtonReturn {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
             }
@@ -191,12 +190,10 @@ class SCContext {
     
     private static func requestPermissions() {
         DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.messageText = "Permission Required".local
-            alert.informativeText = "QuickRecorder needs screen recording permissions, even if you only intend on recording audio.".local
-            alert.addButton(withTitle: "Open Settings".local)
-            alert.addButton(withTitle: "Quit".local)
-            alert.alertStyle = .critical
+            let alert = AppDelegate.shared.createAlert(title: "Permission Required",
+                                                       message: "QuickRecorder needs screen recording permissions, even if you only intend on recording audio.",
+                                                       button1: "Open Settings",
+                                                       button2: "Quit")
             if alert.runModal() == .alertFirstButtonReturn {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
             }
@@ -278,6 +275,7 @@ class SCContext {
             }
         }
         isPaused = false
+        hideMousePointer = false
         streamType = nil
         audioFile = nil // close audio file
         window = nil
@@ -299,14 +297,18 @@ class SCContext {
         }
         
         if ud.bool(forKey: "trimAfterRecord") {
-            createNewWindow(view: VideoTrimmerView(videoURL: URL(fileURLWithPath: filePath)), title: "Video Trimmer".local)
+            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: URL(fileURLWithPath: filePath)), title: "Video Trimmer".local)
         }
     }
     
-    static func getCameras() -> [String] {
+    static func getCameras() -> [AVCaptureDevice] {
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .externalUnknown], mediaType: .video, position: .unspecified)
-        let cameras = ["Disabled".local] + discoverySession.devices.map { $0.localizedName }
-        return cameras
+        return discoverySession.devices
+    }
+    
+    static func getiDevice() -> [AVCaptureDevice] {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: .muxed, position: .unspecified)
+        return discoverySession.devices
     }
     
     static func adjustTime(sample: CMSampleBuffer, by offset: CMTime) -> CMSampleBuffer? {

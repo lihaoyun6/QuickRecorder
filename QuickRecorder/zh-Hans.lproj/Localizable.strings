@@ -12,6 +12,7 @@
 "Screen" = "录制全屏画面";
 "Application" = "录制应用程序";
 "Window" = "录制窗口内容";
+"Mobile Device" = "录制移动设备";
 "Preferences" = "偏好设置";
 "No Title" = "无标题";
 "Display " = "显示器";
@@ -109,6 +110,11 @@
 "Presenter Overlay Delay" = "演讲者前置延迟";
 "Open the trimmer after recording" = "录制结束后立即打开片段修剪器";
 "Unable to use camera overlayer when recording a single window, please use \"Presenter Overlay\"" = "单窗口录制模式下无法叠加摄像头画面, 请使用\"演讲者前置\"功能";
+"No Devices Found!" = "未找到任何设备";
+"Please unlock!" = "请解锁屏幕!";
+"If you are on a call, enable \"Mute\"" = "如需通话时录屏请启用\"静音\"";
+"Preset" = "预设";
+"Mute" = "静音";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";

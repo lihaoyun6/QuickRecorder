@@ -13,6 +13,7 @@ import ScreenCaptureKit
 import UserNotifications
 import KeyboardShortcuts
 import ServiceManagement
+import CoreMediaIO
 
 var firstRun = true
 let ud = UserDefaults.standard
@@ -50,6 +51,7 @@ struct QuickRecorderApp: App {
         for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) {
             w.level = .floating
             w.styleMask = [.fullSizeContentView]
+            w.isRestorable = false
             w.isMovableByWindowBackground = true
             w.standardWindowButton(.closeButton)?.isHidden = true
             w.standardWindowButton(.miniaturizeButton)?.isHidden = true
@@ -74,6 +76,7 @@ extension Scene {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOutput, AVCaptureVideoDataOutputSampleBufferDelegate  {
+    static let shared = AppDelegate()
     var filter: SCContentFilter?
     var isCameraReady = false
     var isPresenterON = false
@@ -167,6 +170,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             ]
         )
         
+        var allow : UInt32 = 1
+        let dataSize : UInt32 = 4
+        let zero : UInt32 = 0
+        var prop = CMIOObjectPropertyAddress(
+            mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyAllowScreenCaptureDevices),
+            mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
+            mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
+        CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
+
         statusMenu.delegate = self
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusBarItem.menu = statusMenu
@@ -190,10 +202,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         camWindow.isMovableByWindowBackground = true
         camWindow.backgroundColor = NSColor.clear
         
-        KeyboardShortcuts.onKeyDown(for: .saveFrame) { [] in SCContext.saveFrame = true }
-        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { [] in SCContext.isMagnifierEnabled.toggle() }
-        KeyboardShortcuts.onKeyDown(for: .stop) { [] in if SCContext.stream != nil { SCContext.stopRecording() }}
-        KeyboardShortcuts.onKeyDown(for: .pauseResume) { [] in if SCContext.stream != nil { SCContext.pauseRecording() }}
+        KeyboardShortcuts.onKeyDown(for: .saveFrame) { SCContext.saveFrame = true }
+        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { SCContext.isMagnifierEnabled.toggle() }
+        KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
+        KeyboardShortcuts.onKeyDown(for: .pauseResume) { if SCContext.stream != nil { SCContext.pauseRecording() }}
         KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in
             for w in NSApp.windows { w.close() }
             prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
@@ -323,6 +335,6 @@ enum VideoFormat: String { case mov, mp4 }
 
 enum Encoder: String { case h264, h265 }
 
-enum StreamType: Int { case screen, window, windows, application, screenarea, systemaudio }
+enum StreamType: Int { case screen, window, windows, application, screenarea, systemaudio, idevice, camera }
 
 enum BackgroundType: String { case wallpaper, black, white, red, green, yellow, orange, gray, blue, custom }

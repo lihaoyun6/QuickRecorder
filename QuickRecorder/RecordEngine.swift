@@ -162,7 +162,7 @@ extension AppDelegate {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
             if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
-            if !audioOnly && SCContext.recordCam != "Disabled".local { recordingCamera(withName: SCContext.recordCam) }
+            //if !audioOnly && SCContext.recordCam != "Disabled".local { recordingCamera(withName: SCContext.recordCam) }
             try await SCContext.stream.startCapture()
         } catch {
             assertionFailure("capture failed".local)
@@ -344,6 +344,7 @@ extension AppDelegate {
             break
             case .audio:
             if SCContext.streamType == .systemaudio { // write directly to file if not video recording
+                hideMousePointer = true
                 guard let samples = SampleBuffer.asPCMBuffer else { return }
                 do { try SCContext.audioFile?.write(from: samples) }
                 catch { assertionFailure("audio file writing issue".local) }

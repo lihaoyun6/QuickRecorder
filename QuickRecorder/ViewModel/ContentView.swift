@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var xmarkGlowing = false
     @State private var infoGlowing = false
     @State private var showSettings = false
+    @State private var isPopoverShowing = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some View {
@@ -36,7 +37,7 @@ struct ContentView: View {
                     }
                     Button(action: {
                         closeMainWindow()
-                        createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
+                        appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                     }, label: {
                         SelectorView(title: "Screen".local, symbol: "tv.inset.filled")
                             .cornerRadius(8)
@@ -54,7 +55,7 @@ struct ContentView: View {
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
-                        createNewWindow(view: AppSelector(), title: "App Selector".local)
+                        appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
                     }, label: {
                         SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
                             .cornerRadius(8)
@@ -62,11 +63,19 @@ struct ContentView: View {
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
-                        createNewWindow(view: WinSelector(), title: "Window Selector".local)
+                        appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow")
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
+                    Divider().frame(height: 70)
+                    Button(action: {
+                        isPopoverShowing.toggle()
+                    }, label: {
+                        SelectorView(title: "Mobile Device".local, symbol: "apps.iphone")
+                            .cornerRadius(8)
+                    }).buttonStyle(.plain)
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView() }
                     Divider().frame(height: 70)
                     Button(action: {
                         showSettings = true
@@ -157,23 +166,37 @@ struct ContentView: View {
     }
 }
 
-func createNewWindow(view: some View, title: String, random: Bool = false) {
-    guard let screen = SCContext.getScreenWithMouse() else { return }
-    var seed = 0.0
-    if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
-    let wX = (screen.frame.width - 780) / 2 + seed
-    let wY = (screen.frame.height - 530) / 2 + 100 + seed
-    var window = NSWindow()
-    let contentView = NSHostingView(rootView: view)
-    contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 530)
-    window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
-    window.title = title
-    window.contentView = contentView
-    window.titleVisibility = .hidden
-    window.titlebarAppearsTransparent = true
-    window.isMovableByWindowBackground = true
-    window.isReleasedWhenClosed = false
-    window.makeKeyAndOrderFront(nil)
+extension AppDelegate {
+    func createNewWindow(view: some View, title: String, random: Bool = false) {
+        guard let screen = SCContext.getScreenWithMouse() else { return }
+        var seed = 0.0
+        if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
+        let wX = (screen.frame.width - 780) / 2 + seed
+        let wY = (screen.frame.height - 530) / 2 + 100 + seed
+        var window = NSWindow()
+        let contentView = NSHostingView(rootView: view)
+        contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 530)
+        window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        window.title = title
+        window.contentView = contentView
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.isReleasedWhenClosed = false
+        window.makeKeyAndOrderFront(nil)
+    }
+
+    func createAlert(title: String, message: String, button1: String, button2: String = "") -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = title.local
+        alert.informativeText = message.local
+        alert.addButton(withTitle: button1.local)
+        if button2 != "" {
+            alert.addButton(withTitle: button2.local)
+        }
+        alert.alertStyle = .critical
+        return alert
+    }
 }
 
 /*#Preview {
