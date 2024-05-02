@@ -108,13 +108,16 @@
 "Presenter Overlay Camera:" = "\"演讲者前置\"摄像头:";
 //"Can only be turned off on macOS 14.2 or later!" = "此选项仅 macOS 14.2 或更高版本系统可中可被关闭!";
 "Presenter Overlay Delay" = "演讲者前置延迟";
-"Open the trimmer after recording" = "录制结束后立即打开片段修剪器";
+"Open the trimmer after recording" = "录制后自动进入片段修剪";
 "Unable to use camera overlayer when recording a single window, please use \"Presenter Overlay\"" = "单窗口录制模式下无法叠加摄像头画面, 请使用\"演讲者前置\"功能";
 "No Devices Found!" = "未找到任何设备";
 "Please unlock!" = "请解锁屏幕!";
 "If you are on a call, enable \"Mute\"" = "如需通话时录屏请启用\"静音\"";
 "Preset" = "预设";
 "Mute" = "静音";
+"Default" = "默认";
+"Pixel Format" = "像素格式";
+"Color Space" = "色彩空间";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";

@@ -130,6 +130,27 @@ class SCContext {
         return nil
     }
     
+    static func getColorSpace() -> CFString? {
+        switch ud.string(forKey: "colorSpace") {
+        case ColSpace.srgb.rawValue: return CGColorSpace.sRGB
+        case ColSpace.bt709.rawValue: return CGColorSpace.itur_709
+        case ColSpace.bt2020.rawValue: return CGColorSpace.itur_2020
+        case ColSpace.p3.rawValue: return CGColorSpace.displayP3
+        default: return nil
+        }
+    }
+    
+    static func getPixelFormat() -> OSType? {
+        switch ud.string(forKey: "pixelFormat") {
+        case PixFormat.bgra32.rawValue: return kCVPixelFormatType_32BGRA
+        case PixFormat.yuv420p8v.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        case PixFormat.yuv420p8f.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+        case PixFormat.yuv420p10v.rawValue: return kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+        case PixFormat.yuv420p10f.rawValue: return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+        default: return nil
+        }
+    }
+    
     static func getFilePath(capture: Bool = false) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"

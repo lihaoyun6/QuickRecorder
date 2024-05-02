@@ -129,7 +129,9 @@ extension AppDelegate {
                 conf.height = Int(conf.height/2)
             }
         }
-
+        if let colorSpace = SCContext.getColorSpace() { conf.colorSpaceName = colorSpace }
+        if let pixelFormat = SCContext.getPixelFormat() { conf.pixelFormat = pixelFormat }
+        
         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(ud.integer(forKey: "frameRate")))
         if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
         if SCContext.streamType == .screenarea {

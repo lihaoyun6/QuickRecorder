@@ -145,7 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
-        let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
+        //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
         
         ud.register( // default defaults (used if not set)
             defaults: [
@@ -160,9 +160,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "includeMenuBar": true,
                 "videoQuality": 1.0,
                 "videoFormat": VideoFormat.mp4.rawValue,
+                "pixelFormat": PixFormat.delault.rawValue,
+                "colorSpace": ColSpace.srgb.rawValue,
                 "encoder": Encoder.h264.rawValue,
                 "poSafeDelay": 1,
-                "saveDirectory": saveDirectory,
+                "saveDirectory": userDesktop as NSString,
                 "showMouse": true,
                 "recordMic": false,
                 "recordWinSound": true,
@@ -332,6 +334,10 @@ enum AudioQuality: Int { case normal = 128, good = 192, high = 256, extreme = 32
 enum AudioFormat: String { case aac, alac, flac, opus }
 
 enum VideoFormat: String { case mov, mp4 }
+
+enum PixFormat: String { case delault, yuv420p8v, yuv420p8f, yuv420p10v, yuv420p10f, bgra32 }
+
+enum ColSpace: String { case delault, srgb, p3, bt709, bt2020 }
 
 enum Encoder: String { case h264, h265 }
 

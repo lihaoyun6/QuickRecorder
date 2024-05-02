@@ -18,6 +18,8 @@ struct SettingsView: View {
     @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
+    @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
+    @AppStorage("colorSpace")       private var colorSpace: ColSpace = .delault
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
     @AppStorage("countdown")        private var countdown: Int = 0
     @AppStorage("poSafeDelay")      private var poSafeDelay: Int = 1
@@ -36,15 +38,27 @@ struct SettingsView: View {
                             Picker("Format", selection: $videoFormat) {
                                 Text("MOV").tag(VideoFormat.mov)
                                 Text("MP4").tag(VideoFormat.mp4)
-                            }.padding([.leading, .trailing, .bottom], 10)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
                             Picker("Encoder", selection: $encoder) {
                                 Text("H.264").tag(Encoder.h264)
                                 Text("H.265").tag(Encoder.h265)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            Picker("Pixel Format", selection: $pixelFormat) {
+                                Text("Default").tag(PixFormat.delault)
+                                Text("8bit BGRA").tag(PixFormat.bgra32)
+                                Text("8bit 420 Video").tag(PixFormat.yuv420p8v)
+                                Text("8bit 420 Full").tag(PixFormat.yuv420p8f)
+                                Text("10bit 420 Video").tag(PixFormat.yuv420p10v)
+                                Text("10bit 420 Full").tag(PixFormat.yuv420p10f)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            Picker("Color Space", selection: $colorSpace) {
+                                Text("Default").tag(ColSpace.delault)
+                                Text("sRGB").tag(ColSpace.srgb)
+                                Text("BT.709").tag(ColSpace.bt709)
+                                Text("BT.2020").tag(ColSpace.bt2020)
+                                Text("Display P3").tag(ColSpace.p3)
                             }.padding([.leading, .trailing], 10)
-                        }.frame(maxWidth: .infinity).padding(.top, 10)
-                        Toggle(isOn: $trimAfterRecord) { Text("Open the trimmer after recording") }
-                            .padding(.bottom, 8)
-                            .toggleStyle(.checkbox)
+                        }.frame(maxWidth: .infinity).padding([.top, .bottom], 10)
                     }//.padding(.bottom, 7)
                     GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
                         Form() {
@@ -53,7 +67,7 @@ struct SettingsView: View {
                                 Text("ALAC (Lossless)").tag(AudioFormat.alac)
                                 Text("FLAC (Lossless)").tag(AudioFormat.flac)
                                 Text("Opus").tag(AudioFormat.opus)
-                            }.padding([.leading, .trailing, .bottom], 10)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
                             if #available(macOS 13, *) {
                                 Picker("Quality", selection: $audioQuality) {
                                     if audioFormat == .alac || audioFormat == .flac {
@@ -67,7 +81,7 @@ struct SettingsView: View {
                             }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, 1).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 7).padding(.top, 1).fixedSize(horizontal: false, vertical: true)
                     }
                 }.frame(width: 270)
                 VStack {
@@ -78,7 +92,7 @@ struct SettingsView: View {
                                 Text("3"+"s".local).tag(3)
                                 Text("5"+"s".local).tag(5)
                                 Text("10"+"s".local).tag(10)
-                            }.padding([.leading, .trailing, .bottom], 10)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
                             if #available(macOS 14, *) {
                                 Picker("Presenter Overlay Delay", selection: $poSafeDelay) {
                                     Text("1"+"s".local).tag(1)
@@ -96,12 +110,15 @@ struct SettingsView: View {
                             }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         ColorPicker("Set custom background color:", selection: $userColor).padding([.leading, .trailing], 10).padding(.bottom, 1)
+                        Toggle(isOn: $trimAfterRecord) { Text("Open the trimmer after recording") }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 4)
+                            .toggleStyle(.checkbox)
                         Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
-                            .padding([.leading, .trailing], 10)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 4)
                             .toggleStyle(.checkbox)
                         if #available(macOS 14.2, *) {
                             Toggle(isOn: $includeMenuBar) { Text("Include MenuBar") }
-                                .padding([.leading, .trailing], 10)
+                                .padding([.leading, .trailing], 10).padding(.bottom, 4)
                                 .toggleStyle(.checkbox)
                         } else {
                             Toggle(isOn: $fakeTrue) { Text("Include MenuBar") }
