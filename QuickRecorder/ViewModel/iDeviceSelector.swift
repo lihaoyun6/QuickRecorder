@@ -31,6 +31,11 @@ struct iDevicePopoverView: View {
                         .padding([.top, .bottom], 8).padding(.trailing, 10)
                 }
                 .frame(maxWidth: .infinity)
+                Divider().padding([.top, .bottom], 5)
+                Text("Connect your device via USB")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 1)
             } else {
                 ForEach(devices.indices, id: \.self) { index in
                     Button(action: {

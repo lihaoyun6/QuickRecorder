@@ -248,7 +248,7 @@ class SCContext {
     }
     
     static func isCameraRunning() -> Bool {
-        if let session = captureSession {
+        if let session = previewSession {
             return session.isRunning
         }
         return false
@@ -292,7 +292,7 @@ class SCContext {
         DispatchQueue.main.async {
             if isCameraRunning() {
                 if camWindow.isVisible { camWindow.close() }
-                captureSession!.stopRunning()
+                previewSession!.stopRunning()
             }
         }
         isPaused = false
