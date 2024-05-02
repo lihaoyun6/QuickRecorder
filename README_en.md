@@ -26,7 +26,7 @@ brew install lihaoyun6/tap/quickrecorder
 ```
 
 ### Features/Usage:
-- Written using SwiftUI, it is small and lightweight. The software is only about 4MB in size and does not have any redundant functions.
+- Written using SwiftUI, it is small and lightweight. The software is only about 10MB in size and does not have any redundant functions.
 
 - Supports window recording, App recording and other modes; supports internal sound recording, mouse highlighting, hiding desktop files and other features.  
 - Fully supports the **[Presenter Overlay](https://support.apple.com/guide/facetime/presenter-overlay-video-conferencing-fctm6333f4bd/mac)** feature added in macOS 14.2, which can superimpose the real-time camera image while recording the screen.  

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		181724052BE3BEA600F5F539 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 181724042BE3BEA600F5F539 /* Sparkle */; };
+		181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181724072BE3BF7300F5F539 /* Sparkle.swift */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
 		184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */; };
 		1862BF8D2BD5494E003ED522 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1862BF8F2BD5494E003ED522 /* Credits.rtf */; };
@@ -33,6 +35,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		181724072BE3BF7300F5F539 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
 		184CAEC62BDCCC2300D61D57 /* AVContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVContext.swift; sourceTree = "<group>"; };
 		184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockSelector.swift; sourceTree = "<group>"; };
 		1862BF902BD5494F003ED522 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = "zh-Hans"; path = "zh-Hans.lproj/Credits.rtf"; sourceTree = "<group>"; };
@@ -67,17 +70,26 @@
 			buildActionMask = 2147483647;
 			files = (
 				18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */,
+				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		181724062BE3BF2000F5F539 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		18D3BDDE2BCE5DC1006CFFC0 = {
 			isa = PBXGroup;
 			children = (
 				18D3BDE92BCE5DC1006CFFC0 /* QuickRecorder */,
 				18D3BDE82BCE5DC1006CFFC0 /* Products */,
+				181724062BE3BF2000F5F539 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -98,6 +110,7 @@
 				18FEBDA92BCF8200003F09BC /* RecordEngine.swift */,
 				18D3BE032BCEC847006CFFC0 /* SCContext.swift */,
 				184CAEC62BDCCC2300D61D57 /* AVContext.swift */,
+				181724072BE3BF7300F5F539 /* Sparkle.swift */,
 				18D3BE022BCEB1D4006CFFC0 /* ViewModel */,
 				18D3BDFD2BCE5DF5006CFFC0 /* Localizable.strings */,
 				1862BF8F2BD5494E003ED522 /* Credits.rtf */,
@@ -154,6 +167,7 @@
 			name = QuickRecorder;
 			packageProductDependencies = (
 				18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */,
+				181724042BE3BEA600F5F539 /* Sparkle */,
 			);
 			productName = QuickRecorder;
 			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
@@ -186,6 +200,7 @@
 			mainGroup = 18D3BDDE2BCE5DC1006CFFC0;
 			packageReferences = (
 				18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
@@ -232,6 +247,7 @@
 				18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */,
 				18FEBDB02BD2C0D1003F09BC /* SettingsView.swift in Sources */,
 				18D3BDEB2BCE5DC1006CFFC0 /* QuickRecorderApp.swift in Sources */,
+				181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */,
 				18FEBDAC2BD01E82003F09BC /* WinSelector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -473,6 +489,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.0;
+			};
+		};
 		18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
@@ -484,6 +508,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		181724042BE3BEA600F5F539 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
 		18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;

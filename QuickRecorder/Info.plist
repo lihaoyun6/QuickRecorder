@@ -20,5 +20,9 @@
 			<true/>
 		</dict>
 	</array>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/lihaoyun6/QuickRecorder/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>dP6zY7RAyK3DtV/dDrQ2V2dB0BY36jADwMKHZIX89u4=</string>
 </dict>
 </plist>

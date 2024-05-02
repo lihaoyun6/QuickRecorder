@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Sparkle
 import ServiceManagement
 import KeyboardShortcuts
 
@@ -161,6 +162,11 @@ struct SettingsView: View {
                     }
                 }.frame(width: 220)
             }
+            GroupBox(label: Text("Update Settings".local).fontWeight(.bold)) {
+                Form(){
+                    UpdaterSettingsView(updater: updaterController.updater)
+                }.frame(maxWidth: .infinity).padding(5)
+            }.frame(width: 557)
             Divider()
             HStack {
                 HStack(spacing: 10) {
@@ -271,7 +277,6 @@ extension KeyboardShortcuts.Name {
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
 }
-
 
 extension AppDelegate {
     @available(macOS 13.0, *)

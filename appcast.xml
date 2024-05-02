@@ -1,0 +1,14 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>QuickRecorder</title>
+        <item>
+            <title>1.1.4</title>
+            <pubDate>Thu, 02 May 2024 21:50:45 +0800</pubDate>
+            <sparkle:version>114</sparkle:version>
+            <sparkle:shortVersionString>1.1.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.1.4/QuickRecorder_v1.1.4.dmg" length="2677250" type="application/octet-stream" sparkle:edSignature="KaxmuyIPCnYK8kmw3r95yoQ675+L6QULQadKXJRYsP+2OZglY9n3bcNjCV5Ip4Y3YDO4+Zr5kE1J9fZALkAFAg=="/>
+        </item>
+    </channel>
+</rss>

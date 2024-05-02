@@ -14,6 +14,7 @@ import UserNotifications
 import KeyboardShortcuts
 import ServiceManagement
 import CoreMediaIO
+import Sparkle
 
 var firstRun = true
 let ud = UserDefaults.standard
@@ -27,10 +28,18 @@ let updateTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
 let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
+var updaterController: SPUStandardUpdaterController!
 
 @main
 struct QuickRecorderApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //private let updaterController: SPUStandardUpdaterController
+        
+    init() {
+        // If you want to start the updater manually, pass false to startingUpdater and call .startUpdater() later
+        // This is where you can also pass an updater delegate if you need one
+        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    }
     
     var body: some Scene {
         WindowGroup {
@@ -39,6 +48,11 @@ struct QuickRecorderApp: App {
                 .fixedSize()
                 .onAppear { setMainWindow() }
         }.commands { CommandGroup(replacing: .newItem) {} }
+            .commands {
+                CommandGroup(after: .appInfo) {
+                    CheckForUpdatesView(updater: updaterController.updater)
+                }
+            }
         .myWindowIsContentResizable()
         
         Settings {

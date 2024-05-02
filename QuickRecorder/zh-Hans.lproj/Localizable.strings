@@ -118,6 +118,10 @@
 "Default" = "默认";
 "Pixel Format" = "像素格式";
 "Color Space" = "色彩空间";
+"Check for Updates…" = "检查更新…";
+"Update Settings" = "更新设置";
+"Automatically check for updates" = "自动检查程序更新";
+"Automatically download updates" = "自动下载程序更新";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";
