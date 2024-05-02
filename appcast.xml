@@ -8,10 +8,10 @@
             <sparkle:version>115</sparkle:version>
             <description><![CDATA[
                 <meta charset="utf-8">
-                <h2>QuickRecorder v1.1.4 更新日志:</h2>
+                <h2>QuickRecorder v1.1.5 更新日志:</h2>
                 1. 修复了停止录制后摄像头叠层不自动关闭的问题<br>
                 2. 修复了摄像头叠层最小尺寸没有限制的问题<br>
-                <h2>QuickRecorder v1.1.4 Update:</h2>
+                <h2>QuickRecorder v1.1.5 Update:</h2>
                 1. Fixed camera overlay not closing after stopping recording.<br>
                 2. Fixed the camera overlay minimum size limit not working.<br>
                 <h2>如果觉得我的 App 不错, 求打赏</h2>
