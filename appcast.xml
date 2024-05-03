@@ -7,15 +7,12 @@
             <pubDate>Fri, 03 May 2024 00:01:46 +0800</pubDate>
             <sparkle:version>115</sparkle:version>
             <description><![CDATA[
-                <meta charset="utf-8">
-                <h2>QuickRecorder v1.1.5 更新日志:</h2>
-                1. 修复了停止录制后摄像头叠层不自动关闭的问题<br>
-                2. 修复了摄像头叠层最小尺寸没有限制的问题<br>
-                <h2>QuickRecorder v1.1.5 Update:</h2>
-                1. Fixed camera overlay not closing after stopping recording.<br>
-                2. Fixed the camera overlay minimum size limit not working.<br>
-                <h2>如果觉得我的 App 不错, 求打赏</h2>
-                <p><img src="https://github.com/lihaoyun6/QuickRecorder/raw/1.1.4/img/donate.png" width="352"/></p>
+                <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                <li>修复了停止录制后摄像头叠层不自动关闭的问题</li>
+                <li>修复了摄像头叠层最小尺寸没有限制的问题</li></ul><ul>
+                <li>Fixed camera overlay not closing after stopping recording</li>
+                <li>Fixed the camera overlay minimum size limit not working</li></ul>
+                <img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
             ]]>
             </description>
             <sparkle:shortVersionString>1.1.5</sparkle:shortVersionString>
