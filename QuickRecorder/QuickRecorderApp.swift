@@ -230,6 +230,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             for w in NSApp.windows { w.close() }
             prepRecord(type: "display", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
         }
+        KeyboardShortcuts.onKeyDown(for: .startWithArea) {[self] in
+            for w in NSApp.windows { w.close() }
+            showAreaSelector()
+        }
         KeyboardShortcuts.onKeyDown(for: .startWithWindow) { [self] in
             for w in NSApp.windows { w.close() }
             let frontmostApp = NSWorkspace.shared.frontmostApplication
@@ -357,4 +361,4 @@ enum Encoder: String { case h264, h265 }
 
 enum StreamType: Int { case screen, window, windows, application, screenarea, systemaudio, idevice, camera }
 
-enum BackgroundType: String { case wallpaper, black, white, red, green, yellow, orange, gray, blue, custom }
+enum BackgroundType: String { case wallpaper, clear, black, white, red, green, yellow, orange, gray, blue, custom }

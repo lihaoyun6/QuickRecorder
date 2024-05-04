@@ -164,6 +164,7 @@ struct WinSelector: View {
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $background) {
                                     Text("Wallpaper").tag(BackgroundType.wallpaper)
+                                    if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
                                     Text("Black").tag(BackgroundType.black)
                                     Text("White").tag(BackgroundType.white)
                                     Text("Gray").tag(BackgroundType.gray)

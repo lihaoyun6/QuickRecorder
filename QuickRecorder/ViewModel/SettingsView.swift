@@ -21,6 +21,7 @@ struct SettingsView: View {
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
     @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
     @AppStorage("colorSpace")       private var colorSpace: ColSpace = .delault
+    @AppStorage("background")       private var background: BackgroundType = .wallpaper
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
     @AppStorage("countdown")        private var countdown: Int = 0
     @AppStorage("poSafeDelay")      private var poSafeDelay: Int = 1
@@ -29,6 +30,7 @@ struct SettingsView: View {
     @AppStorage("includeMenuBar")   private var includeMenuBar: Bool = false
     @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
     @AppStorage("trimAfterRecord")  private var trimAfterRecord: Bool = false
+    @AppStorage("withAlpha")        private var withAlpha: Bool = false
     
     var body: some View {
         VStack {
@@ -36,30 +38,35 @@ struct SettingsView: View {
                 VStack(alignment: .leading) {
                     GroupBox(label: Text("Video Settings".local).fontWeight(.bold)) {
                         Form() {
-                            Picker("Format", selection: $videoFormat) {
-                                Text("MOV").tag(VideoFormat.mov)
-                                Text("MP4").tag(VideoFormat.mp4)
-                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
-                            Picker("Encoder", selection: $encoder) {
-                                Text("H.264").tag(Encoder.h264)
-                                Text("H.265").tag(Encoder.h265)
-                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
-                            Picker("Pixel Format", selection: $pixelFormat) {
-                                Text("Default").tag(PixFormat.delault)
-                                Text("8bit BGRA").tag(PixFormat.bgra32)
-                                Text("8bit 420 Video").tag(PixFormat.yuv420p8v)
-                                Text("8bit 420 Full").tag(PixFormat.yuv420p8f)
-                                Text("10bit 420 Video").tag(PixFormat.yuv420p10v)
-                                Text("10bit 420 Full").tag(PixFormat.yuv420p10f)
-                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
                             Picker("Color Space", selection: $colorSpace) {
                                 Text("Default").tag(ColSpace.delault)
                                 Text("sRGB").tag(ColSpace.srgb)
                                 Text("BT.709").tag(ColSpace.bt709)
                                 Text("BT.2020").tag(ColSpace.bt2020)
                                 Text("Display P3").tag(ColSpace.p3)
-                            }.padding([.leading, .trailing], 10)
-                        }.frame(maxWidth: .infinity).padding([.top, .bottom], 10)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            Picker("Format", selection: $videoFormat) {
+                                Text("MOV").tag(VideoFormat.mov)
+                                Text("MP4").tag(VideoFormat.mp4)
+                            }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            .disabled(withAlpha)
+                            Picker("Encoder", selection: $encoder) {
+                                Text("H.264").tag(Encoder.h264)
+                                Text("H.265").tag(Encoder.h265)
+                            }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            .disabled(withAlpha)
+                        }.frame(maxWidth: .infinity).padding(.top, 10)
+                        Toggle(isOn: $withAlpha) { Text("Recording with Alpha Channel") }
+                            .onChange(of: withAlpha) {alpha in
+                                if alpha {
+                                    encoder = Encoder.h265; videoFormat = VideoFormat.mov
+                                } else {
+                                    if background == .clear { background = .wallpaper }
+                                }}
+                            .padding([.leading, .trailing, .bottom], 10)
+                            .toggleStyle(.checkbox)
                     }//.padding(.bottom, 7)
                     GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
                         Form() {
@@ -82,7 +89,7 @@ struct SettingsView: View {
                             }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 7).padding(.top, 1).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, 2.5).fixedSize(horizontal: false, vertical: true)
                     }
                 }.frame(width: 270)
                 VStack {
@@ -111,7 +118,7 @@ struct SettingsView: View {
                             }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         ColorPicker("Set custom background color:", selection: $userColor).padding([.leading, .trailing], 10).padding(.bottom, 1)
-                        Toggle(isOn: $trimAfterRecord) { Text("Open the trimmer after recording") }
+                        Toggle(isOn: $trimAfterRecord) { Text("Open video trimmer after recording") }
                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
                             .toggleStyle(.checkbox)
                         Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
@@ -150,6 +157,7 @@ struct SettingsView: View {
                         KeyboardShortcuts.Recorder("Record System Audio", name: .startWithAudio)
                         KeyboardShortcuts.Recorder("Record Current Screen", name: .startWithScreen)
                         KeyboardShortcuts.Recorder("Record Topmost Window", name: .startWithWindow)
+                        KeyboardShortcuts.Recorder("Select Area to Record", name: .startWithArea)
                         KeyboardShortcuts.Recorder("Save Current Frame", name: .saveFrame)
                         KeyboardShortcuts.Recorder("Toggle Screen Magnifier", name: .screenMagnifier)
                     }.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity).padding(6)
@@ -272,6 +280,7 @@ extension KeyboardShortcuts.Name {
     static let startWithAudio = Self("startWithAudio")
     static let startWithScreen = Self("startWithScreen")
     static let startWithWindow = Self("startWithWindow")
+    static let startWithArea = Self("startWithArea")
     static let screenMagnifier = Self("screenMagnifier")
     static let saveFrame = Self("saveFrame")
     static let pauseResume = Self("pauseResume")

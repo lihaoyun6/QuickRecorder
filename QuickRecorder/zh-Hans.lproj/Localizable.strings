@@ -46,11 +46,12 @@
 "Microphone" = "录制麦克风";
 "Background" = "画面背景";
 "Wallpaper" = "桌面壁纸";
+"Transparent" = "透明";
 "Yellow" = "系统黄色";
 "Green" = "系统绿色";
 "Blue" = "系统蓝色";
 "Red" = "系统红色";
-"Gray" = "灰色";
+"Gray" = "中灰色";
 "Black" = "纯黑色";
 "White" = "纯白色";
 "Orange" = "系统橙色";
@@ -68,7 +69,8 @@
 "These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC." = "录制视频时也会遵从这些设置, 但如果音频编码被设为 Opus, 则在录制 MP4 时将会回退至 AAC 编码.";
 "If enabled, all files on the Desktop will be hidden from the video when recording." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
 "These apps will be excluded when recording \"Screen\" or \"Screen Area\"\n* But if the app is launched after the recording starts, it cannot be excluded." = "在录制 \"全屏画面\" 或 \"屏幕区域\" 的时候将不会录制这些 App 的画面 (点 + 添加App)\n* 但如果列表中的 App 在录屏开始后才被启动, 则无法被排除在录制画面之外.";
-"Exclude the \"Desktop Files\" layer" = "从录像中排除所有桌面文件";
+"Exclude the \"Desktop Files\" layer" = "录制时排除所有桌面文件";
+"Recording with Alpha Channel" = "在输出中包含 Alpha 通道";
 "Recording Delay" = "开始录制前倒数";
 "s" = "秒";
 "Close" = "关闭";
@@ -96,9 +98,10 @@
 "Take Screenshot" = "截图当前屏幕";
 "Pause / Resume" = "暂停/继续录制";
 "Stop Recording" = "结束屏幕录制";
-"Record System Audio" = "录制系统声音";
-"Record Current Screen" = "录制当前屏幕";
-"Record Topmost Window" = "录制当前窗口";
+"Record System Audio" = "立即录制系统声音";
+"Record Current Screen" = "立即录制当前屏幕";
+"Record Topmost Window" = "立即录制当前窗口";
+"Select Area to Record" = "选择屏幕区域以录制";
 "Toggle Screen Magnifier" = "显示/隐藏屏幕放大器";
 "Waiting on update…" = "正在更新, 请稍等…";
 "Include MenuBar" = "在录像中录制菜单栏画面";
@@ -108,7 +111,7 @@
 "Presenter Overlay Camera:" = "\"演讲者前置\"摄像头:";
 //"Can only be turned off on macOS 14.2 or later!" = "此选项仅 macOS 14.2 或更高版本系统可中可被关闭!";
 "Presenter Overlay Delay" = "演讲者前置延迟";
-"Open the trimmer after recording" = "录制后自动进入片段修剪";
+"Open video trimmer after recording" = "录制结束自动打开修剪器";
 "Unable to use camera overlayer when recording a single window, please use \"Presenter Overlay\"" = "单窗口录制模式下无法叠加摄像头画面, 请使用\"演讲者前置\"功能";
 "No Devices Found!" = "未找到任何设备";
 "Please unlock!" = "请解锁屏幕!";

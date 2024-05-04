@@ -34,6 +34,7 @@ class SCContext {
     static var audioFile: AVAudioFile?
     static var vW: AVAssetWriter!
     static var vwInput, awInput, micInput: AVAssetWriterInput!
+    //static var vwInputAdaptor: AVAssetWriterInputPixelBufferAdaptor!
     static var startTime: Date?
     static var timePassed: TimeInterval = 0
     static var stream: SCStream!
@@ -140,7 +141,7 @@ class SCContext {
         }
     }
     
-    static func getPixelFormat() -> OSType? {
+    /*static func getPixelFormat() -> OSType? {
         switch ud.string(forKey: "pixelFormat") {
         case PixFormat.bgra32.rawValue: return kCVPixelFormatType_32BGRA
         case PixFormat.yuv420p8v.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
@@ -149,7 +150,7 @@ class SCContext {
         case PixFormat.yuv420p10f.rawValue: return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
         default: return nil
         }
-    }
+    }*/
     
     static func getFilePath(capture: Bool = false) -> String {
         let dateFormatter = DateFormatter()
@@ -180,6 +181,7 @@ class SCContext {
         let color = ud.string(forKey: "background")
         if color == BackgroundType.wallpaper.rawValue { return CGColor.black }
         switch color {
+            case "clear": backgroundColor = CGColor.clear
             case "black": backgroundColor = CGColor.black
             case "white": backgroundColor = CGColor.white
             case "gray": backgroundColor = NSColor.systemGray.cgColor

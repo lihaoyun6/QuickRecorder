@@ -26,11 +26,10 @@ brew install lihaoyun6/tap/quickrecorder
 ```
 
 ### Features/Usage:
-- Written using SwiftUI, it is small and lightweight. The software is only about 10MB in size and does not have any redundant functions.
+- Supports window recording, App recording, mobile device recording, etc. And supports window sound internal recording, mouse highlighting, hiding desktop files, etc.
 
-- Supports window recording, App recording and other modes; supports internal sound recording, mouse highlighting, hiding desktop files and other features.  
-- Fully supports the **[Presenter Overlay](https://support.apple.com/guide/facetime/presenter-overlay-video-conferencing-fctm6333f4bd/mac)** feature added in macOS 14.2, which can superimpose the real-time camera image while recording the screen.  
-- After starting recording, QuickRecorder will display a recording indicator in the menu bar, and you can pause or check the recording duration at any time.
+- Fully supports the new **[Presenter Overlay](https://support.apple.com/guide/facetime/presenter-overlay-video-conferencing-fctm6333f4bd/mac)** feature of macOS 14, which can superimpose camera images in real time (Lower versions of macOS can use floating overlayer mode).
+- Supports `HEVC with Alpha` feature, which can include Alpha channel in the output file (currently only iMovie and FCPX support this feature)
 - More features are being developed...
 
 ## Q&A

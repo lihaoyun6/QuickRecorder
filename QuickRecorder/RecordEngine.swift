@@ -70,7 +70,7 @@ extension AppDelegate {
                 var except = [SCWindow]()
                 excluded += excliudedApps
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
-                //if ud.bool(forKey: "removeWallpaper") { if dockApp != nil { except += wallpaper}}
+                if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
                 SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
@@ -130,7 +130,7 @@ extension AppDelegate {
             }
         }
         if let colorSpace = SCContext.getColorSpace() { conf.colorSpaceName = colorSpace }
-        if let pixelFormat = SCContext.getPixelFormat() { conf.pixelFormat = pixelFormat }
+        if ud.bool(forKey: "withAlpha") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
         
         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(ud.integer(forKey: "frameRate")))
         if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
@@ -219,7 +219,7 @@ extension AppDelegate {
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
         let targetBitrate = (Double(conf.width) * Double(conf.height) * fpsMultiplier * encoderMultiplier * ud.double(forKey: "videoQuality"))
         let videoSettings: [String: Any] = [
-            AVVideoCodecKey: encoderIsH265 ? AVVideoCodecType.hevc : AVVideoCodecType.h264,
+            AVVideoCodecKey: encoderIsH265 ? (ud.bool(forKey: "withAlpha") ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
             AVVideoWidthKey: conf.width,
             AVVideoHeightKey: conf.height,
@@ -230,6 +230,7 @@ extension AppDelegate {
         ]
         SCContext.recordMic = ud.bool(forKey: "recordMic")
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
+        //SCContext.vwInputAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: SCContext.vwInput, sourcePixelBufferAttributes: videoSettings)
         SCContext.awInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.audioSettings)
         SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.audioSettings)
         SCContext.vwInput.expectsMediaDataInRealTime = true

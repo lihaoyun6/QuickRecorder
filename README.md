@@ -28,9 +28,9 @@ brew install lihaoyun6/tap/quickrecorder
 ### 特色 / 使用:
 - 使用 SwiftUI 编写, 体积小巧轻量化. 软件大小仅有不到 10MB, 无任何累赘功能. 
 
-- 支持窗口录制, App 录制等模式; 支持窗口声音内录, 鼠标高亮, 隐藏桌面文件等功能. 
-- 完整支持 macOS 14.2 新增的 **[演讲者前置](https://support.apple.com/zh-cn/guide/facetime/fctm6333f4bd/mac)** 特性, 可在录屏的同时叠加实时摄像头画面.  
-- 开始录制后 QuickRecorder 会在菜单栏显示录制指示器, 可随时暂停或查看录制时长.  
+- 支持窗口录制, App 录制, 录制移动设备等; 支持窗口声音内录, 鼠标高亮, 隐藏桌面文件等功能. 
+- 完整支持 macOS 14 新增的 **[演讲者前置](https://support.apple.com/zh-cn/guide/facetime/fctm6333f4bd/mac)** 特性, 可在实时叠加摄像头画面 (低版本 macOS 可以使用悬浮窗模式).  
+- 支持 `HEVC with Alpha` 特性, 可在输出文件中包含 Alpha 通道 (目前仅 iMovie 与 FCPX 支持此特性)
 - 更多功能陆续开发中...  
 
 ## 常见问题

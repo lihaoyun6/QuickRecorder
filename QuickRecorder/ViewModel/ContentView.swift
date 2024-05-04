@@ -26,7 +26,7 @@ struct ContentView: View {
                     Spacer()
                     if #available(macOS 13, *) {
                         Button(action: {
-                            closeMainWindow()
+                            appDelegate.closeMainWindow()
                             appDelegate.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                         }, label: {
                             SelectorView(title: "System Audio".local, symbol: "waveform")
@@ -36,7 +36,7 @@ struct ContentView: View {
                         Divider().frame(height: 70)
                     }
                     Button(action: {
-                        closeMainWindow()
+                        appDelegate.closeMainWindow()
                         appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                     }, label: {
                         SelectorView(title: "Screen".local, symbol: "tv.inset.filled")
@@ -44,9 +44,8 @@ struct ContentView: View {
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        closeMainWindow()
-                        showAreaSelector()
-                        //createNewWindow(view: AreaSelector(), title: "Area Selector".local, area: true)
+                        appDelegate.closeMainWindow()
+                        appDelegate.showAreaSelector()
                     }, label: {
                         SelectorView(title: "Screen Area".local, symbol: "viewfinder")
                             .cornerRadius(8)
@@ -54,7 +53,7 @@ struct ContentView: View {
                     .buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        closeMainWindow()
+                        appDelegate.closeMainWindow()
                         appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
                     }, label: {
                         SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
@@ -62,7 +61,7 @@ struct ContentView: View {
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        closeMainWindow()
+                        appDelegate.closeMainWindow()
                         appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow")
@@ -72,15 +71,13 @@ struct ContentView: View {
                     Button(action: {
                         isPopoverShowing.toggle()
                     }, label: {
-                        SelectorView(title: "Mobile Device".local, symbol: "apps.iphone")
+                        SelectorView(title: "Mobile Device".local, symbol: "apps.ipad")
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
                         .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView() }
                     Divider().frame(height: 70)
                     Button(action: {
                         showSettings = true
-                        //if let w = NSApplication.shared.windows.first(where: { $0.title == "main" }) { w.close() }
-                        //createNewWindow(view: WinSelector(), title: "Window Selector".local)
                     }, label: {
                         SelectorView(title: "Preferences".local, symbol: "gearshape")
                             .cornerRadius(8)
@@ -94,7 +91,7 @@ struct ContentView: View {
             }
             if #available(macOS 14.0, *) {
                 Button(action: {
-                    closeMainWindow()
+                    appDelegate.closeMainWindow()
                 }, label: {
                     Image(systemName: "x.circle")
                         .opacity(xmarkGlowing ? 1.0 : 0.4)
@@ -136,7 +133,9 @@ struct ContentView: View {
             .background( .primary.opacity(backgroundOpacity) )
         }
     }
-    
+}
+
+extension AppDelegate {
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() } }
     
     func showAreaSelector() {
@@ -164,9 +163,7 @@ struct ContentView: View {
         window.isMovableByWindowBackground = true
         window.makeKeyAndOrderFront(self)
     }
-}
-
-extension AppDelegate {
+    
     func createNewWindow(view: some View, title: String, random: Bool = false) {
         guard let screen = SCContext.getScreenWithMouse() else { return }
         var seed = 0.0
