@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.1.6</title>
+            <pubDate>Sat, 04 May 2024 22:39:15 +0800</pubDate>
+            <sparkle:version>116</sparkle:version>
+            <sparkle:shortVersionString>1.1.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                <li>移除了不适合普通用户使用的 "像素格式" 选项</li>
+                <li>新增了透明度捕捉, 可在输出中包含 Alpha 通道</li>
+                <li>为 "屏幕区域录制" 添加了快捷键选项</li>
+                </ul><ul>
+                <li>Removed "Pixel Format" option not suitable for general users</li>
+                <li>Added Alpha support to include Alpha channel in output video</li>
+                <li>Added hotkey option for "Record Screen Area"</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.1.6/QuickRecorder_v1.1.6.dmg" length="2683926" type="application/octet-stream" sparkle:edSignature="c2869HlLfk7gm05sEMQ9weNRDwla2EfGKit5zTxUxXJQ/Xzm4WWPO97Crz+Qbv3jO2hp0u+PsLAGAl67uHieAg=="/>
+        </item>
+        <item>
             <title>v1.1.5</title>
             <pubDate>Fri, 03 May 2024 00:01:46 +0800</pubDate>
             <sparkle:version>115</sparkle:version>
