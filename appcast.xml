@@ -2,6 +2,29 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>QuickRecorder</title>
+        <title>QuickRecorder</title>
+        <item>
+            <title>v1.1.7</title>
+            <pubDate>Tue, 07 May 2024 01:37:01 +0800</pubDate>
+            <sparkle:version>117</sparkle:version>
+            <sparkle:shortVersionString>1.1.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                <li>当菜单栏中的录制指示器因空间不足被隐藏时, 会自动转变为浮动窗口</li>
+                <li>修复了在非 Retina 显示器上 UI 抖动和 macOS 12 上显示错位的问题</li>
+                <li>修复了 "屏幕区域录制" 模式下, 无法隐藏自身窗口的问题</li>
+                <li>修复了一些界面文本中的错字漏字</li>
+                </ul><ul>
+                <li>If the menubar item cannot be displayed, it will become a floating window</li>
+                <li>Fixed UI jitter on non-Retina displays and UI misalignment on macOS 12</li>
+                <li>Fixed "Exclude QuickRecorder itself" not working in "Screen Area" mode</li>
+                <li>Fixed some typos and omissions in some UI string</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.1.7/QuickRecorder_v1.1.7.dmg" length="2694167" type="application/octet-stream" sparkle:edSignature="5fhoWd9twf/mN/DHNdZoedLXviHFU9Tl+d6CyJSj1bzmFi/w0ax9Jt0C4GLO8782YlDT49sBsxd5osacS/xPBQ=="/>
+        </item>
         <item>
             <title>v1.1.6</title>
             <pubDate>Sat, 04 May 2024 22:39:15 +0800</pubDate>
