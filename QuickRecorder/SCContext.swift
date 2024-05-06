@@ -61,7 +61,7 @@ class SCContext {
     }
     
     static func getSelf() -> SCRunningApplication? {
-        return getApps(isOnScreen: false, hideSelf: false).first(where: { Bundle.main.bundleIdentifier == $0.bundleIdentifier })
+        return SCContext.availableContent!.applications.first(where: { Bundle.main.bundleIdentifier == $0.bundleIdentifier })
     }
     
     static func getSelfWindows() -> [SCWindow]? {
@@ -292,6 +292,7 @@ class SCContext {
             dispatchGroup.wait()
         }
         DispatchQueue.main.async {
+            NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close()
             if isCameraRunning() {
                 if camWindow.isVisible { camWindow.close() }
                 previewSession!.stopRunning()

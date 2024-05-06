@@ -135,10 +135,10 @@
 				18D3BDFE2BCE5E4B006CFFC0 /* StatusBar.swift */,
 				18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */,
 				18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */,
-				18FEBDAD2BD10ED1003F09BC /* ScreenSelector.swift */,
 				18D3BE002BCEB1BF006CFFC0 /* AppSelector.swift */,
 				18FEBDAB2BD01E82003F09BC /* WinSelector.swift */,
 				18F1A0E12BD3E4C000DB102C /* AreaSelector.swift */,
+				18FEBDAD2BD10ED1003F09BC /* ScreenSelector.swift */,
 				187966F92BD5639D003DB1B2 /* MousePointer.swift */,
 				18FDFC8D2BDA435F0020E685 /* ScreenMagnifier.swift */,
 				18775C1F2BE21F38008333EF /* iDeviceSelector.swift */,
@@ -409,7 +409,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 116;
+				CURRENT_PROJECT_VERSION = 117;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -425,7 +425,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -441,7 +441,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 116;
+				CURRENT_PROJECT_VERSION = 117;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -457,7 +457,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

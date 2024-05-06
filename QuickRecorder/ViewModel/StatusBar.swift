@@ -11,6 +11,7 @@ struct StatusBarItem: View {
     @State private var isPopoverShowing = false
     @State private var recordingLength = "00:00"
     @State private var isPassed = SCContext.isPaused
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("saveDirectory") private var saveDirectory: String?
     @AppStorage("highlightMouse") private var highlightMouse: Bool = false
     
@@ -53,7 +54,22 @@ struct StatusBarItem: View {
             }
             .frame(width: SCContext.streamType == .idevice ? 86 : 106)
             .padding([.leading,.trailing], 4)
-            .onReceive(updateTimer) { t in recordingLength = SCContext.getRecordingLength() }
+            .onReceive(updateTimer) { t in
+                recordingLength = SCContext.getRecordingLength()
+                if let visible = statusBarItem.button?.window?.occlusionState.contains(.visible) {
+                    if visible { NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close(); return }
+                    if SCContext.streamType != nil  && !visible && !(NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.isVisible ?? false) {
+                        guard let screen = SCContext.getScreenWithMouse() else { return }
+                        let width = SCContext.streamType == .idevice ? 138.0 : 158.0
+                        let wX = (screen.frame.width - width) / 2
+                        let contentView = NSHostingView(rootView: StatusBarItem())
+                        contentView.frame = NSRect(x: wX, y: screen.visibleFrame.maxY, width: width, height: 24)
+                        controlPanel.setFrame(contentView.frame, display: true)
+                        controlPanel.contentView = contentView
+                        controlPanel.makeKeyAndOrderFront(nil)
+                    }
+                }
+            }
             if SCContext.streamType != .idevice {
                 Button(action:{
                     isPopoverShowing.toggle()

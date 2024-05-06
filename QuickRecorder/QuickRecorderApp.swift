@@ -16,6 +16,7 @@ import ServiceManagement
 import CoreMediaIO
 import Sparkle
 
+var isMacOS12 = true
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -24,10 +25,11 @@ var mouseMonitor: Any?
 var hideMousePointer = false
 var hideScreenMagnifier = false
 let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquivalent: "")
-let updateTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+let updateTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
 let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
+let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
 @main
@@ -156,7 +158,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         }
     }
     
+    @objc func windowOcclusionStateChanged(_ notification: Notification) {
+        if let window = notification.object as? NSWindow {
+            if window.occlusionState.contains(.visible) {
+                // 菜单栏项目可见
+                print("Menu bar item is visible")
+            } else {
+                // 菜单栏项目不可见
+                print("Menu bar item is hidden")
+            }
+        }
+    }
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        if #available(macOS 13, *) { isMacOS12 = false }
         SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
@@ -217,6 +232,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         camWindow.isReleasedWhenClosed = false
         camWindow.isMovableByWindowBackground = true
         camWindow.backgroundColor = NSColor.clear
+        
+        controlPanel.title = "Recording Controller".local
+        controlPanel.level = .floating
+        controlPanel.titleVisibility = .hidden
+        controlPanel.backgroundColor = NSColor.clear
+        controlPanel.isReleasedWhenClosed = false
+        controlPanel.titlebarAppearsTransparent = true
+        controlPanel.isMovableByWindowBackground = true
         
         KeyboardShortcuts.onKeyDown(for: .saveFrame) { SCContext.saveFrame = true }
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { SCContext.isMagnifierEnabled.toggle() }

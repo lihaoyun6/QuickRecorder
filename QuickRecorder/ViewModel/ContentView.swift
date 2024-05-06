@@ -45,7 +45,11 @@ struct ContentView: View {
                     Divider().frame(height: 70)
                     Button(action: {
                         appDelegate.closeMainWindow()
-                        appDelegate.showAreaSelector()
+                        SCContext.updateAvailableContent{
+                            DispatchQueue.main.async {
+                                appDelegate.showAreaSelector()
+                            }
+                        }
                     }, label: {
                         SelectorView(title: "Screen Area".local, symbol: "viewfinder")
                             .cornerRadius(8)
@@ -195,6 +199,17 @@ extension AppDelegate {
         return alert
     }
 }
+
+extension View {
+    func needScale() -> some View {
+        if #available(macOS 13, *) {
+            return self.scaleEffect(0.79).padding(.leading, -4)
+        } else {
+            return self
+        }
+    }
+}
+
 
 /*#Preview {
     ContentView()

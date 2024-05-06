@@ -74,7 +74,7 @@ struct AreaSelector: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Quality")
                                 Text("Background")
-                            }.padding(.leading, 8)
+                            }.padding(.leading, isMacOS12 ? 0 : 8)
                             VStack(alignment: .leading, spacing: 12) {
                                 Picker("", selection: $videoQuality) {
                                     Text("Low").tag(0.3)
@@ -96,7 +96,7 @@ struct AreaSelector: View {
                                 }.buttonStyle(.borderless)
                             }.scaledToFit()
                             Divider()
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: isMacOS12 ? 12 : 3) {
                                 Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                                     .toggleStyle(.checkbox)
                                 if #available(macOS 13, *) {
@@ -116,9 +116,7 @@ struct AreaSelector: View {
                                         Task { await SCContext.performMicCheck() }
                                     }
                                 }
-                            }
-                            .scaleEffect(0.8)
-                            .padding(.leading, -4)
+                            }.needScale()
                         }
                     }
                     Divider()

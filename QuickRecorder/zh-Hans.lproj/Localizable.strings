@@ -125,7 +125,7 @@
 "Update Settings" = "更新设置";
 "Automatically check for updates" = "自动检查程序更新";
 "Automatically download updates" = "自动下载程序更新";
-"Connect your device via USB" = "请过 USB 连接您的设备";
+"Connect your device via USB" = "请通过 USB 连接您的设备";
 
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";
