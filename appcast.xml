@@ -2,7 +2,29 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>QuickRecorder</title>
-        <title>QuickRecorder</title>
+        <item>
+            <title>v1.1.8</title>
+            <pubDate>Thu, 09 May 2024 01:29:16 +0800</pubDate>
+            <sparkle:version>118</sparkle:version>
+            <sparkle:shortVersionString>1.1.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了"应用程序"录制模式下, 录不到摄像头画面的问题</li>
+                  <li>修复某些情况下"区域录制"录制的不是所选显示器的问题</li>
+                  <li>修复"视频修剪器"在 macOS 12 系统中工作不正常的问题</li>
+                  <li>允许用户在录屏的同时以画中画形式展示 iPhone/iPad 画面</li>
+                  </ul><ul>
+                  <li>Fixed: camera overlayer could not be recorded when recording applications</li>
+                  <li>Fixed: when recording screen area, the wrong monitor may be recorded</li>
+                  <li>Fixed: the "Video Trimmer" not working properly in macOS 12 Monterey</li>
+                  <li>Now you can show iPhone/iPad in picture-in-picture while recording a Mac</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="260"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.1.8/QuickRecorder_v1.1.8.dmg" length="2716609" type="application/octet-stream" sparkle:edSignature="HSpruBCslp/Mnu+/Jb6pGhGBEwI64+co+XTLtri6OPYvpeYU6PUcf5MYtuEI8RUgogsk2KKlsk/P+Lh3ZKgPCg=="/>
+        </item>
         <item>
             <title>v1.1.7</title>
             <pubDate>Tue, 07 May 2024 01:37:01 +0800</pubDate>
