@@ -28,7 +28,8 @@ let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquiv
 let updateTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
-let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.borderless, .resizable], backing: .buffered, defer: false)
+let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
+let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
@@ -48,7 +49,7 @@ struct QuickRecorderApp: App {
             ContentView()
                 .navigationTitle("QuickReader".local)
                 .fixedSize()
-                .onAppear { setMainWindow() }
+                .onAppear { if #available(macOS 14, *) { setMainWindow() }}
         }.commands { CommandGroup(replacing: .newItem) {} }
             .commands {
                 CommandGroup(after: .appInfo) {
@@ -56,6 +57,7 @@ struct QuickRecorderApp: App {
                 }
             }
         .myWindowIsContentResizable()
+        .handlesExternalEvents(matching: [])
         
         Settings {
             SettingsView()
@@ -123,8 +125,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         guard let image = NSImage.createScreenShot() else { return }
         let rect = NSRect(x: mouseLocation.x - 67, y: mouseLocation.y - 58, width: 134, height: 116)
         let croppedImage = image.trim(rect: rect)
-        //let newSize = NSSize(width: image.size.width * 8, height: image.size.height * 8)
-        //guard let newImage = croppedImage.resizedImageNearestNeighbor(to: newSize) else { return }
         screenMagnifier.contentView = NSHostingView(rootView: ScreenMagnifier(screenShot: croppedImage, event: event))
         screenMagnifier.setFrameOrigin(windowFrame.origin)
         screenMagnifier.orderFront(nil)
@@ -153,7 +153,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls {
-            createNewWindow(view: VideoTrimmerView(videoURL: url), title: "Video Trimmer".local, random: true)
+            createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, random: true)
             for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
         }
     }
@@ -227,11 +227,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         screenMagnifier.backgroundColor = NSColor.clear
         
         camWindow.title = "Camera Overlayer".local
-        camWindow.hasShadow = true
         camWindow.level = .floating
         camWindow.isReleasedWhenClosed = false
         camWindow.isMovableByWindowBackground = true
         camWindow.backgroundColor = NSColor.clear
+        
+        deviceWindow.title = "iDevice Overlayer".local
+        deviceWindow.level = .floating
+        deviceWindow.isReleasedWhenClosed = false
+        deviceWindow.isMovableByWindowBackground = true
+        deviceWindow.backgroundColor = NSColor.clear
         
         controlPanel.title = "Recording Controller".local
         controlPanel.level = .floating
@@ -331,19 +336,6 @@ extension NSImage {
         let frame = screen.frame
         let image = CGDisplayCreateImage(CGMainDisplayID(), rect: frame)!
         return NSImage(cgImage: image, size: frame.size)
-    }
-    
-    func resizedImageNearestNeighbor(to size: NSSize) -> NSImage? {
-        guard let cgImage = self.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
-        let bitsPerComponent = cgImage.bitsPerComponent
-        let bytesPerRow = 8 * size.width
-        let colorSpace = cgImage.colorSpace ?? CGColorSpaceCreateDeviceRGB() // 提供默认的颜色空间
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue)
-        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: Int(bytesPerRow), space: colorSpace, bitmapInfo: bitmapInfo.rawValue) else { return nil }
-        context.interpolationQuality = .none
-        context.draw(cgImage, in: CGRect(origin: .zero, size: size))
-        if let scaledImage = context.makeImage() { return NSImage(cgImage: scaledImage, size: size) }
-        return nil
     }
     
     func saveToFile(_ url: URL) {

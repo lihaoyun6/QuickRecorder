@@ -78,10 +78,11 @@ extension AppDelegate {
             if SCContext.streamType == .application {
                 var includ = SCContext.application!
                 var except = [SCWindow]()
+                if let qrSelf = qrSelf { includ.append(qrSelf) }
                 let withFinder = includ.map{ $0.bundleIdentifier }.contains("com.apple.finder")
                 if withFinder && ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
-                if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
+                //if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
                 if ud.string(forKey: "background") == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except.append(dockWindow!)}}
                 SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ud.bool(forKey: "includeMenuBar") }
@@ -164,7 +165,6 @@ extension AppDelegate {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
             if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
-            //if !audioOnly && SCContext.recordCam != "Disabled".local { recordingCamera(withName: SCContext.recordCam) }
             try await SCContext.stream.startCapture()
         } catch {
             assertionFailure("capture failed".local)

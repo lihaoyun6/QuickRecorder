@@ -88,12 +88,12 @@ struct StatusBarItem: View {
             } else {
                 Button(action:{
                     DispatchQueue.main.async {
-                        if camWindow.isVisible { camWindow.close() } else { camWindow.orderFront(nil) }
+                        if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
                     }
                 }, label: {
                     ZStack {
                         Rectangle()
-                            .fill(camWindow.isVisible ? Color.mypurple : .gray.opacity(0.7))
+                            .fill(deviceWindow.isVisible ? Color.mypurple : .gray.opacity(0.7))
                             .shadow(color: .black.opacity(0.3), radius: 4)
                             .cornerRadius(4)
                         Image(systemName: "apps.ipad")
@@ -114,19 +114,21 @@ struct StatusBarItem: View {
 
 extension AppDelegate: NSMenuDelegate {
     func updateStatusBar() {
-        if SCContext.streamType == nil { statusBarItem.isVisible = false; return }
-        guard let button = statusBarItem.button else { return }
-        var padding = -1.0
-        var height = 21
-        if #available(macOS 14.0, *) {
-            padding = -2.0
-            height = 22
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if SCContext.streamType == nil { statusBarItem.isVisible = false; return }
+            guard let button = statusBarItem.button else { return }
+            var padding = -1.0
+            var height = 21
+            if #available(macOS 14.0, *) {
+                padding = -2.0
+                height = 22
+            }
+            let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, padding))
+            iconView.frame = NSRect(x: 0, y: 1, width: SCContext.streamType == .idevice ? 138 : 158, height: height)
+            button.subviews = [iconView]
+            button.frame = iconView.frame
+            button.setAccessibilityLabel("QuickRecorder")
+            statusBarItem.isVisible = true
         }
-        let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, padding))
-        iconView.frame = NSRect(x: 0, y: 1, width: SCContext.streamType == .idevice ? 138 : 158, height: height)
-        button.subviews = [iconView]
-        button.frame = iconView.frame
-        button.setAccessibilityLabel("QuickRecorder")
-        statusBarItem.isVisible = true
     }
 }

@@ -12,7 +12,8 @@ import ScreenCaptureKit
 import UserNotifications
 
 class SCContext {
-    static var recordCam = "Disabled".local
+    static var recordCam = ""
+    static var recordDevice = ""
     static var captureSession: AVCaptureSession!
     static var previewSession: AVCaptureSession!
     static var frameCache: CMSampleBuffer?
@@ -42,6 +43,7 @@ class SCContext {
     static var window: [SCWindow]?
     static var application: [SCRunningApplication]?
     static var streamType: StreamType?
+    //static var previewType: StreamType?
     static var availableContent: SCShareableContent?
     static let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status"]
     
@@ -71,6 +73,7 @@ class SCContext {
             && title != "Mouse Pointer".local
             && title != "Screen Magnifier".local
             && title != "Camera Overlayer".local
+            && title != "iDevice Overlayer".local
         })
     }
     
@@ -250,10 +253,11 @@ class SCContext {
     }
     
     static func isCameraRunning() -> Bool {
-        if let session = previewSession {
-            return session.isRunning
-        }
-        return false
+        var preview = false
+        var capture = false
+        if let session = previewSession { preview = session.isRunning }
+        if let session = captureSession { capture = session.isRunning }
+        return (preview || capture)
     }
     
     static func pauseRecording() {
@@ -266,7 +270,7 @@ class SCContext {
     
     static func stopRecording() {
         statusBarItem.isVisible = false
-        recordCam = "Disabled".local
+        recordCam = ""
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
@@ -295,12 +299,15 @@ class SCContext {
             NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close()
             if isCameraRunning() {
                 if camWindow.isVisible { camWindow.close() }
-                previewSession!.stopRunning()
+                if deviceWindow.isVisible { deviceWindow.close() }
+                if let preview = previewSession { preview.stopRunning() }
+                if let capture = captureSession { capture.stopRunning() }
             }
         }
         isPaused = false
         hideMousePointer = false
         streamType = nil
+        //previewType = nil
         audioFile = nil // close audio file
         window = nil
         screen = nil
@@ -321,7 +328,8 @@ class SCContext {
         }
         
         if ud.bool(forKey: "trimAfterRecord") {
-            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: URL(fileURLWithPath: filePath)), title: "Video Trimmer".local)
+            let fileURL = URL(fileURLWithPath: filePath)
+            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
         }
     }
     

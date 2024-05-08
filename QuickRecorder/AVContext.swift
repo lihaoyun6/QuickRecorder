@@ -7,52 +7,61 @@
 import AppKit
 import Foundation
 import AVFoundation
+import UserNotifications
 
 extension AppDelegate {
     func recordingCamera(withDevice: AVCaptureDevice) {
-        SCContext.previewSession = AVCaptureSession()
+        SCContext.captureSession = AVCaptureSession()
         
         guard let input = try? AVCaptureDeviceInput(device: withDevice),
-              SCContext.previewSession.canAddInput(input) else {
+              SCContext.captureSession.canAddInput(input) else {
             print("Failed to set up camera")
             return
         }
-        SCContext.previewSession.addInput(input)
+        SCContext.captureSession.addInput(input)
         
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.setSampleBufferDelegate(self, queue: .global())
         
-        if SCContext.previewSession.canAddOutput(videoOutput) {
-            SCContext.previewSession.addOutput(videoOutput)
+        if SCContext.captureSession.canAddOutput(videoOutput) {
+            SCContext.captureSession.addOutput(videoOutput)
         }
         
-        SCContext.previewSession.startRunning()
+        SCContext.captureSession.startRunning()
         DispatchQueue.main.async { self.startCameraOverlayer() }
     }
     
     func closeCamera() {
         if SCContext.isCameraRunning() {
+            //SCContext.previewType = nil
             if camWindow.isVisible { camWindow.close() }
-            SCContext.previewSession.stopRunning()
+            SCContext.captureSession.stopRunning()
         }
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        if !SCContext.isPaused && ud.string(forKey: "recordCam") != "Disabled".local {
-            //保留后续以作他用
-            //if sampleBuffer.isValid { SCContext.isCameraReady = true }
-            //if sampleBuffer.imageBuffer != nil { SCContext.frameCache = sampleBuffer }
-        }
+        /* 保留后续以作他用
+        if !SCContext.isPaused && ud.string(forKey: "recordCam") != "" {
+            if sampleBuffer.isValid { SCContext.isCameraReady = true }
+            if sampleBuffer.imageBuffer != nil { SCContext.frameCache = sampleBuffer }
+        }*/
     }
 }
 
-class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
+class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     static let shared = AVOutputClass()
     var output: AVCaptureMovieFileOutput!
+    var dataOutput: AVCaptureVideoDataOutput!
     //var captureSession: AVCaptureSession!
     
-    public func startRecording(withDevice: AVCaptureDevice, mute: Bool = false, preset: AVCaptureSession.Preset = .high) {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        //print(sampleBuffer.nsImage?.size)
+    }
+    
+    public func startRecording(withDevice: AVCaptureDevice, mute: Bool = false, preset: AVCaptureSession.Preset = .high, didOutput: Bool = true) {
         output = AVCaptureMovieFileOutput()
+        dataOutput = AVCaptureVideoDataOutput()
+        dataOutput.setSampleBufferDelegate(self, queue: .global())
         SCContext.captureSession = AVCaptureSession()
         SCContext.previewSession = AVCaptureSession()
         SCContext.captureSession.sessionPreset = preset
@@ -63,7 +72,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
               SCContext.captureSession.canAddInput(input),
               SCContext.previewSession.canAddInput(preview),
               SCContext.captureSession.canAddOutput(output),
-            SCContext.previewSession.canAddOutput(output) else {
+              SCContext.previewSession.canAddOutput(dataOutput) else {
             print("Failed to set up camera or device")
             return
         }
@@ -71,6 +80,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
         SCContext.captureSession.addInput(input)
         SCContext.captureSession.addOutput(output)
         SCContext.previewSession.addInput(preview)
+        SCContext.previewSession.addOutput(dataOutput)
         
         if mute {
             if let audioConnection = output.connection(with: .audio) {
@@ -84,21 +94,24 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
             }
         }
         
-        let encoderIsH265 = ud.string(forKey: "encoder") == Encoder.h265.rawValue
-        let videoSettings: [String: Any] = [ AVVideoCodecKey: encoderIsH265 ? AVVideoCodecType.hevc : AVVideoCodecType.h264 ]
-        guard let connection = output.connection(with: .video) else { return }
-        output.setOutputSettings(videoSettings, for: connection)
-        let fileEnding = ud.string(forKey: "videoFormat") ?? ""
-        SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
-        SCContext.captureSession.startRunning()
+        if didOutput {
+            let encoderIsH265 = ud.string(forKey: "encoder") == Encoder.h265.rawValue
+            let videoSettings: [String: Any] = [ AVVideoCodecKey: encoderIsH265 ? AVVideoCodecType.hevc : AVVideoCodecType.h264 ]
+            guard let connection = output.connection(with: .video) else { return }
+            output.setOutputSettings(videoSettings, for: connection)
+            let fileEnding = ud.string(forKey: "videoFormat") ?? ""
+            SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
+            SCContext.captureSession.startRunning()
+            output.startRecording(to: URL(fileURLWithPath: SCContext.filePath), recordingDelegate: self)
+            SCContext.streamType = StreamType.idevice
+            SCContext.startTime = Date.now
+        }
+        
         SCContext.previewSession.startRunning()
-        output.startRecording(to: URL(fileURLWithPath: SCContext.filePath), recordingDelegate: self)
-        SCContext.startTime = Date.now
-        SCContext.streamType = StreamType.idevice
         DispatchQueue.main.async {
             for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
             AppDelegate.shared.updateStatusBar()
-            AppDelegate.shared.startCameraOverlayer(size: NSSize(width: 300, height: 500))
+            AppDelegate.shared.startDeviceOverlayer(size: NSSize(width: 300, height: 500))
         }
     }
 
@@ -106,7 +119,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
         if SCContext.captureSession.isRunning {
             DispatchQueue.main.async { [] in
                 statusBarItem.isVisible = false
-                if camWindow.isVisible { camWindow.close() }
+                if deviceWindow.isVisible { deviceWindow.close() }
             }
             output.stopRecording()
             SCContext.captureSession.stopRunning()
@@ -115,8 +128,24 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate {
             SCContext.startTime = nil
         }
     }
+    
+    func closePreview() {
+        if SCContext.isCameraRunning() {
+            //SCContext.previewType = nil
+            if deviceWindow.isVisible { deviceWindow.close() }
+            if let preview = SCContext.previewSession { preview.stopRunning() }
+        }
+    }
 
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-        //print("Finish Recording.")
+        let content = UNMutableNotificationContent()
+        content.title = "Recording Completed".local
+        content.body = String(format: "File saved to: %@".local, outputFileURL.path)
+        content.sound = UNNotificationSound.default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "quickrecorder.completed.\(Date.now)", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
+        }
     }
 }

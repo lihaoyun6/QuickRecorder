@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ScreenCaptureKit
 
 struct DashWindow: View {
     var body: some View {
@@ -28,6 +29,7 @@ struct AreaSelector: View {
     @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
     @State private var start = Date.now
     @State private var counter: Int?
+    var screen: SCDisplay!
     
     @AppStorage("frameRate")       private var frameRate: Int = 60
     @AppStorage("videoQuality")    private var videoQuality: Double = 1.0
@@ -145,7 +147,7 @@ struct AreaSelector: View {
                 }
                 //.padding(.leading, 10).padding(.trailing, 20)
                 Spacer()
-            }.padding(.top, -3)
+            }.padding(.top, -5)
             Button(action: {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
             }, label: {
@@ -154,7 +156,7 @@ struct AreaSelector: View {
                     .foregroundStyle(.secondary)
             })
             .buttonStyle(.plain)
-            .padding(.top, -7).padding(.leading, 9)
+            .padding(.top, -9).padding(.leading, 7.5)
         }
         .frame(width: 590, height: 50)
         .onReceive(timer) { t in
@@ -178,7 +180,7 @@ struct AreaSelector: View {
         window.backgroundColor = NSColor.clear
         window.contentView = NSHostingView(rootView: DashWindow())
         window.orderFront(self)
-        appDelegate.prepRecord(type: "area", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+        appDelegate.prepRecord(type: "area", screens: screen, windows: nil, applications: nil)
     }
 }
 

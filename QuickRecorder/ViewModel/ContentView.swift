@@ -143,17 +143,18 @@ extension AppDelegate {
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() } }
     
     func showAreaSelector() {
-        guard let screen = SCContext.getScreenWithMouse() else { return }
-        
+        guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
+        guard let screen = scDisplay.nsScreen else { return }
         let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false)
         screenshotWindow.title = "Area Selector".local
-        screenshotWindow.makeKeyAndOrderFront(nil)
+        screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
         let wX = (screen.frame.width - 510) / 2
         let wY = screen.visibleFrame.minY + 70
         var window = NSWindow()
-        let contentView = NSHostingView(rootView: AreaSelector())
+        let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
         contentView.frame = NSRect(x: wX, y: wY, width: 510, height: 70)
+        contentView.focusRingType = .none
         window = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
         window.level = .screenSaver
         window.title = "Start Recording".local

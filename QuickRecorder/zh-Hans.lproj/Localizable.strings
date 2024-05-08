@@ -106,7 +106,6 @@
 "Waiting on update…" = "正在更新, 请稍等…";
 "Include MenuBar" = "在录像中录制菜单栏画面";
 "Excluded Apps" = "App 排除列表";
-"Disabled" = "不使用";
 "Record with Camera:" = "录制摄像头:";
 "Presenter Overlay Camera:" = "\"演讲者前置\"摄像头:";
 //"Can only be turned off on macOS 14.2 or later!" = "此选项仅 macOS 14.2 或更高版本系统可中可被关闭!";
@@ -114,6 +113,7 @@
 "Open video trimmer after recording" = "录制结束自动打开修剪器";
 "Unable to use camera overlayer when recording a single window, please use \"Presenter Overlay\"" = "单窗口录制模式下无法叠加摄像头画面, 请使用\"演讲者前置\"功能";
 "No Devices Found!" = "未找到任何设备";
+"No Cameras Found!" = "未找到任何摄像头";
 "Please unlock!" = "请解锁屏幕!";
 "If you are on a call, enable \"Mute\"" = "如需通话时录屏请启用\"静音\"";
 "Preset" = "预设";

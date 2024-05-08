@@ -146,7 +146,7 @@ struct VideoTrimmerView: View {
                     )
             }.padding([.bottom, .leading, .trailing])
         }.padding(.top, -22)
-        .navigationTitle(videoURL.lastPathComponent)
+        //.navigationTitle(videoURL.lastPathComponent)
         //.preferredColorScheme(.dark)
     }
 }
