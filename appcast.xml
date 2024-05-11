@@ -3,6 +3,29 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.0</title>
+            <pubDate>Sat, 11 May 2024 09:08:16 +0800</pubDate>
+            <sparkle:version>120</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了"屏幕区域选择器"在多屏场景下约束不严的问题</li>
+                  <li>修复了多屏场景下部分窗口出现在错误的屏幕上的问题</li>
+                  <li>现在"屏幕区域选择器"可随鼠标自动在多个屏幕间切换</li>
+                  <li>为"窗口选择器"和"应用程序选择器"添加了多屏支持</li>
+                  </ul><ul>
+                  <li>Fixed: Area Selector could go out of bounds when using multiple monitors</li>
+                  <li>Fixed: Some window positions shifted when using multiple monitors</li>
+                  <li>The "Area Selector" can auto-switch between screens following the mouse</li>
+                  <li>Added multi-screen support for "Window Selector" and "App Selector"</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="260"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.0/QuickRecorder_v1.2.0.dmg" length="2797825" type="application/octet-stream" sparkle:edSignature="EheU97WCWo6cFkmdSfdTndsPYGabB2oMsYq6tvWZPPZnu4n0PyX+s4nwc6TyjzD6DZf4cMpok1MDrDt0eZgWDg=="/>
+        </item>
+        <item>
             <title>v1.1.8</title>
             <pubDate>Thu, 09 May 2024 01:29:16 +0800</pubDate>
             <sparkle:version>118</sparkle:version>
