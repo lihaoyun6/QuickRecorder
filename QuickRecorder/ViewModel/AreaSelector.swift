@@ -41,7 +41,7 @@ struct AreaSelector: View {
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
     //@AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
     @AppStorage("highRes")         private var highRes: Int = 2
-    @AppStorage("countdown")      private var countdown: Int = 0
+    @AppStorage("countdown")       private var countdown: Int = 0
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
@@ -150,6 +150,7 @@ struct AreaSelector: View {
             }.padding(.top, -5)
             Button(action: {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+                if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor); mouseMonitor = nil  }
             }, label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 12, weight: .bold))
@@ -161,16 +162,19 @@ struct AreaSelector: View {
         .frame(width: 590, height: 50)
         .onReceive(timer) { t in
             if counter == nil { return }
-            if counter! <= 1 { startRecording(); return }
+            if counter! <= 1 { counter = nil; startRecording(); return }
             if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     func startRecording() {
-        for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+        //for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
+        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor); mouseMonitor = nil  }
         var window = NSWindow()
         let contentView = NSHostingView(rootView: AreaSelector())
         let area = SCContext.screenArea!
-        contentView.frame = NSRect(x: Int(area.origin.x - 5), y: Int(area.origin.y - 5), width: Int(area.width + 10), height: Int(area.height + 10))
+        guard let nsScreen = screen.nsScreen else { return }
+        contentView.frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 5), y: Int(area.origin.y + nsScreen.frame.minY - 5), width: Int(area.width + 10), height: Int(area.height + 10))
         window = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
         window.hasShadow = false
         window.level = .screenSaver
@@ -191,6 +195,7 @@ class ScreenshotOverlayView: NSView {
     var dragIng: Bool = false
     var activeHandle: ResizeHandle = .none
     var lastMouseLocation: NSPoint?
+    var maxFrame: NSRect?
 
     let controlPointSize: CGFloat = 10.0
     let controlPointColor: NSColor = NSColor.systemYellow
@@ -203,6 +208,7 @@ class ScreenshotOverlayView: NSView {
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
+        maxFrame = dirtyRect
         
         NSColor.black.withAlphaComponent(0.5).setFill()
         dirtyRect.fill()
@@ -337,9 +343,14 @@ class ScreenshotOverlayView: NSView {
             } else {
                 //dragIng = false
                 // 创建新矩形
-                let origin = NSPoint(x: min(initialLocation.x, currentLocation.x), y: min(initialLocation.y, currentLocation.y))
-                let size = NSSize(width: abs(currentLocation.x - initialLocation.x), height: abs(currentLocation.y - initialLocation.y))
-                self.selectionRect = NSRect(origin: origin, size: size)
+                guard let maxFrame = maxFrame else { return }
+                let origin = NSPoint(x: max(maxFrame.origin.x, min(initialLocation.x, currentLocation.x)), y: max(maxFrame.origin.y, min(initialLocation.y, currentLocation.y)))
+                var maxH = abs(currentLocation.y - initialLocation.y)
+                var maxW = abs(currentLocation.x - initialLocation.x)
+                if currentLocation.y < maxFrame.origin.y { maxH = initialLocation.y }
+                if currentLocation.x < maxFrame.origin.x { maxW = initialLocation.x }
+                let size = NSSize(width: maxW, height: maxH)
+                self.selectionRect = NSIntersectionRect(maxFrame, NSRect(origin: origin, size: size))
                 //initialLocation = currentLocation
             }
             self.initialLocation = initialLocation
@@ -363,23 +374,26 @@ class ScreenshotOverlayView: NSView {
 class ScreenshotWindow: NSWindow {
     let overlayView = ScreenshotOverlayView()
     
+    
     override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing bufferingType: NSWindow.BackingStoreType, defer flag: Bool) {
         super.init(contentRect: contentRect, styleMask: style, backing: bufferingType, defer: flag)
-        
         self.isOpaque = false
         self.level = .statusBar
         self.backgroundColor = NSColor.clear
         self.collectionBehavior = [.canJoinAllSpaces, .fullScreenPrimary]
         self.isReleasedWhenClosed = false
         self.contentView = overlayView
-        NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.keyDown, handler: myKeyDownEvent)
+        if let monitor = keyMonitor { NSEvent.removeMonitor(monitor) }
+        keyMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.keyDown, handler: myKeyDownEvent)
         
     }
 
-    func myKeyDownEvent(event: NSEvent) -> NSEvent {
-        if event.keyCode == 53 {
+    func myKeyDownEvent(event: NSEvent) -> NSEvent? {
+        if event.keyCode == 53 && !event.isARepeat {
             self.close()
             for w in NSApplication.shared.windows.filter({ $0.title == "Start Recording".local }) { w.close() }
+            if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor); mouseMonitor = nil }
+            return nil
         }
         return event
     }

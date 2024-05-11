@@ -222,18 +222,14 @@ struct ScreenSelector: View {
         .frame(width: 780, height:530)
         .onReceive(timer) { t in
             if counter == nil { return }
-            if counter! <= 1 { startRecording(); return }
+            if counter! <= 1 { counter = nil; startRecording(); return }
             if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
-        /*.onAppear{
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if viewModel.screenThumbnails.count == 1 { selected = viewModel.screenThumbnails[0].screen }
-            }
-        }*/
     }
     
     func startRecording() {
-        if let w = NSApplication.shared.windows.first(where: { $0.title == "Screen Selector".local }) { w.close() }
+        //if let w = NSApplication.shared.windows.first(where: { $0.title == "Screen Selector".local }) { w.close() }
+        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
         if let screen = selected {
             appDelegate.prepRecord(type: "display", screens: screen, windows: nil, applications: nil)
         }
@@ -316,7 +312,6 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
 }
 
 class ScreenThumbnail {
-    let id = UUID()
     let image: NSImage
     let screen: SCDisplay
 

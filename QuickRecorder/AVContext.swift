@@ -10,10 +10,10 @@ import AVFoundation
 import UserNotifications
 
 extension AppDelegate {
-    func recordingCamera(withDevice: AVCaptureDevice) {
+    func recordingCamera(with device: AVCaptureDevice) {
         SCContext.captureSession = AVCaptureSession()
         
-        guard let input = try? AVCaptureDeviceInput(device: withDevice),
+        guard let input = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input) else {
             print("Failed to set up camera")
             return
@@ -58,7 +58,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         //print(sampleBuffer.nsImage?.size)
     }
     
-    public func startRecording(withDevice: AVCaptureDevice, mute: Bool = false, preset: AVCaptureSession.Preset = .high, didOutput: Bool = true) {
+    public func startRecording(with device: AVCaptureDevice, mute: Bool = false, preset: AVCaptureSession.Preset = .high, didOutput: Bool = true) {
         output = AVCaptureMovieFileOutput()
         dataOutput = AVCaptureVideoDataOutput()
         dataOutput.setSampleBufferDelegate(self, queue: .global())
@@ -67,8 +67,8 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         SCContext.captureSession.sessionPreset = preset
         SCContext.previewSession.sessionPreset = preset
         
-        guard let input = try? AVCaptureDeviceInput(device: withDevice),
-              let preview = try? AVCaptureDeviceInput(device: withDevice),
+        guard let input = try? AVCaptureDeviceInput(device: device),
+              let preview = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input),
               SCContext.previewSession.canAddInput(preview),
               SCContext.captureSession.canAddOutput(output),
@@ -109,7 +109,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         
         SCContext.previewSession.startRunning()
         DispatchQueue.main.async {
-            for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
+            AppDelegate.shared.closeMainWindow()
             AppDelegate.shared.updateStatusBar()
             AppDelegate.shared.startDeviceOverlayer(size: NSSize(width: 300, height: 500))
         }

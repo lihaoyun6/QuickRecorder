@@ -14,7 +14,7 @@ extension AppDelegate {
     func startCameraOverlayer(size: NSSize = NSSize(width: 200, height: 200)){
         guard let screen = SCContext.getScreenWithMouse() else { return }
         camWindow.contentView = NSHostingView(rootView: SwiftCameraView(type: .camera))
-        let frame = NSRect(x: (screen.visibleFrame.width-size.width)/2, y: (screen.visibleFrame.height-size.height)/2, width: size.width, height: size.height)
+        let frame = NSRect(x: (screen.visibleFrame.width-size.width)/2+screen.frame.minX, y: (screen.visibleFrame.height-size.height)/2+screen.frame.minY, width: size.width, height: size.height)
         camWindow.setFrame(frame, display: true)
         //camWindow.setFrameOrigin(NSPoint(x: screen.visibleFrame.width/2-100, y: screen.visibleFrame.height/2-100))
         camWindow.contentView?.wantsLayer = true
@@ -162,7 +162,7 @@ struct CameraPopoverView: View {
                     }
                     SCContext.recordCam = cameras[index].localizedName
                     appDelegate.closeCamera()
-                    appDelegate.recordingCamera(withDevice: cameras[index])
+                    appDelegate.recordingCamera(with: cameras[index])
                 }, label: {
                     HStack {
                         ZStack {
@@ -201,7 +201,7 @@ struct CameraPopoverView: View {
                         SCContext.recordDevice = devices[index].localizedName
                         AVOutputClass.shared.closePreview()
                         DispatchQueue.global().async {
-                            AVOutputClass.shared.startRecording(withDevice: devices[index], mute: true, didOutput: false)
+                            AVOutputClass.shared.startRecording(with: devices[index], mute: true, didOutput: false)
                         }
                     }, label: {
                         HStack {

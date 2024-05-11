@@ -11,7 +11,7 @@ import AVFoundation
 extension AppDelegate {
     func startDeviceOverlayer(size: NSSize = NSSize(width: 200, height: 200)){
         guard let screen = SCContext.getScreenWithMouse() else { return }
-        let frame = NSRect(x: (screen.visibleFrame.width-size.width)/2, y: (screen.visibleFrame.height-size.height)/2, width: size.width, height: size.height)
+        let frame = NSRect(x: (screen.visibleFrame.width-size.width)/2+screen.frame.minX, y: (screen.visibleFrame.height-size.height)/2+screen.frame.minY, width: size.width, height: size.height)
         deviceWindow.contentView = NSHostingView(rootView: SwiftCameraView(type: .idevice))
         deviceWindow.setFrame(frame, display: true)
         deviceWindow.contentView?.wantsLayer = true
@@ -53,7 +53,7 @@ struct iDevicePopoverView: View {
                 ForEach(devices.indices, id: \.self) { index in
                     Button(action: {
                         DispatchQueue.global().async {
-                            AVOutputClass.shared.startRecording(withDevice: devices[index], mute: mute, preset: preset)
+                            AVOutputClass.shared.startRecording(with: devices[index], mute: mute, preset: preset)
                         }
                     }, label: {
                         HStack {

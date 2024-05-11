@@ -15,6 +15,8 @@ struct WinSelector: View {
     @StateObject var viewModel = WindowSelectorViewModel()
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selected = [SCWindow]()
+    @State private var display: SCDisplay!
+    @State private var selectedTab = 0
     @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
     @State private var start = Date.now
     @State private var counter: Int?
@@ -28,89 +30,112 @@ struct WinSelector: View {
     @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
     @AppStorage("highRes")         private var highRes: Int = 2
-    @AppStorage("countdown")      private var countdown: Int = 0
+    @AppStorage("countdown")       private var countdown: Int = 0
     
     var body: some View {
         ZStack {
             VStack(spacing: 15) {
                 Text("Please select the window(s) to record")
-                ScrollView(.vertical) {
-                    ForEach(0..<viewModel.windowThumbnails.count/4 + 1, id: \.self) { rowIndex in
-                        HStack(spacing: 16.5) {
-                            ForEach(0..<4, id: \.self) { columnIndex in
-                                let index = 4 * rowIndex + columnIndex
-                                if index <= viewModel.windowThumbnails.count - 1 {
-                                    Button(action: {
-                                        if !selected.contains(viewModel.windowThumbnails[index].window) {
-                                            selected.append(viewModel.windowThumbnails[index].window)
-                                        } else {
-                                            selected.removeAll{ $0 == viewModel.windowThumbnails[index].window }
-                                        }
-                                    }, label: {
-                                        VStack(spacing: 1){
-                                            ZStack{
-                                                if colorScheme == .light {
-                                                    Image(nsImage: viewModel.windowThumbnails[index].image)
-                                                        .resizable()
-                                                        .aspectRatio(contentMode: .fit)
-                                                        .colorMultiply(.black)
-                                                        .blur(radius: 0.5)
-                                                        .opacity(1)
-                                                        .frame(width: 160, height: 90, alignment: .center)
-                                                } else {
-                                                    Image(nsImage: viewModel.windowThumbnails[index].image)
-                                                        .resizable()
-                                                        .aspectRatio(contentMode: .fit)
-                                                        .colorMultiply(.black)
-                                                        .colorInvert()
-                                                        .blur(radius: 0.5)
-                                                        .opacity(1)
-                                                        .frame(width: 160, height: 90, alignment: .center)
-                                                }
-                                                Image(nsImage: viewModel.windowThumbnails[index].image)
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .frame(width: 160, height: 90, alignment: .center)
-                                                Image(systemName: "circle.fill")
-                                                    .font(.system(size: 31))
-                                                    .foregroundStyle(.white)
-                                                    .opacity(selected.contains(viewModel.windowThumbnails[index].window) ? 1.0 : 0.0)
-                                                    .offset(x: 55, y: 25)
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .font(.system(size: 27))
-                                                    .foregroundStyle(.green)
-                                                    .opacity(selected.contains(viewModel.windowThumbnails[index].window) ? 1.0 : 0.0)
-                                                    .offset(x: 55, y: 25)
-                                                Image(nsImage: SCContext.getAppIcon(viewModel.windowThumbnails[index].window.owningApplication!)!)
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .frame(width: 40, height: 40, alignment: .center)
-                                                    .offset(y: 35)
+                TabView(selection: $selectedTab) {
+                    let allApps = viewModel.windowThumbnails.sorted(by: { $0.key.displayID < $1.key.displayID })
+                    ForEach(allApps, id: \.key) { element in
+                        let (screen, thumbnails) = element
+                        let index = allApps.firstIndex(where: { $0.key == screen }) ?? 0
+                        ScrollView(.vertical) {
+                            VStack(spacing: 0) {
+                                ForEach(0..<thumbnails.count/4 + 1, id: \.self) { rowIndex in
+                                    HStack(spacing: 16.5) {
+                                        ForEach(0..<4, id: \.self) { columnIndex in
+                                            let index = 4 * rowIndex + columnIndex
+                                            if index <= thumbnails.count - 1 {
+                                                Button(action: {
+                                                    if !selected.contains(thumbnails[index].window) {
+                                                        selected.append(thumbnails[index].window)
+                                                    } else {
+                                                        selected.removeAll{ $0 == thumbnails[index].window }
+                                                    }
+                                                }, label: {
+                                                    VStack(spacing: 1){
+                                                        ZStack{
+                                                            if colorScheme == .light {
+                                                                Image(nsImage: thumbnails[index].image)
+                                                                    .resizable()
+                                                                    .aspectRatio(contentMode: .fit)
+                                                                    .colorMultiply(.black)
+                                                                    .blur(radius: 0.5)
+                                                                    .opacity(1)
+                                                                    .frame(width: 160, height: 90, alignment: .center)
+                                                            } else {
+                                                                Image(nsImage: thumbnails[index].image)
+                                                                    .resizable()
+                                                                    .aspectRatio(contentMode: .fit)
+                                                                    .colorMultiply(.black)
+                                                                    .colorInvert()
+                                                                    .blur(radius: 0.5)
+                                                                    .opacity(1)
+                                                                    .frame(width: 160, height: 90, alignment: .center)
+                                                            }
+                                                            Image(nsImage: thumbnails[index].image)
+                                                                .resizable()
+                                                                .aspectRatio(contentMode: .fit)
+                                                                .frame(width: 160, height: 90, alignment: .center)
+                                                            Image(systemName: "circle.fill")
+                                                                .font(.system(size: 31))
+                                                                .foregroundStyle(.white)
+                                                                .opacity(selected.contains(thumbnails[index].window) ? 1.0 : 0.0)
+                                                                .offset(x: 55, y: 25)
+                                                            Image(systemName: "checkmark.circle.fill")
+                                                                .font(.system(size: 27))
+                                                                .foregroundStyle(.green)
+                                                                .opacity(selected.contains(thumbnails[index].window) ? 1.0 : 0.0)
+                                                                .offset(x: 55, y: 25)
+                                                            Image(nsImage: SCContext.getAppIcon(thumbnails[index].window.owningApplication!)!)
+                                                                .resizable()
+                                                                .aspectRatio(contentMode: .fit)
+                                                                .frame(width: 40, height: 40, alignment: .center)
+                                                                .offset(y: 35)
+                                                        }
+                                                        .padding(5)
+                                                        .padding([.top, .bottom], 5)
+                                                        .background(
+                                                            Rectangle()
+                                                                .foregroundStyle(.blue)
+                                                                .cornerRadius(5)
+                                                                .opacity(selected.contains(thumbnails[index].window) ? 0.2 : 0.0001)
+                                                        )
+                                                        Text(thumbnails[index].window.title!)
+                                                            .font(.system(size: 12))
+                                                            .foregroundStyle(.secondary)
+                                                            .lineLimit(1)
+                                                            .truncationMode(.tail)
+                                                            .frame(width: 160)
+                                                    }
+                                                }).buttonStyle(.plain)
                                             }
-                                            .padding(5)
-                                            .padding([.top, .bottom], 5)
-                                            .background(
-                                                Rectangle()
-                                                    .foregroundStyle(.blue)
-                                                    .cornerRadius(5)
-                                                    .opacity(selected.contains(viewModel.windowThumbnails[index].window) ? 0.2 : 0.0)
-                                            )
-                                            Text(viewModel.windowThumbnails[index].window.title!)
-                                                .font(.system(size: 12))
-                                                .foregroundStyle(.secondary)
-                                                .lineLimit(1)
-                                                .truncationMode(.tail)
-                                                .frame(width: 160)
                                         }
-                                    }).buttonStyle(.plain)
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 12).padding(.top, 5)
                                 }
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 25)
+                        .tag(index)
+                        .tabItem { Text(screen.nsScreen?.localizedName ?? ("Display ".local + "\(index)")) }
+                        .onAppear{ display = screen }
                     }
                 }
-                .frame(height: 420)
+                .frame(height: 445)
+                .padding([.leading, .trailing], 10)
+                .onChange(of: selectedTab) { _ in selected.removeAll() }
+                .onReceive(viewModel.$isReady) { isReady in
+                    if isReady {
+                        let allApps = viewModel.windowThumbnails.sorted(by: { $0.key.displayID < $1.key.displayID })
+                        if let s = NSApp.windows.first(where: { $0.title == "Window Selector".local })?.screen,
+                           let index = allApps.firstIndex(where: { $0.key.displayID == s.displayID }) {
+                            selectedTab = index
+                        }
+                    }
+                }
                 HStack{
                     Button(action: {
                         self.viewModel.setupStreams()
@@ -228,25 +253,24 @@ struct WinSelector: View {
             }
             .padding(.top, -5)
         }
-        .frame(width: 780, height:530)
+        .frame(width: 780, height:555)
         .onReceive(timer) { t in
             if counter == nil { return }
-            if counter! <= 1 { startRecording(); return }
+            if counter! <= 1 { counter = nil; startRecording(); return }
             if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     
     func startRecording() {
-        if let w = NSApplication.shared.windows.first(where: { $0.title == "Window Selector" }) { w.close() }
-        if let screen = SCContext.getSCDisplayWithMouse(){
-            appDelegate.prepRecord(type: (selected.count<2 ? "window" : "windows") , screens: screen, windows: selected, applications: nil)
-        }
-        
+        //if let w = NSApplication.shared.windows.first(where: { $0.title == "Window Selector" }) { w.close() }
+        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
+        appDelegate.prepRecord(type: (selected.count<2 ? "window" : "windows") , screens: display, windows: selected, applications: nil)
     }
 }
 
 class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCStreamOutput {
-    @Published var windowThumbnails = [WindowThumbnail]()
+    @Published var windowThumbnails = [SCDisplay:[WindowThumbnail]]()
+    @Published var isReady = false
     private var allWindows = [SCWindow]()
     private var streams = [SCStream]()
     
@@ -271,10 +295,21 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
         if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allWindows.count {
             let currentWindow = self.allWindows[index]
             let thumbnail = WindowThumbnail(image: nsImage, window: currentWindow)
-            DispatchQueue.main.async {
-                if !self.windowThumbnails.contains(where: { $0.window == currentWindow }) { self.windowThumbnails.append(thumbnail) }
+            guard let displays = SCContext.availableContent?.displays.filter({ NSIntersectsRect(currentWindow.frame, $0.frame) }) else {
+                self.streams[index].stopCapture()
+                return
+            }
+            for d in displays {
+                DispatchQueue.main.async {
+                    if self.windowThumbnails[d] != nil {
+                        if !self.windowThumbnails[d]!.contains(where: { $0.window == currentWindow }) { self.windowThumbnails[d]!.append(thumbnail) }
+                    } else {
+                        self.windowThumbnails[d] = [thumbnail]
+                    }
+                }
             }
             self.streams[index].stopCapture()
+            if index + 1 == self.streams.count { self.isReady = true }
         }
     }
 
@@ -318,7 +353,6 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
 }
 
 class WindowThumbnail {
-    let id = UUID()
     let image: NSImage
     let window: SCWindow
 

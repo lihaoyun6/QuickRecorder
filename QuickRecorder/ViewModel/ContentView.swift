@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import ScreenCaptureKit
 
 struct ContentView: View {
     @State private var xmarkGlowing = false
@@ -48,6 +49,15 @@ struct ContentView: View {
                         SCContext.updateAvailableContent{
                             DispatchQueue.main.async {
                                 appDelegate.showAreaSelector()
+                                var currentDisplay = SCContext.getSCDisplayWithMouse()
+                                mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .leftMouseDown, .otherMouseDown]) { event in
+                                    let display = SCContext.getSCDisplayWithMouse()
+                                    if display != currentDisplay {
+                                        currentDisplay = display
+                                        for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+                                        appDelegate.showAreaSelector()
+                                    }
+                                }
                             }
                         }
                     }, label: {
@@ -93,13 +103,13 @@ struct ContentView: View {
                     Spacer()
                 }.padding([.top, .bottom], 10).padding([.leading, .trailing], 19.5)
             }
-            if #available(macOS 14.0, *) {
+            if #available(macOS 14, *) {
                 Button(action: {
                     appDelegate.closeMainWindow()
                 }, label: {
                     Image(systemName: "x.circle")
+                        .font(.system(size: 12, weight: .bold))
                         .opacity(xmarkGlowing ? 1.0 : 0.4)
-                        .fontWeight(.bold)
                         .foregroundStyle(.secondary)
                         .onHover{ hovering in xmarkGlowing = hovering }
                 })
@@ -113,7 +123,7 @@ struct ContentView: View {
         var title = "No Title".local
         var symbol = "app"
         var overlayer = ""
-        @State private var backgroundOpacity = 0.0
+        @State private var backgroundOpacity = 0.0001
         
         var body: some View {
             VStack(spacing: 6) {
@@ -132,7 +142,7 @@ struct ContentView: View {
             }
             .frame(width: 110, height: 80)
             .onHover{ hovering in
-                backgroundOpacity = hovering ? 0.2 : 0.0
+                backgroundOpacity = hovering ? 0.2 : 0.0001
             }
             .background( .primary.opacity(backgroundOpacity) )
         }
@@ -140,44 +150,46 @@ struct ContentView: View {
 }
 
 extension AppDelegate {
-    func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() } }
+    func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
     
     func showAreaSelector() {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
         guard let screen = scDisplay.nsScreen else { return }
         let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false)
         screenshotWindow.title = "Area Selector".local
+        //screenshotWindow.isReleasedWhenClosed = true
         screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
-        let wX = (screen.frame.width - 510) / 2
+        let wX = (screen.frame.width - 590) / 2 + screen.frame.minX
         let wY = screen.visibleFrame.minY + 70
-        var window = NSWindow()
         let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-        contentView.frame = NSRect(x: wX, y: wY, width: 510, height: 70)
+        contentView.frame = NSRect(x: wX, y: wY, width: 590, height: 70)
         contentView.focusRingType = .none
-        window = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
-        window.level = .screenSaver
-        window.title = "Start Recording".local
-        window.standardWindowButton(.closeButton)?.isHidden = true
-        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
-        window.standardWindowButton(.zoomButton)?.isHidden = true
-        window.contentView = contentView
-        window.titleVisibility = .hidden
-        window.isReleasedWhenClosed = false
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
-        window.makeKeyAndOrderFront(self)
+        //areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
+        areaPanel.setFrame(contentView.frame, display: true)
+        areaPanel.level = .screenSaver
+        areaPanel.title = "Start Recording".local
+        areaPanel.standardWindowButton(.closeButton)?.isHidden = true
+        areaPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        areaPanel.standardWindowButton(.zoomButton)?.isHidden = true
+        areaPanel.contentView = contentView
+        areaPanel.titleVisibility = .hidden
+        areaPanel.isReleasedWhenClosed = false
+        areaPanel.titlebarAppearsTransparent = true
+        areaPanel.isMovableByWindowBackground = true
+        //areaPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
+        areaPanel.makeKeyAndOrderFront(self)
     }
     
     func createNewWindow(view: some View, title: String, random: Bool = false) {
         guard let screen = SCContext.getScreenWithMouse() else { return }
         var seed = 0.0
         if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
-        let wX = (screen.frame.width - 780) / 2 + seed
-        let wY = (screen.frame.height - 530) / 2 + 100 + seed
+        let wX = (screen.frame.width - 780) / 2 + seed + screen.frame.minX
+        let wY = (screen.frame.height - 555) / 2 + 100 + seed + screen.frame.minY
         var window = NSWindow()
         let contentView = NSHostingView(rootView: view)
-        contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 530)
+        contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 555)
         window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = title
         window.contentView = contentView

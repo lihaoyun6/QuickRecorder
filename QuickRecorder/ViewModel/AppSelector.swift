@@ -13,6 +13,8 @@ struct AppSelector: View {
     @StateObject var viewModel = AppSelectorViewModel()
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selected = [SCRunningApplication]()
+    @State private var display: SCDisplay!
+    @State private var selectedTab = 0
     @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
     @State private var start = Date.now
     @State private var counter: Int?
@@ -32,60 +34,80 @@ struct AppSelector: View {
         ZStack {
             VStack(spacing: 15) {
                 Text("Please select the App(s) to record")
-                ScrollView(.vertical) {
-                    VStack(spacing: 14) {
-                        ForEach(0..<viewModel.allApps.count/5 + 1, id: \.self) { rowIndex in
-                            HStack(spacing: 20) {
-                                ForEach(0..<5, id: \.self) { columnIndex in
-                                    let index = 5 * rowIndex + columnIndex
-                                    if index <= viewModel.allApps.count - 1 {
-                                        Button(action: {
-                                            if !selected.contains(viewModel.allApps[index]) {
-                                                selected.append(viewModel.allApps[index])
-                                            } else {
-                                                selected.removeAll{ $0 == viewModel.allApps[index] }
+                TabView(selection: $selectedTab) {
+                    let allApps = viewModel.allApps.sorted(by: { $0.key.displayID < $1.key.displayID })
+                    ForEach(allApps, id: \.key) { element in
+                        let (screen, apps) = element
+                        let index = allApps.firstIndex(where: { $0.key == screen }) ?? 0
+                        ScrollView(.vertical) {
+                            VStack(spacing: 8) {
+                                ForEach(0..<apps.count/5 + 1, id: \.self) { rowIndex in
+                                    HStack(spacing: 20) {
+                                        ForEach(0..<5, id: \.self) { columnIndex in
+                                            let index = 5 * rowIndex + columnIndex
+                                            if index <= apps.count - 1 {
+                                                Button(action: {
+                                                    if !selected.contains(apps[index]) {
+                                                        selected.append(apps[index])
+                                                    } else {
+                                                        selected.removeAll{ $0 == apps[index] }
+                                                    }
+                                                }, label: {
+                                                    ZStack {
+                                                        VStack {
+                                                            Image(nsImage: SCContext.getAppIcon(apps[index])!)
+                                                            let appName = apps[index].applicationName
+                                                            let appID = apps[index].bundleIdentifier
+                                                            Text(appName != "" ? appName : appID)
+                                                                .foregroundStyle(.secondary)
+                                                                .lineLimit(1)
+                                                                .truncationMode(.tail)
+                                                        }
+                                                        .frame(width: 110, height: 94)
+                                                        .padding(10)
+                                                        .background(
+                                                            Rectangle()
+                                                                .foregroundStyle(.blue)
+                                                                .cornerRadius(5)
+                                                                .opacity(selected.contains(apps[index]) ? 0.2 : 0.0)
+                                                        )
+                                                        Image(systemName: "circle.fill")
+                                                            .font(.system(size: 31))
+                                                            .foregroundStyle(.white)
+                                                            .opacity(selected.contains(apps[index]) ? 1.0 : 0.0)
+                                                            .offset(x: 20, y: 10)
+                                                        Image(systemName: "checkmark.circle.fill")
+                                                            .font(.system(size: 27))
+                                                            .foregroundStyle(.green)
+                                                            .opacity(selected.contains(apps[index]) ? 1.0 : 0.0)
+                                                            .offset(x: 20, y: 10)
+                                                    }
+                                                }).buttonStyle(.plain)
                                             }
-                                        }, label: {
-                                            ZStack {
-                                                VStack {
-                                                    Image(nsImage: SCContext.getAppIcon(viewModel.allApps[index])!)
-                                                    let appName = viewModel.allApps[index].applicationName
-                                                    let appID = viewModel.allApps[index].bundleIdentifier
-                                                    Text(appName != "" ? appName : appID)
-                                                        .foregroundStyle(.secondary)
-                                                        .lineLimit(1)
-                                                        .truncationMode(.tail)
-                                                }
-                                                .frame(width: 110, height: 94)
-                                                .padding(10)
-                                                .background(
-                                                    Rectangle()
-                                                        .foregroundStyle(.blue)
-                                                        .cornerRadius(5)
-                                                        .opacity(selected.contains(viewModel.allApps[index]) ? 0.2 : 0.0)
-                                                )
-                                                Image(systemName: "circle.fill")
-                                                    .font(.system(size: 31))
-                                                    .foregroundStyle(.white)
-                                                    .opacity(selected.contains(viewModel.allApps[index]) ? 1.0 : 0.0)
-                                                    .offset(x: 20, y: 10)
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .font(.system(size: 27))
-                                                    .foregroundStyle(.green)
-                                                    .opacity(selected.contains(viewModel.allApps[index]) ? 1.0 : 0.0)
-                                                    .offset(x: 20, y: 10)
-                                            }
-                                        }).buttonStyle(.plain)
+                                        }
                                     }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 12).padding(.top, 4)
                                 }
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 25)
+                        }
+                        .tag(index)
+                        .tabItem { Text(screen.nsScreen?.localizedName ?? ("Display ".local + "\(index)")) }
+                        .onAppear{ display = screen }
+                    }
+                }
+                .frame(height: 445)
+                .padding([.leading, .trailing], 10)
+                .onChange(of: selectedTab) { _ in selected.removeAll() }
+                .onReceive(viewModel.$isReady) { isReady in
+                    if isReady {
+                        let allApps = viewModel.allApps.sorted(by: { $0.key.displayID < $1.key.displayID })
+                        if let s = NSApp.windows.first(where: { $0.title == "App Selector".local })?.screen,
+                           let index = allApps.firstIndex(where: { $0.key.displayID == s.displayID }) {
+                            selectedTab = index
                         }
                     }
                 }
-                .frame(height: 420)
-                
                 HStack{
                     Button(action: {
                         viewModel.updateAppList()
@@ -202,34 +224,48 @@ struct AppSelector: View {
             }
             .padding(.top, -5)
         }
-        .frame(width: 780, height:530)
+        .frame(width: 780, height:555)
         .onReceive(timer) { t in
             if counter == nil { return }
-            if counter! <= 1 { startRecording(); return }
+            if counter! <= 1 { counter = nil; startRecording(); return }
             if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
         }
     }
     
     func startRecording() {
-        if let w = NSApplication.shared.windows.first(where: { $0.title == "App Selector" }) { w.close() }
-        if let screen = SCContext.getSCDisplayWithMouse(){
-            appDelegate.prepRecord(type: "application", screens: screen, windows: nil, applications: selected)
-        }
+        //if let w = NSApplication.shared.windows.first(where: { $0.title == "App Selector" }) { w.close() }
+        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
+        appDelegate.prepRecord(type: "application", screens: display, windows: nil, applications: selected)
     }
 }
 
 class AppSelectorViewModel: ObservableObject {
-    @Published var allApps = [SCRunningApplication]()
+    @Published var allApps = [SCDisplay: [SCRunningApplication]]()
+    @Published var isReady = false
     
     init() {
         updateAppList()
     }
     
     func updateAppList() {
+        SCContext.updateAvailableContent {
+            guard let screens = SCContext.availableContent?.displays else { return }
+            for screen in screens {
+                var apps = [SCRunningApplication]()
+                let windows = SCContext.getWindows().filter({ NSIntersectsRect(screen.frame, $0.frame) })
+                for app in windows.map({ $0.owningApplication }) { if !apps.contains(app!) { apps.append(app!) }}
+                if ud.bool(forKey: "hideSelf") { apps = apps.filter({$0.bundleIdentifier != Bundle.main.bundleIdentifier}) }
+                DispatchQueue.main.async { self.allApps[screen] = apps }
+            }
+            DispatchQueue.main.async { self.isReady = true }
+        }
+    }
+    
+    /*func updateAppList() {
         SCContext.updateAvailableContent{
             DispatchQueue.main.async {
                 self.allApps = SCContext.getApps().filter({ $0.bundleIdentifier != Bundle.main.bundleIdentifier })
             }
         }
-    }
+    }*/
 }

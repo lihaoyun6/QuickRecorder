@@ -22,6 +22,7 @@ let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
 var statusBarItem: NSStatusItem!
 var mouseMonitor: Any?
+var keyMonitor: Any?
 var hideMousePointer = false
 var hideScreenMagnifier = false
 let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquivalent: "")
@@ -31,6 +32,7 @@ let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402,
 let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+var areaPanel = NSWindow(contentRect: .zero, styleMask: [.titled], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
 @main
@@ -47,7 +49,7 @@ struct QuickRecorderApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .navigationTitle("QuickReader".local)
+                .navigationTitle("QuickRecorder".local)
                 .fixedSize()
                 .onAppear { if #available(macOS 14, *) { setMainWindow() }}
         }.commands { CommandGroup(replacing: .newItem) {} }
@@ -66,7 +68,7 @@ struct QuickRecorderApp: App {
     }
     
     func setMainWindow() {
-        for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) {
+        for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
             w.level = .floating
             w.styleMask = [.fullSizeContentView]
             w.isRestorable = false
@@ -139,7 +141,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         
     func stopGlobalMouseMonitor() {
         mousePointer.orderOut(nil)
-        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
+        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor); mouseMonitor = nil }
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -154,19 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls {
             createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, random: true)
-            for w in NSApplication.shared.windows.filter({ $0.title == "QuickReader".local }) { w.close() }
-        }
-    }
-    
-    @objc func windowOcclusionStateChanged(_ notification: Notification) {
-        if let window = notification.object as? NSWindow {
-            if window.occlusionState.contains(.visible) {
-                // 菜单栏项目可见
-                print("Menu bar item is visible")
-            } else {
-                // 菜单栏项目不可见
-                print("Menu bar item is hidden")
-            }
+            closeMainWindow()
         }
     }
     
