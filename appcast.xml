@@ -11,10 +11,10 @@
             <description>
               <![CDATA[
                   <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
-                  <li>修复了"屏幕区域选择器"在多屏场景下约束不严的问题</li>
+                  <li>修复了"屏幕区域选择器"在多屏场景下超出边界的问题</li>
                   <li>修复了多屏场景下部分窗口出现在错误的屏幕上的问题</li>
                   <li>现在"屏幕区域选择器"可随鼠标自动在多个屏幕间切换</li>
-                  <li>为"窗口选择器"和"应用程序选择器"添加了多屏支持</li>
+                  <li>为 "窗口选择器" 和 "应用程序选择器" 添加了多屏支持</li>
                   </ul><ul>
                   <li>Fixed: Area Selector could go out of bounds when using multiple monitors</li>
                   <li>Fixed: Some window positions shifted when using multiple monitors</li>
