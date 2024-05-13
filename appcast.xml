@@ -3,6 +3,27 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.1</title>
+            <pubDate>Mon, 13 May 2024 17:06:14 +0800</pubDate>
+            <sparkle:version>121</sparkle:version>
+            <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了使用快捷键开始录制后, 菜单栏指示器不显示的问题</li>
+                  <li>修正部分 UI 文本以及部分控件在英文环境下显示异常的问题</li>
+                  <li>现在可以选择将 QuickRecorder 图标显示在 Dock 或菜单栏</li>
+                  </ul><ul>
+                  <li>Fixed: Indicator does not display when using hotkeys to start recording</li>
+                  <li>Fixed: Some UI string are not displayed properly in English environment</li>
+                  <li>You can now choose to display the App icon in the Dock or menu bar</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.1/QuickRecorder_v1.2.1.dmg" length="2839065" type="application/octet-stream" sparkle:edSignature="fMAg82h4jDrOJQ/ie5kHLf8nTXOKDr/ozEW651JwNzpIkPQdOJtfeLqAOK3NURzkeZ1bb2QPn3UiYsUZZInkBQ=="/>
+        </item>
+        <item>
             <title>v1.2.0</title>
             <pubDate>Sat, 11 May 2024 09:08:16 +0800</pubDate>
             <sparkle:version>120</sparkle:version>
