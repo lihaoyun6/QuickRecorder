@@ -12,6 +12,7 @@ import KeyboardShortcuts
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var userColor: Color = Color.black
     @State private var launchAtLogin = false
     @State private var fakeTrue = true
@@ -31,6 +32,8 @@ struct SettingsView: View {
     @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
     @AppStorage("trimAfterRecord")  private var trimAfterRecord: Bool = false
     @AppStorage("withAlpha")        private var withAlpha: Bool = false
+    @AppStorage("showOnDock")       private var showOnDock: Bool = true
+    @AppStorage("showMenubar")      private var showMenubar: Bool = false
     
     var body: some View {
         VStack {
@@ -95,7 +98,7 @@ struct SettingsView: View {
                 VStack {
                     GroupBox(label: Text("Other Settings".local).fontWeight(.bold)) {
                         Form() {
-                            Picker("Recording Delay", selection: $countdown) {
+                            Picker("Delay Before Recording", selection: $countdown) {
                                 Text("0"+"s".local).tag(0)
                                 Text("3"+"s".local).tag(3)
                                 Text("5"+"s".local).tag(5)
@@ -117,7 +120,11 @@ struct SettingsView: View {
                                 }.padding([.leading, .trailing], 10).disabled(true)
                             }
                         }.frame(maxWidth: .infinity).padding(.top, 10)
-                        ColorPicker("Set custom background color:", selection: $userColor).padding([.leading, .trailing], 10).padding(.bottom, 1)
+                        ColorPicker("Set custom background color:", selection: $userColor)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 1)
+                            .onChange(of: userColor) { userColor in
+                                ud.setColor(userColor, forKey: "userColor")
+                            }
                         Toggle(isOn: $trimAfterRecord) { Text("Open video trimmer after recording") }
                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
                             .toggleStyle(.checkbox)
@@ -125,11 +132,11 @@ struct SettingsView: View {
                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
                             .toggleStyle(.checkbox)
                         if #available(macOS 14.2, *) {
-                            Toggle(isOn: $includeMenuBar) { Text("Include MenuBar") }
+                            Toggle(isOn: $includeMenuBar) { Text("Include MenuBar in Recording") }
                                 .padding([.leading, .trailing], 10).padding(.bottom, 4)
                                 .toggleStyle(.checkbox)
                         } else {
-                            Toggle(isOn: $fakeTrue) { Text("Include MenuBar") }
+                            Toggle(isOn: $fakeTrue) { Text("Include MenuBar in Recording") }
                                 .padding([.leading, .trailing], 10)
                                 .toggleStyle(.checkbox)
                                 .disabled(true)
@@ -170,27 +177,55 @@ struct SettingsView: View {
                     }
                 }.frame(width: 220)
             }
-            GroupBox(label: Text("Update Settings".local).fontWeight(.bold)) {
-                Form(){
-                    UpdaterSettingsView(updater: updaterController.updater)
-                }.frame(maxWidth: .infinity).padding(5)
-            }.frame(width: 557)
+            HStack(alignment: .top, spacing: 17) {
+                GroupBox(label: Text("Update Settings".local).fontWeight(.bold)) {
+                    ZStack(){
+                        Form(){
+                            UpdaterSettingsView(updater: updaterController.updater)
+                        }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
+                        Button(action: {
+                            updaterController.updater.checkForUpdates()
+                        }) {
+                            Image(systemName: "arrow.clockwise.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.leading, 250).padding(.top, 36)
+                    }
+                }.frame(width: 270)
+                GroupBox(label: Text("Icon Settings".local).fontWeight(.bold)) {
+                    Form(){
+                        Toggle(isOn: $showOnDock) { Text("Show Dock Icon") }
+                            .padding([.leading, .trailing], 10)
+                            .toggleStyle(.checkbox)
+                            .onChange(of: showOnDock) { newValue in if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }}
+                        Toggle(isOn: $showMenubar) { Text("Show MenuBar Icon") }
+                            .padding([.leading, .trailing], 10)
+                            .toggleStyle(.checkbox)
+                            .onChange(of: showMenubar) { _ in appDelegate.updateStatusBar() }
+                    }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
+                }.frame(width: 270)
+            }
             Divider()
             HStack {
                 HStack(spacing: 10) {
                     Button(action: {
                         updateOutputDirectory()
                     }, label: {
-                        Text("Select save folder").padding([.leading, .trailing], 10)
+                        Text("Select Save Folder").padding([.leading, .trailing], 6)
                     })
-                    Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent)).font(.footnote).foregroundColor(Color.gray)
+                    Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent))
+                        .font(.footnote)
+                        .foregroundColor(Color.gray)
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: 170)
                 }.padding(.leading, 0.5)
                 Spacer()
                 if #available(macOS 13, *) {
                     VStack {
-                        HStack(spacing: 15){
+                        HStack(spacing: 10){
                             Toggle(isOn: $launchAtLogin) {}
-                                .offset(x: 10)
                                 .toggleStyle(.switch)
                                 .onChange(of: launchAtLogin) { newValue in
                                     do {
@@ -203,9 +238,9 @@ struct SettingsView: View {
                                         print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)")
                                     }
                                 }
-                            Text("Launch at login")
+                            Text("Launch at login").padding(.leading, -5)
                         }
-                    }.padding(.trailing, 14)
+                    }.padding(.trailing, 5)
                 }
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
@@ -213,15 +248,13 @@ struct SettingsView: View {
                     Text("Close").padding([.leading, .trailing], 20)
                 }).keyboardShortcut(.defaultAction)
             }.padding(.top, 1.5)
-            
-                
         }
         .padding([.leading, .trailing], 17).padding([.top, .bottom], 12)
         .onAppear{
             userColor = ud.color(forKey: "userColor") ?? Color.black
             if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }
         }
-        .onDisappear{ ud.setColor(userColor, forKey: "userColor") }
+        //.onDisappear{ ud.setColor(userColor, forKey: "userColor") }
     }
     
     func updateOutputDirectory() { // todo: re-sandbox

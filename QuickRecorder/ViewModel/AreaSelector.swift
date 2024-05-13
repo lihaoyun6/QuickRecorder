@@ -51,13 +51,13 @@ struct AreaSelector: View {
                     VStack(spacing: 6) {
                         HStack {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Definition")
+                                Text("Resolution")
                                 Text("Frame rate")
                             }
                             VStack(alignment: .leading, spacing: 12) {
                                 Picker("", selection: $highRes) {
-                                    Text("Auto").tag(2)
-                                    Text("Low (1x)").tag(1)
+                                    Text("High (auto)").tag(2)
+                                    Text("Normal (1x)").tag(1)
                                     Text("Low (0.5x)").tag(0)
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $frameRate) {
@@ -159,7 +159,7 @@ struct AreaSelector: View {
             .buttonStyle(.plain)
             .padding(.top, -9).padding(.leading, 7.5)
         }
-        .frame(width: 590, height: 50)
+        .frame(height: 50)
         .onReceive(timer) { t in
             if counter == nil { return }
             if counter! <= 1 { counter = nil; startRecording(); return }
@@ -168,7 +168,7 @@ struct AreaSelector: View {
     }
     func startRecording() {
         //for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
-        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
+        appDelegate.closeAllWindow()
         if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor); mouseMonitor = nil  }
         var window = NSWindow()
         let contentView = NSHostingView(rootView: AreaSelector())

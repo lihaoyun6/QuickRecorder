@@ -17,6 +17,7 @@ import CoreMediaIO
 import Sparkle
 
 var isMacOS12 = true
+var isMacOS14 = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -71,14 +72,16 @@ struct QuickRecorderApp: App {
         for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
             w.level = .floating
             w.styleMask = [.fullSizeContentView]
+            w.hasShadow = false
             w.isRestorable = false
             w.isMovableByWindowBackground = true
             w.standardWindowButton(.closeButton)?.isHidden = true
             w.standardWindowButton(.miniaturizeButton)?.isHidden = true
             w.standardWindowButton(.zoomButton)?.isHidden = true
-            w.backgroundColor = NSColor.clear
+            w.isOpaque = false
+            w.backgroundColor = .clear
             w.contentView?.wantsLayer = true
-            w.contentView?.layer?.cornerRadius = 13
+            //w.contentView?.layer?.cornerRadius = 13
             w.contentView?.layer?.masksToBounds = true
         }
     }
@@ -149,19 +152,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if SCContext.streamType == nil { return true }
+        if SCContext.stream == nil { return true }
         return false
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls {
             createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, random: true)
-            closeMainWindow()
+            //closeMainWindow()
         }
     }
     
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
-        if #available(macOS 13, *) { isMacOS12 = false }
+    func applicationWillFinishLaunching(_ notification: Notification) {
         SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
@@ -187,9 +189,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "showMouse": true,
                 "recordMic": false,
                 "recordWinSound": true,
-                "trimAfterRecord": false
+                "trimAfterRecord": false,
+                "showOnDock": true,
+                "showMenubar": false
             ]
         )
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
+        }
+        
+        if #available(macOS 13, *) { isMacOS12 = false }
+        if #available(macOS 14, *) { isMacOS14 = true }
+        
+        if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         
         var allow : UInt32 = 1
         let dataSize : UInt32 = 4
@@ -199,7 +212,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
             mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
-
+        
         statusMenu.delegate = self
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusBarItem.menu = statusMenu
@@ -236,24 +249,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         controlPanel.titlebarAppearsTransparent = true
         controlPanel.isMovableByWindowBackground = true
         
-        KeyboardShortcuts.onKeyDown(for: .saveFrame) { SCContext.saveFrame = true }
-        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { SCContext.isMagnifierEnabled.toggle() }
+        KeyboardShortcuts.onKeyDown(for: .saveFrame) { if SCContext.stream != nil { SCContext.saveFrame = true }}
+        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { if SCContext.stream != nil { SCContext.isMagnifierEnabled.toggle() }}
         KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
         KeyboardShortcuts.onKeyDown(for: .pauseResume) { if SCContext.stream != nil { SCContext.pauseRecording() }}
         KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in
-            for w in NSApp.windows { w.close() }
+            if SCContext.streamType != nil { return }
+            closeAllWindow()
             prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
         }
         KeyboardShortcuts.onKeyDown(for: .startWithScreen) {[self] in
-            for w in NSApp.windows { w.close() }
+            if SCContext.stream != nil { return }
+            closeAllWindow()
             prepRecord(type: "display", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
         }
         KeyboardShortcuts.onKeyDown(for: .startWithArea) {[self] in
-            for w in NSApp.windows { w.close() }
+            if SCContext.stream != nil { return }
+            closeAllWindow()
             showAreaSelector()
         }
         KeyboardShortcuts.onKeyDown(for: .startWithWindow) { [self] in
-            for w in NSApp.windows { w.close() }
+            if SCContext.stream != nil { return }
+            closeAllWindow()
             let frontmostApp = NSWorkspace.shared.frontmostApplication
             if let pid = frontmostApp?.processIdentifier {
                 let options: CGWindowListOption = .optionOnScreenOnly
@@ -272,21 +289,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             }
         }
         
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
-        }
-        
+        updateStatusBar()
+    }
+    
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         if #available(macOS 13, *) {
             if firstRun && (SMAppService.mainApp.status == .enabled) {
                 firstRun = false
-                NSApp.windows.forEach { $0.close() }
+                closeAllWindow()
             }
+        }
+    }
+    
+    func openSettingPanel() {
+        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 14, *) {
+            NSApp.mainMenu?.items.first?.submenu?.item(at: 3)?.performAction()
+        }else if #available(macOS 13, *) {
+            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        } else {
+            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
         }
     }
 }
 
+
 extension String {
     var local: String { return NSLocalizedString(self, comment: "") }
+}
+
+extension NSMenuItem {
+    func performAction() {
+        guard let menu else {
+            return
+        }
+        menu.performActionForItem(at: menu.index(of: self))
+    }
 }
 
 extension NSImage {

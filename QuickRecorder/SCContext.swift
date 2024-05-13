@@ -269,7 +269,7 @@ class SCContext {
     }
     
     static func stopRecording() {
-        statusBarItem.isVisible = false
+        //statusBarItem.isVisible = false
         recordCam = ""
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
@@ -312,6 +312,8 @@ class SCContext {
         window = nil
         screen = nil
         startTime = nil
+        
+        AppDelegate.shared.updateStatusBar()
         
         let content = UNMutableNotificationContent()
         content.title = "Recording Completed".local

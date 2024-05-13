@@ -22,6 +22,7 @@ extension AppDelegate {
 }
 
 struct iDevicePopoverView: View {
+    var closePopover: () -> Void
     @State private var devices = SCContext.getiDevice()
     @State private var hoverIndex = -1
     @State private var mute = false
@@ -52,6 +53,8 @@ struct iDevicePopoverView: View {
             } else {
                 ForEach(devices.indices, id: \.self) { index in
                     Button(action: {
+                        closePopover()
+                        appDelegate.closeAllWindow()
                         DispatchQueue.global().async {
                             AVOutputClass.shared.startRecording(with: devices[index], mute: mute, preset: preset)
                         }

@@ -155,13 +155,13 @@ struct WinSelector: View {
                     VStack(spacing: 6) {
                         HStack {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Definition")
+                                Text("Resolution")
                                 Text("Frame rate")
                             }
                             VStack(alignment: .leading, spacing: 12) {
                                 Picker("", selection: $highRes) {
-                                    Text("Auto").tag(2)
-                                    Text("Low (1x)").tag(1)
+                                    Text("High (auto)").tag(2)
+                                    Text("Normal (1x)").tag(1)
                                     Text("Low (0.5x)").tag(0)
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $frameRate) {
@@ -263,7 +263,7 @@ struct WinSelector: View {
     
     func startRecording() {
         //if let w = NSApplication.shared.windows.first(where: { $0.title == "Window Selector" }) { w.close() }
-        for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" }) { w.close() }
+        appDelegate.closeAllWindow()
         appDelegate.prepRecord(type: (selected.count<2 ? "window" : "windows") , screens: display, windows: selected, applications: nil)
     }
 }

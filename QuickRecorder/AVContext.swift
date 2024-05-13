@@ -109,7 +109,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         
         SCContext.previewSession.startRunning()
         DispatchQueue.main.async {
-            AppDelegate.shared.closeMainWindow()
+            AppDelegate.shared.closeAllWindow()
             AppDelegate.shared.updateStatusBar()
             AppDelegate.shared.startDeviceOverlayer(size: NSSize(width: 300, height: 500))
         }
@@ -117,15 +117,16 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
 
     public func stopRecording() {
         if SCContext.captureSession.isRunning {
-            DispatchQueue.main.async { [] in
-                statusBarItem.isVisible = false
-                if deviceWindow.isVisible { deviceWindow.close() }
-            }
             output.stopRecording()
             SCContext.captureSession.stopRunning()
             SCContext.previewSession.stopRunning()
             SCContext.streamType = nil
             SCContext.startTime = nil
+            DispatchQueue.main.async {
+                //statusBarItem.isVisible = false
+                if deviceWindow.isVisible { deviceWindow.close() }
+                AppDelegate.shared.updateStatusBar()
+            }
         }
     }
     

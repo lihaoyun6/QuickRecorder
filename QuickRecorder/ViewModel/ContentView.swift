@@ -10,6 +10,7 @@ import AVFoundation
 import ScreenCaptureKit
 
 struct ContentView: View {
+    var fromStatusBar = false
     @State private var xmarkGlowing = false
     @State private var infoGlowing = false
     @State private var showSettings = false
@@ -19,10 +20,13 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
             ZStack {
-                Color.clear
-                    .background(.ultraThinMaterial)
-                    .environment(\.controlActiveState, .active)
+                if !fromStatusBar {
+                    Color.clear
+                        .background(.ultraThinMaterial)
+                        .environment(\.controlActiveState, .active)
+                        .cornerRadius(13.1)
                     //.environment(\.colorScheme, .dark)
+                }
                 HStack {
                     Spacer()
                     if #available(macOS 13, *) {
@@ -83,40 +87,65 @@ struct ContentView: View {
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        isPopoverShowing.toggle()
+                        isPopoverShowing = true
                     }, label: {
                         SelectorView(title: "Mobile Device".local, symbol: "apps.ipad")
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView() }
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: { iDevicePopoverView(closePopover: { isPopoverShowing = false })})
                     Divider().frame(height: 70)
                     Button(action: {
-                        showSettings = true
+                        if fromStatusBar {
+                            appDelegate.openSettingPanel()
+                        } else {
+                            showSettings = true
+                        }
                     }, label: {
                         SelectorView(title: "Preferences".local, symbol: "gearshape")
                             .cornerRadius(8)
                     })
                     .buttonStyle(.plain)
-                    .sheet(isPresented: $showSettings) {
-                        SettingsView()
-                    }
+                    .sheet(isPresented: $showSettings) { SettingsView() }
                     Spacer()
                 }.padding([.top, .bottom], 10).padding([.leading, .trailing], 19.5)
             }
-            if #available(macOS 14, *) {
+            if fromStatusBar {
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    NSApp.terminate(self)
                 }, label: {
-                    Image(systemName: "x.circle")
-                        .font(.system(size: 12, weight: .bold))
+                    Text("Quit")
+                        .font(.system(size: 8, weight: .bold))
                         .opacity(xmarkGlowing ? 1.0 : 0.4)
                         .foregroundStyle(.secondary)
                         .onHover{ hovering in xmarkGlowing = hovering }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .stroke(.secondary.opacity(xmarkGlowing ? 1.0 : 0.4), lineWidth: 1)
+                                .padding(-1).padding([.leading, .trailing], -0.7)
+                        )
                 })
                 .buttonStyle(.plain)
-                .padding([.leading, .trailing, .top], 7)
+                .padding([.leading, .top], 6.5)
+            } else {
+                if #available(macOS 14, *) {
+                    Button(action: {
+                        appDelegate.closeMainWindow()
+                    }, label: {
+                        Image(systemName: "x.circle")
+                            .font(.system(size: 12, weight: .bold))
+                            .opacity(xmarkGlowing ? 1.0 : 0.4)
+                            .foregroundStyle(.secondary)
+                            .onHover{ hovering in xmarkGlowing = hovering }
+                    })
+                    .buttonStyle(.plain)
+                    .padding([.leading, .top], 6.5)
+                }
             }
-        }//.frame(width: 800)
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 13, style: .continuous)
+                .strokeBorder(.secondary.opacity(fromStatusBar ? 0.0 : 0.4), lineWidth: isMacOS14 ? 1.5 : 0.0)
+        )
     }
     
     struct SelectorView: View {
@@ -150,7 +179,10 @@ struct ContentView: View {
 }
 
 extension AppDelegate {
+    
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
+    
+    func closeAllWindow() { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != "Recording Controller".local }) { w.close() } }
     
     func showAreaSelector() {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
@@ -160,10 +192,10 @@ extension AppDelegate {
         //screenshotWindow.isReleasedWhenClosed = true
         screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
-        let wX = (screen.frame.width - 590) / 2 + screen.frame.minX
+        let wX = (screen.frame.width - 620) / 2 + screen.frame.minX
         let wY = screen.visibleFrame.minY + 70
         let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-        contentView.frame = NSRect(x: wX, y: wY, width: 590, height: 70)
+        contentView.frame = NSRect(x: wX, y: wY, width: 620, height: 70)
         contentView.focusRingType = .none
         //areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
         areaPanel.setFrame(contentView.frame, display: true)
@@ -183,6 +215,7 @@ extension AppDelegate {
     
     func createNewWindow(view: some View, title: String, random: Bool = false) {
         guard let screen = SCContext.getScreenWithMouse() else { return }
+        closeAllWindow()
         var seed = 0.0
         if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
         let wX = (screen.frame.width - 780) / 2 + seed + screen.frame.minX
@@ -197,7 +230,8 @@ extension AppDelegate {
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
-        window.makeKeyAndOrderFront(nil)
+        window.makeKeyAndOrderFront(self)
+        window.orderFrontRegardless()
     }
 
     func createAlert(title: String, message: String, button1: String, button2: String = "") -> NSAlert {
