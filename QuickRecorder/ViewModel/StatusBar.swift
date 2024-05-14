@@ -135,8 +135,11 @@ struct StatusBarItem: View {
 
 extension AppDelegate: NSMenuDelegate {
     func updateStatusBar() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            //if SCContext.streamType == nil { statusBarItem.isVisible = false; return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            if SCContext.streamType == nil && !ud.bool(forKey: "showMenubar") {
+                statusBarItem.isVisible = false
+                return
+            }
             guard let button = statusBarItem.button else { return }
             var padding = -1.0
             var height = 21
