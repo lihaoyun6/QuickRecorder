@@ -3,6 +3,22 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.2</title>
+            <pubDate>Tue, 14 May 2024 22:30:17 +0800</pubDate>
+            <sparkle:version>122</sparkle:version>
+            <sparkle:shortVersionString>1.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了即使不设置显示菜单栏图标, 菜单栏也会出现空白图标的bug</li>
+                  </ul><ul>
+                  <li>Fixed an issue where a blank icon appears in menubar</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="350"/>
+              ]]>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.2/QuickRecorder_v1.2.2.dmg" length="2839534" type="application/octet-stream" sparkle:edSignature="mlhgOSZZ8/PFLxk2y9bZ8zeGje8dIhB4AuuDzPr6XNO9PC4gpDENeZo3r3VuAUZp7LZJPD4kzGR66bkewIR1Dg=="/>
+        </item>
+        <item>
             <title>v1.2.1</title>
             <pubDate>Mon, 13 May 2024 17:06:14 +0800</pubDate>
             <sparkle:version>121</sparkle:version>
