@@ -11,23 +11,23 @@ import ScreenCaptureKit
 struct ScreenSelector: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = ScreenSelectorViewModel()
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selected: SCDisplay?
     @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
     @State private var start = Date.now
     @State private var counter: Int?
+    @State private var isPopoverShowing = false
+    @State private var autoStop = 0
+    var appDelegate = AppDelegate.shared
     
     @AppStorage("frameRate")       private var frameRate: Int = 60
     @AppStorage("videoQuality")    private var videoQuality: Double = 1.0
-    @AppStorage("saveDirectory")   private var saveDirectory: String?
-    @AppStorage("hideSelf")        private var hideSelf: Bool = false
     @AppStorage("showMouse")       private var showMouse: Bool = true
     @AppStorage("recordMic")       private var recordMic: Bool = false
     @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
-    //@AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
     @AppStorage("highRes")         private var highRes: Int = 2
-    @AppStorage("countdown")      private var countdown: Int = 0
+    @AppStorage("countdown")       private var countdown: Int = 0
     
     var body: some View {
         ZStack {
@@ -103,7 +103,7 @@ struct ScreenSelector: View {
                 }
                 .frame(height: 420)
                 
-                HStack{
+                HStack(spacing: 4) {
                     Button(action: {
                         viewModel.setupStreams()
                     }, label: {
@@ -120,11 +120,11 @@ struct ScreenSelector: View {
                     Spacer()
                     VStack(spacing: 6) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("Resolution")
                                 Text("Frame rate")
                             }
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $highRes) {
                                     Text("High (auto)").tag(2)
                                     Text("Normal (1x)").tag(1)
@@ -142,12 +142,12 @@ struct ScreenSelector: View {
                                     Text("10 FPS").tag(10)
                                 }.buttonStyle(.borderless)
                             }.scaledToFit()
-                            Divider().padding([.top, .bottom], -10)
-                            VStack(alignment: .leading, spacing: 12) {
+                            Divider().frame(height: 50)
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("Quality")
                                 Text("Background")
                             }.padding(.leading, isMacOS12 ? 0 : 8)
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $videoQuality) {
                                     Text("Low").tag(0.3)
                                     Text("Medium").tag(0.7)
@@ -167,8 +167,8 @@ struct ScreenSelector: View {
                                     Text("Custom").tag(BackgroundType.custom)
                                 }.buttonStyle(.borderless)
                             }.scaledToFit()
-                            Divider().padding([.top, .bottom], -10)
-                            VStack(alignment: .leading, spacing: isMacOS12 ? 12 : 3) {
+                            Divider().frame(height: 50)
+                            VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
                                 Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                                     .toggleStyle(.checkbox)
                                 if #available(macOS 13, *) {
@@ -193,6 +193,28 @@ struct ScreenSelector: View {
                     }
                     Spacer()
                     Button(action: {
+                        isPopoverShowing = true
+                    }, label: {
+                        Image(systemName: "timer")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.blue)
+                    })
+                    .disabled(!(counter == nil))
+                    .buttonStyle(.plain)
+                    .padding(.top, 42.5)
+                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
+                        HStack {
+                            Text(" Stop after".local)
+                            TextField("", value: $autoStop, formatter: NumberFormatter())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            Stepper("", value: $autoStop)
+                                .padding(.leading, -10)
+                            Text("minutes ".local)
+                        }
+                        .fixedSize()
+                        .padding()
+                    })
+                    Button(action: {
                         if counter == 0 { startRecording() }
                         if counter != nil { counter = nil } else { counter = countdown; start = Date.now }
                     }, label: {
@@ -213,8 +235,7 @@ struct ScreenSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected == nil)
-                }
-                .padding([.leading, .trailing], 50)
+                }.padding([.leading, .trailing], 50)
                 Spacer()
             }
             .padding(.top, -5)
@@ -231,6 +252,7 @@ struct ScreenSelector: View {
         //if let w = NSApplication.shared.windows.first(where: { $0.title == "Screen Selector".local }) { w.close() }
         appDelegate.closeAllWindow()
         if let screen = selected {
+            SCContext.autoStop = autoStop
             appDelegate.prepRecord(type: "display", screens: screen, windows: nil, applications: nil)
         }
     }
@@ -248,19 +270,6 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
         }
     }
     
-    func getWallpaper(_ display: SCDisplay) -> NSImage {
-        guard let screen = display.nsScreen else { return NSImage.unknowScreen }
-        guard let url = NSWorkspace.shared.desktopImageURL(for: screen) else { return NSImage.unknowScreen }
-        do {
-            var wallpaper: NSImage?
-            try wallpaper = NSImage(data: Data(contentsOf: url))
-            if let w = wallpaper { return w }
-        } catch {
-            print("load wallpaper error: \(error)")
-        }
-        return NSImage.unknowScreen
-    }
-    
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
@@ -269,7 +278,7 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
         var nsImage: NSImage?
         if let cgImage = cgImage { nsImage = NSImage(cgImage: cgImage, size: NSSize(width: cgImage.width, height: cgImage.height)) }
         if let index = self.streams.firstIndex(of: stream), index + 1 <= self.allScreens.count {
-            if nsImage == nil { nsImage = self.getWallpaper(self.allScreens[index]) }
+            if nsImage == nil { nsImage = SCContext.getWallpaper(self.allScreens[index]) ?? NSImage.unknowScreen }
             let currentScreen = self.allScreens[index]
             let thumbnail = ScreenThumbnail(image: nsImage!, screen: currentScreen)
             DispatchQueue.main.async {

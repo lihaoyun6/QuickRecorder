@@ -67,11 +67,7 @@ class RecorderPlayerModel: NSObject, ObservableObject {
                             }
                             dateFormatter.dateFormat = "y-MM-dd HH.mm.ss"
                             var path: String?
-                            if #available(macOS 13, *) {
-                                path = fileUrl.deletingPathExtension().path()
-                            } else {
-                                path = fileUrl.deletingPathExtension().path
-                            }
+                            path = fileUrl.deletingPathExtension().path
                             guard let path = path else { return }
                             let filePath = path.removingPercentEncoding! + " (Cropped in ".local + "\(dateFormatter.string(from: Date())))." + fileEnding
                             exportSession?.outputURL = URL(fileURLWithPath: filePath)

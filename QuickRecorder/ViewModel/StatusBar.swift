@@ -37,7 +37,7 @@ struct StatusBarItem: View {
                                 .foregroundStyle(.white)
                                 .frame(width: 16, alignment: .center)
                         }).buttonStyle(.plain)
-                        if SCContext.streamType != .idevice {
+                        if SCContext.streamType != .idevice && SCContext.streamType != .systemaudio {
                             Button(action: {
                                 SCContext.pauseRecording()
                                 isPassed = SCContext.isPaused
@@ -54,10 +54,12 @@ struct StatusBarItem: View {
                             .offset(x: 0.5)
                     }
                 }
-                .frame(width: SCContext.streamType == .idevice ? 86 : 106)
+                .frame(width: (SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 86 : 106)
                 .padding([.leading,.trailing], 4)
                 .onReceive(updateTimer) { t in
                     recordingLength = SCContext.getRecordingLength()
+                    let timePassed = Date.now.timeIntervalSince(SCContext.startTime ?? t)
+                    if SCContext.autoStop != 0 && timePassed / 60 >= CGFloat(SCContext.autoStop) { SCContext.stopRecording() }
                     if let visible = statusBarItem.button?.window?.occlusionState.contains(.visible) {
                         if visible { NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close(); return }
                         if SCContext.streamType != nil  && !visible && !(NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.isVisible ?? false) {
@@ -72,38 +74,40 @@ struct StatusBarItem: View {
                         }
                     }
                 }
-                if SCContext.streamType != .idevice {
-                    Button(action:{
-                        isPopoverShowing = true
-                    }, label: {
-                        ZStack {
-                            Rectangle()
-                                .fill(SCContext.isCameraRunning() ? Color.mygreen : .gray)
-                                .shadow(color: .black.opacity(0.3), radius: 4)
-                                .cornerRadius(4)
-                            Image("camera")
-                                .foregroundStyle(.white)
-                        }.frame(width: 36).padding([.leading,.trailing], 4)
-                    })
-                    .buttonStyle(.plain)
-                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView() }
-                } else {
-                    Button(action:{
-                        DispatchQueue.main.async {
-                            if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
-                        }
-                    }, label: {
-                        ZStack {
-                            Rectangle()
-                                .fill(deviceWindow.isVisible ? Color.myblue : .gray.opacity(0.7))
-                                .shadow(color: .black.opacity(0.3), radius: 4)
-                                .cornerRadius(4)
-                            Image(systemName: "apps.ipad")
-                                .font(.system(size: 16))
-                                .foregroundStyle(.white)
-                        }.frame(width: 36).padding([.leading,.trailing], 4)
-                    })
-                    .buttonStyle(.plain)
+                if SCContext.streamType != .systemaudio {
+                    if SCContext.streamType != .idevice {
+                        Button(action:{
+                            isPopoverShowing = true
+                        }, label: {
+                            ZStack {
+                                Rectangle()
+                                    .fill(SCContext.isCameraRunning() ? Color.mygreen : .gray)
+                                    .shadow(color: .black.opacity(0.3), radius: 4)
+                                    .cornerRadius(4)
+                                Image("camera")
+                                    .foregroundStyle(.white)
+                            }.frame(width: 36).padding([.leading,.trailing], 4)
+                        })
+                        .buttonStyle(.plain)
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView() }
+                    } else {
+                        Button(action:{
+                            DispatchQueue.main.async {
+                                if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
+                            }
+                        }, label: {
+                            ZStack {
+                                Rectangle()
+                                    .fill(deviceWindow.isVisible ? Color.myblue : .gray.opacity(0.7))
+                                    .shadow(color: .black.opacity(0.3), radius: 4)
+                                    .cornerRadius(4)
+                                Image(systemName: "apps.ipad")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(.white)
+                            }.frame(width: 36).padding([.leading,.trailing], 4)
+                        })
+                        .buttonStyle(.plain)
+                    }
                 }
             } else if ud.bool(forKey: "showMenubar") {
                 Button(action: {
@@ -141,15 +145,16 @@ extension AppDelegate: NSMenuDelegate {
                 return
             }
             guard let button = statusBarItem.button else { return }
-            var padding = -1.0
-            var height = 21
-            if #available(macOS 14.0, *) {
-                padding = -2.0
-                height = 22
+            var width = 158
+            switch SCContext.streamType {
+            case nil: width = 36
+            case .idevice: width = 138
+            case .systemaudio: width = 94
+            default: width = 158
             }
-            let width = SCContext.streamType == nil ? 36 : (SCContext.streamType == .idevice ? 138 : 158)
-            let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, padding))
-            iconView.frame = NSRect(x: 0, y: 1, width: width, height: height)
+            //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)
+            let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, isMacOS14 ? -2 : -1))
+            iconView.frame = NSRect(x: 0, y: 1, width: width, height: isMacOS14 ? 22 : 21)
             button.subviews = [iconView]
             button.frame = iconView.frame
             button.setAccessibilityLabel("QuickRecorder")

@@ -192,12 +192,12 @@ extension AppDelegate {
         //screenshotWindow.isReleasedWhenClosed = true
         screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
-        let wX = (screen.frame.width - 620) / 2 + screen.frame.minX
-        let wY = screen.visibleFrame.minY + 70
+        let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
+        let wY = screen.visibleFrame.minY + 80
         let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-        contentView.frame = NSRect(x: wX, y: wY, width: 620, height: 70)
+        contentView.frame = NSRect(x: wX, y: wY, width: 700, height: 80)
         contentView.focusRingType = .none
-        //areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.titled], backing: .buffered, defer: false)
+        let areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
         areaPanel.setFrame(contentView.frame, display: true)
         areaPanel.level = .screenSaver
         areaPanel.title = "Start Recording".local
@@ -205,6 +205,7 @@ extension AppDelegate {
         areaPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
         areaPanel.standardWindowButton(.zoomButton)?.isHidden = true
         areaPanel.contentView = contentView
+        areaPanel.backgroundColor = .clear
         areaPanel.titleVisibility = .hidden
         areaPanel.isReleasedWhenClosed = false
         areaPanel.titlebarAppearsTransparent = true
@@ -220,10 +221,9 @@ extension AppDelegate {
         if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
         let wX = (screen.frame.width - 780) / 2 + seed + screen.frame.minX
         let wY = (screen.frame.height - 555) / 2 + 100 + seed + screen.frame.minY
-        var window = NSWindow()
         let contentView = NSHostingView(rootView: view)
         contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 555)
-        window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: contentView.frame, styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
         window.title = title
         window.contentView = contentView
         window.titleVisibility = .hidden

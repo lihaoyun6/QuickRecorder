@@ -11,13 +11,16 @@ import ScreenCaptureKit
 
 struct AppSelector: View {
     @StateObject var viewModel = AppSelectorViewModel()
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selected = [SCRunningApplication]()
     @State private var display: SCDisplay!
     @State private var selectedTab = 0
     @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
     @State private var start = Date.now
     @State private var counter: Int?
+    @State private var isPopoverShowing = false
+    @State private var autoStop = 0
+    var appDelegate = AppDelegate.shared
     
     @AppStorage("frameRate")      private var frameRate: Int = 60
     @AppStorage("videoQuality")   private var videoQuality: Double = 1.0
@@ -108,7 +111,7 @@ struct AppSelector: View {
                         }
                     }
                 }
-                HStack{
+                HStack(spacing: 4) {
                     Button(action: {
                         viewModel.updateAppList()
                     }, label: {
@@ -125,11 +128,11 @@ struct AppSelector: View {
                     Spacer()
                     VStack(spacing: 6) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("Resolution")
                                 Text("Frame rate")
                             }
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $highRes) {
                                     Text("High (auto)").tag(2)
                                     Text("Normal (1x)").tag(1)
@@ -147,12 +150,12 @@ struct AppSelector: View {
                                     Text("10 FPS").tag(10)
                                 }.buttonStyle(.borderless)
                             }.scaledToFit()
-                            Divider().padding([.top, .bottom], -10)
-                            VStack(alignment: .leading, spacing: 12) {
+                            Divider().frame(height: 50)
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("Quality")
                                 Text("Background")
                             }.padding(.leading, isMacOS12 ? 0 : 8)
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $videoQuality) {
                                     Text("Low").tag(0.3)
                                     Text("Medium").tag(0.7)
@@ -172,8 +175,8 @@ struct AppSelector: View {
                                     Text("Custom").tag(BackgroundType.custom)
                                 }.buttonStyle(.borderless)
                             }.scaledToFit()
-                            Divider().padding([.top, .bottom], -10)
-                            VStack(alignment: .leading, spacing: isMacOS12 ? 12 : 3) {
+                            Divider().frame(height: 50)
+                            VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
                                 Toggle(isOn: $showMouse) { Text("Record Cursor").padding(.leading, 5) }
                                     .toggleStyle(.checkbox)
                                 if #available(macOS 13, *) {
@@ -198,6 +201,28 @@ struct AppSelector: View {
                     }
                     Spacer()
                     Button(action: {
+                        isPopoverShowing = true
+                    }, label: {
+                        Image(systemName: "timer")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.blue)
+                    })
+                    .disabled(!(counter == nil))
+                    .buttonStyle(.plain)
+                    .padding(.top, 42.5)
+                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
+                        HStack {
+                            Text(" Stop after".local)
+                            TextField("", value: $autoStop, formatter: NumberFormatter())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            Stepper("", value: $autoStop)
+                                .padding(.leading, -10)
+                            Text("minutes ".local)
+                        }
+                        .fixedSize()
+                        .padding()
+                    })
+                    Button(action: {
                         if counter == 0 { startRecording() }
                         if counter != nil { counter = nil } else { counter = countdown; start = Date.now }
                     }, label: {
@@ -218,8 +243,7 @@ struct AppSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected.count < 1)
-                }
-                .padding([.leading, .trailing], 50)
+                }.padding([.leading, .trailing], 50)
                 Spacer()
             }
             .padding(.top, -5)
@@ -235,6 +259,7 @@ struct AppSelector: View {
     func startRecording() {
         //if let w = NSApplication.shared.windows.first(where: { $0.title == "App Selector" }) { w.close() }
         appDelegate.closeAllWindow()
+        SCContext.autoStop = autoStop
         appDelegate.prepRecord(type: "application", screens: display, windows: nil, applications: selected)
     }
 }

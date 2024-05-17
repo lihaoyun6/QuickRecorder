@@ -12,6 +12,7 @@ import ScreenCaptureKit
 import UserNotifications
 
 class SCContext {
+    static var autoStop = 0
     static var recordCam = ""
     static var recordDevice = ""
     static var captureSession: AVCaptureSession!
@@ -30,7 +31,7 @@ class SCContext {
     static var screenArea: NSRect?
     static let audioEngine = AVAudioEngine()
     static var backgroundColor: CGColor = CGColor.black
-    static var recordMic = false
+    //static var recordMic = false
     static var filePath: String!
     static var audioFile: AVAudioFile?
     static var vW: AVAssetWriter!
@@ -227,6 +228,19 @@ class SCContext {
         }
     }
     
+    static func getWallpaper(_ display: SCDisplay) -> NSImage? {
+        guard let screen = display.nsScreen else { return nil }
+        guard let url = NSWorkspace.shared.desktopImageURL(for: screen) else { return nil }
+        do {
+            var wallpaper: NSImage?
+            try wallpaper = NSImage(data: Data(contentsOf: url))
+            if let w = wallpaper { return w }
+        } catch {
+            print("load wallpaper error: \(error)")
+        }
+        return nil
+    }
+    
     static func getRecordingSize() -> String {
         do {
             if let filePath = filePath {
@@ -270,10 +284,11 @@ class SCContext {
     
     static func stopRecording() {
         //statusBarItem.isVisible = false
+        autoStop = 0
         recordCam = ""
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
-        if let monitor = mouseMonitor { NSEvent.removeMonitor(monitor) }
+        AppDelegate.shared.stopGlobalMouseMonitor()
 
         if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
         
@@ -283,18 +298,37 @@ class SCContext {
             let dispatchGroup = DispatchGroup()
             dispatchGroup.enter()
             vwInput.markAsFinished()
-            awInput.markAsFinished()
-            if recordMic {
+            if #available(macOS 13, *) { awInput.markAsFinished() }
+            if ud.bool(forKey: "recordMic") {
                 micInput.markAsFinished()
                 audioEngine.inputNode.removeTap(onBus: 0)
                 audioEngine.stop()
             }
             vW.finishWriting {
+                if vW.status != .completed { print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))") }
                 startTime = nil
+                if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
+                    mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in
+                        switch result {
+                        case .success(let url):
+                            print("Exported video to \(String(describing: url.path))")
+                            showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(Date.now)")
+                            if ud.bool(forKey: "trimAfterRecord") {
+                                DispatchQueue.main.async {
+                                    let fileURL = URL(fileURLWithPath: filePath).deletingPathExtension()
+                                    AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+                                }
+                            }
+                        case .failure(let error):
+                            print("Failed to export video: \(error.localizedDescription)")
+                        }
+                    }
+                }
                 dispatchGroup.leave()
             }
             dispatchGroup.wait()
         }
+        
         DispatchQueue.main.async {
             NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close()
             if isCameraRunning() {
@@ -304,6 +338,7 @@ class SCContext {
                 if let capture = captureSession { capture.stopRunning() }
             }
         }
+        
         isPaused = false
         hideMousePointer = false
         streamType = nil
@@ -315,23 +350,17 @@ class SCContext {
         
         AppDelegate.shared.updateStatusBar()
         
-        let content = UNMutableNotificationContent()
-        content.title = "Recording Completed".local
-        if let filePath = filePath {
-            content.body = String(format: "File saved to: %@".local, filePath)
-        } else {
-            content.body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
-        }
-        content.sound = UNNotificationSound.default
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "quickrecorder.completed.\(Date.now)", content: content, trigger: trigger)
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
-        }
-        
-        if ud.bool(forKey: "trimAfterRecord") {
-            let fileURL = URL(fileURLWithPath: filePath)
-            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+        if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) {
+            let title = "Recording Completed".local
+            var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
+            if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
+            let id = "quickrecorder.completed.\(Date.now)"
+            showNotification(title: title, body: body, id: id)
+            
+            if ud.bool(forKey: "trimAfterRecord") {
+                let fileURL = URL(fileURLWithPath: filePath)
+                AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+            }
         }
     }
     
@@ -361,5 +390,144 @@ class SCContext {
         
         return outSampleBuffer
     }
+    
+    static func showNotification(title: String, body: String, id: String) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = UNNotificationSound.default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
+        }
+    }
 
+    static func mixAudioTracks(videoURL: URL, completion: @escaping (Result<URL, Error>) -> Void) {
+        showNotification(title: "Still Processing".local, body: "Mixing audio track...".local, id: "quickrecorder.processing.\(Date.now)")
+        
+        let asset = AVAsset(url: videoURL)
+        let audioOutputURL = videoURL.deletingPathExtension()
+        let outputURL = audioOutputURL.deletingPathExtension()
+        let audioOnlyComposition = AVMutableComposition()
+        
+        let fileEnding = ud.string(forKey: "videoFormat") ?? ""
+        var fileType: AVFileType?
+        switch fileEnding {
+        case VideoFormat.mov.rawValue: fileType = AVFileType.mov
+        case VideoFormat.mp4.rawValue: fileType = AVFileType.mp4
+        default: assertionFailure("loaded unknown video format".local)
+        }
+        
+        let audioTracks = asset.tracks(withMediaType: .audio)
+        guard audioTracks.count > 1 else {
+            completion(.failure(NSError(domain: "AudioTrackError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not enough audio tracks found."])))
+            return
+        }
+        
+        for audioTrack in audioTracks {
+            if let compositionAudioTrack = audioOnlyComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+                do {
+                    try compositionAudioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: audioTrack, at: .zero)
+                } catch {
+                    completion(.failure(NSError(domain: "AudioTrackInsertionError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert audio track: \(error.localizedDescription)"])))
+                    return
+                }
+            }
+        }
+        
+        let audioMix = AVMutableAudioMix()
+        audioMix.inputParameters = audioTracks.map {
+            let parameters = AVMutableAudioMixInputParameters(track: $0)
+            parameters.trackID = $0.trackID
+            return parameters
+        }
+        
+        guard let audioExportSession = AVAssetExportSession(asset: audioOnlyComposition, presetName: AVAssetExportPresetHighestQuality) else {
+            completion(.failure(NSError(domain: "AudioExportSessionError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create audio export session."])))
+            return
+        }
+        audioExportSession.outputURL = audioOutputURL
+        audioExportSession.outputFileType = fileType ?? .mp4
+        audioExportSession.audioMix = audioMix
+        
+        
+        
+        audioExportSession.exportAsynchronously {
+            /*var exportStatus: AVAssetExportSession.Status = .unknown
+            
+            // Loop until export session is completed, failed, or cancelled
+            while exportStatus != .completed && exportStatus != .failed && exportStatus != .cancelled {
+                exportStatus = audioExportSession.status
+                Thread.sleep(forTimeInterval: 0.1)
+            }*/
+            
+            switch audioExportSession.status {
+            case .completed:
+                let audioAsset = AVAsset(url: audioOutputURL)
+                let composition = AVMutableComposition()
+                
+                guard let videoTrack = asset.tracks(withMediaType: .video).first,
+                      let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else {
+                    completion(.failure(NSError(domain: "VideoTrackError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get video track."])))
+                    return
+                }
+                
+                do {
+                    try compositionVideoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: videoTrack, at: .zero)
+                } catch {
+                    completion(.failure(NSError(domain: "VideoTrackInsertionError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert video track: \(error.localizedDescription)"])))
+                    return
+                }
+                
+                let audioTracks = audioAsset.tracks(withMediaType: .audio)
+                guard audioTracks.count >= 1 else {
+                    completion(.failure(NSError(domain: "AudioTrackError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not enough audio tracks found."])))
+                    return
+                }
+                
+                for audioTrack in audioTracks {
+                    if let compositionAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+                        do {
+                            try compositionAudioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: audioTrack, at: .zero)
+                        } catch {
+                            completion(.failure(NSError(domain: "AudioTrackInsertionError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to insert audio track: \(error.localizedDescription)"])))
+                            return
+                        }
+                    }
+                }
+                
+                guard let exportSession = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetPassthrough) else {
+                    completion(.failure(NSError(domain: "ExportSessionError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to create export session."])))
+                    return
+                }
+                
+                exportSession.outputURL = outputURL
+                exportSession.outputFileType = fileType ?? .mp4
+                exportSession.audioMix = audioMix
+                
+                exportSession.exportAsynchronously {
+                    switch exportSession.status {
+                    case .completed:
+                        let  fileManager = FileManager.default
+                        try? fileManager.removeItem(atPath: filePath)
+                        try? fileManager.removeItem(atPath: audioOutputURL.path)
+                        completion(.success(outputURL))
+                    case .failed:
+                        completion(.failure(exportSession.error ?? NSError(domain: "ExportError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Export failed for an unknown reason."])))
+                    case .cancelled:
+                        completion(.failure(NSError(domain: "ExportCancelled", code: -1, userInfo: [NSLocalizedDescriptionKey: "Export was cancelled."])))
+                    default:
+                        break
+                    }
+                }
+            case .failed:
+                completion(.failure(audioExportSession.error ?? NSError(domain: "ExportError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Export failed for an unknown reason."])))
+            case .cancelled:
+                completion(.failure(NSError(domain: "ExportCancelled", code: -1, userInfo: [NSLocalizedDescriptionKey: "Export was cancelled."])))
+            default:
+                break
+            }
+        }
+    }
 }

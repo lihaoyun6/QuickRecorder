@@ -15,7 +15,6 @@ struct SettingsView: View {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var userColor: Color = Color.black
     @State private var launchAtLogin = false
-    @State private var fakeTrue = true
     @AppStorage("encoder")          private var encoder: Encoder = .h264
     @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
@@ -28,12 +27,13 @@ struct SettingsView: View {
     @AppStorage("poSafeDelay")      private var poSafeDelay: Int = 1
     @AppStorage("saveDirectory")    private var saveDirectory: String?
     @AppStorage("highlightMouse")   private var highlightMouse: Bool = false
-    @AppStorage("includeMenuBar")   private var includeMenuBar: Bool = false
+    @AppStorage("includeMenuBar")   private var includeMenuBar: Bool = true
     @AppStorage("hideDesktopFiles") private var hideDesktopFiles: Bool = false
     @AppStorage("trimAfterRecord")  private var trimAfterRecord: Bool = false
     @AppStorage("withAlpha")        private var withAlpha: Bool = false
     @AppStorage("showOnDock")       private var showOnDock: Bool = true
     @AppStorage("showMenubar")      private var showMenubar: Bool = false
+    @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
     
     var body: some View {
         VStack {
@@ -58,7 +58,7 @@ struct SettingsView: View {
                                 Text("H.264").tag(Encoder.h264)
                                 Text("H.265").tag(Encoder.h265)
                             }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 1.5)
                             .disabled(withAlpha)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         Toggle(isOn: $withAlpha) { Text("Recording with Alpha Channel") }
@@ -73,26 +73,30 @@ struct SettingsView: View {
                     }//.padding(.bottom, 7)
                     GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
                         Form() {
+                            Picker("Quality", selection: $audioQuality) {
+                                if audioFormat == .alac || audioFormat == .flac {
+                                    Text("Lossless").tag(audioQuality)
+                                }
+                                Text("Normal - 128Kbps").tag(AudioQuality.normal)
+                                Text("Good - 192Kbps").tag(AudioQuality.good)
+                                Text("High - 256Kbps").tag(AudioQuality.high)
+                                Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
+                            }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 5.5)
+                            .disabled(audioFormat == .alac || audioFormat == .flac)
                             Picker("Format", selection: $audioFormat) {
                                 Text("AAC").tag(AudioFormat.aac)
                                 Text("ALAC (Lossless)").tag(AudioFormat.alac)
                                 Text("FLAC (Lossless)").tag(AudioFormat.flac)
                                 Text("Opus").tag(AudioFormat.opus)
-                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
-                            if #available(macOS 13, *) {
-                                Picker("Quality", selection: $audioQuality) {
-                                    if audioFormat == .alac || audioFormat == .flac {
-                                        Text("Lossless").tag(audioQuality)
-                                    }
-                                    Text("Normal - 128Kbps").tag(AudioQuality.normal)
-                                    Text("Good - 192Kbps").tag(AudioQuality.good)
-                                    Text("High - 256Kbps").tag(AudioQuality.high)
-                                    Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
-                                }.padding([.leading, .trailing], 10).disabled(audioFormat == .alac || audioFormat == .flac)
-                            }
+                            }.padding([.leading, .trailing], 10)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
-                        Text("These settings are also used when recording video. If set to Opus, MP4 will fall back to AAC.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, 2.5).fixedSize(horizontal: false, vertical: true)
+                        Text("Opus doesn't support MP4, it will fall back to AAC")
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading, .trailing], 6).fixedSize(horizontal: false, vertical: true)
+                        Toggle(isOn: $remuxAudio) { Text("Mixdown the track from microphone") }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 9)
+                            .toggleStyle(.checkbox)
+                            .disabled(isMacOS12)
                     }
                 }.frame(width: 270)
                 VStack {
@@ -104,21 +108,14 @@ struct SettingsView: View {
                                 Text("5"+"s".local).tag(5)
                                 Text("10"+"s".local).tag(10)
                             }.padding([.leading, .trailing], 10).padding(.bottom, 6)
-                            if #available(macOS 14, *) {
-                                Picker("Presenter Overlay Delay", selection: $poSafeDelay) {
-                                    Text("1"+"s".local).tag(1)
-                                    Text("2"+"s".local).tag(2)
-                                    Text("3"+"s".local).tag(3)
-                                    Text("5"+"s".local).tag(5)
-                                }.padding([.leading, .trailing], 10)
-                            } else {
-                                Picker("Presenter Overlay Delay", selection: $poSafeDelay) {
-                                    Text("1"+"s".local).tag(1)
-                                    Text("2"+"s".local).tag(2)
-                                    Text("3"+"s".local).tag(3)
-                                    Text("5"+"s".local).tag(5)
-                                }.padding([.leading, .trailing], 10).disabled(true)
+                            Picker("Presenter Overlay Delay", selection: $poSafeDelay) {
+                                Text("1"+"s".local).tag(1)
+                                Text("2"+"s".local).tag(2)
+                                Text("3"+"s".local).tag(3)
+                                Text("5"+"s".local).tag(5)
                             }
+                            .padding([.leading, .trailing], 10)
+                            .disabled(!isMacOS14)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         ColorPicker("Set custom background color:", selection: $userColor)
                             .padding([.leading, .trailing], 10).padding(.bottom, 1)
@@ -131,16 +128,10 @@ struct SettingsView: View {
                         Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
                             .toggleStyle(.checkbox)
-                        if #available(macOS 14.2, *) {
-                            Toggle(isOn: $includeMenuBar) { Text("Include MenuBar in Recording") }
-                                .padding([.leading, .trailing], 10).padding(.bottom, 4)
-                                .toggleStyle(.checkbox)
-                        } else {
-                            Toggle(isOn: $fakeTrue) { Text("Include MenuBar in Recording") }
-                                .padding([.leading, .trailing], 10)
-                                .toggleStyle(.checkbox)
-                                .disabled(true)
-                        }
+                        Toggle(isOn: $includeMenuBar) { Text("Include MenuBar in Recording") }
+                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
+                             .toggleStyle(.checkbox)
+                             .disabled(isMacOS12)
                         Toggle(isOn: $highlightMouse) { Text("Highlight the mouse cursor") }
                             .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)

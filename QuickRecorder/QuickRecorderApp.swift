@@ -33,7 +33,6 @@ let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402,
 let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
-var areaPanel = NSWindow(contentRect: .zero, styleMask: [.titled], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
 @main
@@ -80,9 +79,9 @@ struct QuickRecorderApp: App {
             w.standardWindowButton(.zoomButton)?.isHidden = true
             w.isOpaque = false
             w.backgroundColor = .clear
-            w.contentView?.wantsLayer = true
+            //w.contentView?.wantsLayer = true
             //w.contentView?.layer?.cornerRadius = 13
-            w.contentView?.layer?.masksToBounds = true
+            //w.contentView?.layer?.masksToBounds = true
         }
     }
 }
@@ -104,6 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isCameraReady = false
     var isPresenterON = false
     var presenterType = "no"
+    //var lastTime = CMTime(value: 0, timescale: 600)
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -121,9 +121,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func screenMagnifierReLocation(event: NSEvent) {
-        if !SCContext.isMagnifierEnabled
-            || hideScreenMagnifier
-        { screenMagnifier.orderOut(nil); return }
+        if !SCContext.isMagnifierEnabled || hideScreenMagnifier { screenMagnifier.orderOut(nil); return }
         let mouseLocation = event.locationInWindow
         var windowFrame = screenMagnifier.frame
         windowFrame.origin = NSPoint(x: mouseLocation.x - windowFrame.width / 2, y: mouseLocation.y - windowFrame.height / 2)
@@ -164,7 +162,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationWillFinishLaunching(_ notification: Notification) {
-        SCContext.updateAvailableContent{ print("available content has been updated") }
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
         
@@ -188,15 +185,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "saveDirectory": userDesktop as NSString,
                 "showMouse": true,
                 "recordMic": false,
+                "remuxAudio": true,
                 "recordWinSound": true,
                 "trimAfterRecord": false,
                 "showOnDock": true,
-                "showMenubar": false
+                "showMenubar": false,
+                "macOS1274Alert": true
             ]
         )
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
+        }
+        
+        SCContext.updateAvailableContent{
+            print("available content has been updated")
+            let os = ProcessInfo.processInfo.operatingSystemVersion
+            if "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)" == "12.7.4" && ud.bool(forKey: "macOS1274Alert") {
+                DispatchQueue.main.async {
+                    let alert = AppDelegate.shared.createAlert(
+                        title: "Compatibility Warning".local,
+                        message: "You are using macOS 12.7.4 QuickRecorder will randomly fail to save recordings in this version!".local,
+                        button1: "OK".local, button2: "Don't remind me again".local)
+                    if alert.runModal() == .alertSecondButtonReturn {
+                        ud.set(false, forKey: "macOS1274Alert")
+                    }
+                }
+            }
         }
         
         if #available(macOS 13, *) { isMacOS12 = false }
