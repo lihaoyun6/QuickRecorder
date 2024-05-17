@@ -39,8 +39,8 @@ brew install lihaoyun6/tap/quickrecorder
 **2. Why does QuickRecorder not a sandbox app?**
 > Apple's sandbox permission management mechanism is relatively complex and cumbersome to use. In addition, QuickRecorder has no plans to be put on the App Store, so it has not been made into a sandbox app.
 
-**3. Why can’t I hear my voice in the video even though the “recording microphone” is turned on?**
-> QuickRecorder will record the audio input from the microphone to the second audio track by default. The reason why you cannot hear it is because some video players do not support the simultaneous playback of multiple audio tracks. It does not mean that the recording is lost. Just use QuickTime to play it.
+**3. How to independently control the volume of system sound and sound from microphone in other video editor?**
+> QuickRecorder will merge the audio input from the microphone to the main audio track after recording by default. If you need to edit the video, you can turn off the "Mixdown the track from microphone" option in the settings panel. After turning off, the system sound and sound from microphone will be recorded into two audio tracks and can be edited independently.  
 
 ## Thanks
 [Azayaka](https://github.com/Mnpn/Azayaka) @Mnpn
