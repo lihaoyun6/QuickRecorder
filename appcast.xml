@@ -3,6 +3,32 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.3</title>
+            <pubDate>Sat, 18 May 2024 01:26:12 +0800</pubDate>
+            <sparkle:version>123</sparkle:version>
+            <sparkle:shortVersionString>1.2.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <sparkle:criticalUpdate></sparkle:criticalUpdate>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li><strong>修复了使用屏幕区域录制功能后 CPU 占用率异常升高的问题</strong></li>
+                  <li>修复了屏幕区域选择器转移到另一个屏幕上后录制错位的问题</li>
+                  <li>修复了某些录制模式下, 菜单栏控制器样式错误的问题</li>
+                  <li>添加了开始录制一段时间后定时停止录制的功能</li>
+                  <li>添加了可以将麦克风声音合并入主音轨的功能</li>
+                  </ul><ul>
+                  <li><strong>Fixed: High CPU usage after using the screen area recording</strong></li>
+                  <li>Fixed: Area selector got wrong position after moving to another screen</li>
+                  <li>Fixed: Incorrect menu bar controller style in some recording modes</li>
+                  <li>Added the ability to stop recording at a scheduled time</li>
+                  <li>Added the ability to merge microphone sounds into the main audio track</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="200"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.3/QuickRecorder_v1.2.3.dmg" length="2910865" type="application/octet-stream" sparkle:edSignature="quRl/Ppg75fSnLV/MM1ad99DuhaTuyA5wkdyMeNI7hUiGRmwFuvDByZVI+S+cdNeNtgBhsr8l7dN4/umjytYBw=="/>
+        </item>
+        <item>
             <title>v1.2.2</title>
             <pubDate>Tue, 14 May 2024 22:30:17 +0800</pubDate>
             <sparkle:version>122</sparkle:version>
