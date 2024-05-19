@@ -139,7 +139,7 @@ struct AreaSelector: View {
                             }
                         }.needScale()
                     }
-                }
+                }.padding(.leading, 18)
                 Spacer()
                 Button(action: {
                     isPopoverShowing = true

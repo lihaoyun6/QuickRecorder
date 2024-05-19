@@ -102,7 +102,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var filter: SCContentFilter?
     var isCameraReady = false
     var isPresenterON = false
-    var presenterType = "no"
+    var presenterType = "OFF"
     //var lastTime = CMTime(value: 0, timescale: 600)
     
     func mousePointerReLocation(event: NSEvent) {
@@ -189,8 +189,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "recordWinSound": true,
                 "trimAfterRecord": false,
                 "showOnDock": true,
-                "showMenubar": false,
-                "macOS1274Alert": true
+                "showMenubar": false
             ]
         )
         
@@ -201,15 +200,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         SCContext.updateAvailableContent{
             print("available content has been updated")
             let os = ProcessInfo.processInfo.operatingSystemVersion
-            if "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)" == "12.7.4" && ud.bool(forKey: "macOS1274Alert") {
+            if "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)" == "12.7.4" {
                 DispatchQueue.main.async {
-                    let alert = AppDelegate.shared.createAlert(
+                    _ = AppDelegate.shared.createAlert(
                         title: "Compatibility Warning".local,
-                        message: "You are using macOS 12.7.4 QuickRecorder will randomly fail to save recordings in this version!".local,
-                        button1: "OK".local, button2: "Don't remind me again".local)
-                    if alert.runModal() == .alertSecondButtonReturn {
-                        ud.set(false, forKey: "macOS1274Alert")
-                    }
+                        message: "You are using macOS 12.7.4\nOutput files will be randomly corrupted on this version of macOS!\n\nPlease upgrade to 12.7.5 to solve it.".local,
+                        button1: "OK".local).runModal()
                 }
             }
         }

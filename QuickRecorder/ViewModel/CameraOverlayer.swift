@@ -117,10 +117,12 @@ struct SwiftCameraView: View {
                     }).buttonStyle(.plain).padding(10)
                 }.frame(width: geometry.size.width, height: geometry.size.height)
                 if SCContext.streamType == .window {
-                    Text("Unable to use this overlayer when recording a single window, please use \"Presenter Overlay\"")
-                        .padding()
-                        .colorInvert()
-                        .background(.secondary)
+                    Text("Unable to use camera overlayer when recording a single window!".local
+                         + (isMacOS14 ? " Please use \"Presenter Overlay\"".local : "")
+                    )
+                    .padding()
+                    .colorInvert()
+                    .background(.secondary)
                 }
             }
         }
@@ -130,6 +132,7 @@ struct SwiftCameraView: View {
 
 
 struct CameraPopoverView: View {
+    var closePopover: () -> Void
     @State private var cameras = SCContext.getCameras()
     @State private var devices = SCContext.getiDevice()
     @State private var hoverIndex = -1
@@ -155,6 +158,7 @@ struct CameraPopoverView: View {
             }
             ForEach(cameras.indices, id: \.self) { index in
                 Button(action: {
+                    closePopover()
                     if SCContext.recordCam == cameras[index].localizedName {
                         SCContext.recordCam = ""
                         appDelegate.closeCamera()
@@ -193,6 +197,7 @@ struct CameraPopoverView: View {
                 if !devices.isEmpty { Divider().padding([.top, .bottom], 4) }
                 ForEach(devices.indices, id: \.self) { index in
                     Button(action: {
+                        closePopover()
                         if SCContext.recordDevice == devices[index].localizedName {
                             SCContext.recordDevice = ""
                             AVOutputClass.shared.closePreview()

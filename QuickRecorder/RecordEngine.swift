@@ -281,6 +281,7 @@ extension AppDelegate {
     
     func outputVideoEffectDidStop(for stream: SCStream) {
         print("[Presenter Overlay OFF]")
+        presenterType = "OFF"
         isPresenterON = false
         isCameraReady = false
         DispatchQueue.main.async {

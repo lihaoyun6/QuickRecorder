@@ -89,7 +89,7 @@ struct StatusBarItem: View {
                             }.frame(width: 36).padding([.leading,.trailing], 4)
                         })
                         .buttonStyle(.plain)
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView() }
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView(closePopover: { isPopoverShowing = false })}
                     } else {
                         Button(action:{
                             DispatchQueue.main.async {

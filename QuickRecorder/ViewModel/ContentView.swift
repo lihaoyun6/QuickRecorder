@@ -92,7 +92,7 @@ struct ContentView: View {
                         SelectorView(title: "Mobile Device".local, symbol: "apps.ipad")
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: { iDevicePopoverView(closePopover: { isPopoverShowing = false })})
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView(closePopover: { isPopoverShowing = false })}
                     Divider().frame(height: 70)
                     Button(action: {
                         if fromStatusBar {
@@ -182,7 +182,7 @@ extension AppDelegate {
     
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
     
-    func closeAllWindow() { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != "Recording Controller".local }) { w.close() } }
+    func closeAllWindow(_ title: String = "") { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != title }) { w.close() }}
     
     func showAreaSelector() {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }

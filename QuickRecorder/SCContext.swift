@@ -286,6 +286,7 @@ class SCContext {
         //statusBarItem.isVisible = false
         autoStop = 0
         recordCam = ""
+        recordDevice = ""
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
         AppDelegate.shared.stopGlobalMouseMonitor()
@@ -305,22 +306,26 @@ class SCContext {
                 audioEngine.stop()
             }
             vW.finishWriting {
-                if vW.status != .completed { print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))") }
                 startTime = nil
-                if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
-                    mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in
-                        switch result {
-                        case .success(let url):
-                            print("Exported video to \(String(describing: url.path))")
-                            showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(Date.now)")
-                            if ud.bool(forKey: "trimAfterRecord") {
-                                DispatchQueue.main.async {
-                                    let fileURL = URL(fileURLWithPath: filePath).deletingPathExtension()
-                                    AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+                if vW.status != .completed {
+                    print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
+                    showNotification(title: "Failed to save file".local, body: "\(String(describing: vW.error?.localizedDescription))", id: "quickrecorder.error.\(Date.now)")
+                } else {
+                    if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
+                        mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in
+                            switch result {
+                            case .success(let url):
+                                print("Exported video to \(String(describing: url.path))")
+                                showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(Date.now)")
+                                if ud.bool(forKey: "trimAfterRecord") {
+                                    DispatchQueue.main.async {
+                                        let fileURL = URL(fileURLWithPath: filePath).deletingPathExtension()
+                                        AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+                                    }
                                 }
+                            case .failure(let error):
+                                print("Failed to export video: \(error.localizedDescription)")
                             }
-                        case .failure(let error):
-                            print("Failed to export video: \(error.localizedDescription)")
                         }
                     }
                 }
@@ -347,10 +352,10 @@ class SCContext {
         window = nil
         screen = nil
         startTime = nil
-        
+        AppDelegate.shared.presenterType = "OFF"
         AppDelegate.shared.updateStatusBar()
         
-        if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) {
+        if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && vW.status == .completed {
             let title = "Recording Completed".local
             var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
             if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
