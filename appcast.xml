@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.5</title>
+            <pubDate>Mon, 20 May 2024 22:47:06 +0800</pubDate>
+            <sparkle:version>125</sparkle:version>
+            <sparkle:shortVersionString>1.2.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <sparkle:criticalUpdate></sparkle:criticalUpdate>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了"录制系统声音"功能无法正常工作的bug</li>
+                  <li>添加了将录音输出为 MP3 格式的选项</li>
+                  <li>修复了视频修剪器打开文件错误 (@Pedro-Beirao)</li>
+                  <li>添加了意大利语本地化 (@piersandro)</li>
+                  </ul><ul>
+                  <li>Fixed: Cannot recording system sound</li>
+                  <li>Added: Save recordings in MP3 format</li>
+                  <li>Fixed: Video trimmer opening wrong file (@Pedro-Beirao)</li>
+                  <li>Added: Italian localization (@piersandro)</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="260"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.5/QuickRecorder_v1.2.5.dmg" length="3242368" type="application/octet-stream" sparkle:edSignature="jJ0Wg4fyEtTEyJ2Xmlo+6K8McqKcXIJJ9p5q/KIeuNBxr5QeWuXxjYEEH8vZMVLEtWdVZwa4FrR1LQ9XlhOLCw=="/>
+        </item>
+        <item>
             <title>v1.2.4</title>
             <pubDate>Mon, 20 May 2024 04:22:57 +0800</pubDate>
             <sparkle:version>124</sparkle:version>
