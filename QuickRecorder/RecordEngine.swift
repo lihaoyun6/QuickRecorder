@@ -139,11 +139,12 @@ extension AppDelegate {
             if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if let colorSpace = SCContext.getColorSpace() { conf.colorSpaceName = colorSpace }
             if ud.bool(forKey: "withAlpha") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
-            if #available(macOS 13, *) {
-                conf.capturesAudio = ud.bool(forKey: "recordWinSound") || fastStart
-                conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
-                conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
-            }
+        }
+        
+        if #available(macOS 13, *) {
+            conf.capturesAudio = ud.bool(forKey: "recordWinSound") || fastStart
+            conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
+            conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
         }
         
         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(ud.integer(forKey: "frameRate")))
@@ -177,13 +178,14 @@ extension AppDelegate {
             assertionFailure("capture failed".local)
             return
         }
-        registerGlobalMouseMonitor()
+        if !audioOnly { registerGlobalMouseMonitor() }
         DispatchQueue.main.async { [self] in updateStatusBar() }
     }
 
     func prepareAudioRecording() {
         var fileEnding = ud.string(forKey: "audioFormat") ?? "wat"
         switch fileEnding { // todo: I'd like to store format info differently
+            case AudioFormat.mp3.rawValue: fallthrough
             case AudioFormat.aac.rawValue: fallthrough
             case AudioFormat.alac.rawValue: fileEnding = "m4a"
             case AudioFormat.flac.rawValue: fileEnding = "flac"

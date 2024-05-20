@@ -10,6 +10,7 @@ import AVFoundation
 import Foundation
 import ScreenCaptureKit
 import UserNotifications
+import SwiftLAME
 
 class SCContext {
     static var autoStop = 0
@@ -165,6 +166,7 @@ class SCContext {
     static func updateAudioSettings() {
         audioSettings = [AVSampleRateKey : 48000, AVNumberOfChannelsKey : 2] // reset audioSettings
         switch ud.string(forKey: "audioFormat") {
+        case AudioFormat.mp3.rawValue: fallthrough
         case AudioFormat.aac.rawValue:
             audioSettings[AVFormatIDKey] = kAudioFormatMPEG4AAC
             audioSettings[AVEncoderBitRateKey] = ud.integer(forKey: "audioQuality") * 1000
@@ -343,28 +345,76 @@ class SCContext {
             }
         }
         
+        audioFile = nil // close audio file
+        if streamType == .systemaudio {
+            if ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue {
+                Task {
+                    let outPutUrl = URL(fileURLWithPath: String(filePath.dropLast(4)) + ".mp3")
+                    do {
+                        try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath), outputUrl: outPutUrl)
+                        let title = "Recording Completed".local
+                        let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
+                        let id = "quickrecorder.completed.\(Date.now)"
+                        showNotification(title: title, body: body, id: id)
+                    } catch {
+                        showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(Date.now)")
+                    }
+                }
+            } else {
+                let title = "Recording Completed".local
+                var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
+                if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
+                let id = "quickrecorder.completed.\(Date.now)"
+                showNotification(title: title, body: body, id: id)
+            }
+        }
+        
         isPaused = false
         hideMousePointer = false
-        streamType = nil
-        //previewType = nil
-        audioFile = nil // close audio file
         window = nil
         screen = nil
         startTime = nil
         AppDelegate.shared.presenterType = "OFF"
         AppDelegate.shared.updateStatusBar()
         
-        if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && vW.status == .completed {
+        if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && streamType != .systemaudio {
             let title = "Recording Completed".local
             var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
             if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
             let id = "quickrecorder.completed.\(Date.now)"
-            showNotification(title: title, body: body, id: id)
-            
-            if ud.bool(forKey: "trimAfterRecord") {
-                let fileURL = URL(fileURLWithPath: filePath)
-                AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+            if let vW = vW {
+                if vW.status == .completed {
+                    showNotification(title: title, body: body, id: id)
+                    trimVideo()
+                }
+            } else {
+                showNotification(title: title, body: body, id: id)
+                trimVideo()
             }
+        }
+        
+        streamType = nil
+    }
+    
+    static func m4a2mp3(inputUrl: URL, outputUrl: URL) async throws {
+        let progress = Progress()
+        let lameEncoder = try SwiftLameEncoder(
+            sourceUrl: inputUrl,
+            configuration: .init(
+                sampleRate: .custom(48000),
+                bitrateMode: .constant(Int32(ud.integer(forKey: "audioQuality"))),
+                quality: .nearBest
+            ),
+            destinationUrl: outputUrl,
+            progress: progress // optional
+        )
+        try await lameEncoder.encode(priority: .userInitiated)
+    }
+    
+    static func trimVideo() {
+        if ud.bool(forKey: "trimAfterRecord") {
+            let fileURL = URL(fileURLWithPath: filePath)
+            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
         }
     }
     

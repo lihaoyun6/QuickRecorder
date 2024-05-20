@@ -403,7 +403,7 @@ extension NSImage {
 
 enum AudioQuality: Int { case normal = 128, good = 192, high = 256, extreme = 320 }
 
-enum AudioFormat: String { case aac, alac, flac, opus }
+enum AudioFormat: String { case aac, alac, flac, opus, mp3 }
 
 enum VideoFormat: String { case mov, mp4 }
 

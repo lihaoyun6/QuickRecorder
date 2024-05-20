@@ -85,6 +85,7 @@ struct SettingsView: View {
                             .padding([.leading, .trailing], 10).padding(.bottom, 5.5)
                             .disabled(audioFormat == .alac || audioFormat == .flac)
                             Picker("Format", selection: $audioFormat) {
+                                Text("MP3").tag(AudioFormat.mp3)
                                 Text("AAC").tag(AudioFormat.aac)
                                 Text("ALAC (Lossless)").tag(AudioFormat.alac)
                                 Text("FLAC (Lossless)").tag(AudioFormat.flac)

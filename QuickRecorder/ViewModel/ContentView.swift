@@ -32,7 +32,7 @@ struct ContentView: View {
                     if #available(macOS 13, *) {
                         Button(action: {
                             appDelegate.closeMainWindow()
-                            appDelegate.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                            AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                         }, label: {
                             SelectorView(title: "System Audio".local, symbol: "waveform")
                                 .cornerRadius(8)

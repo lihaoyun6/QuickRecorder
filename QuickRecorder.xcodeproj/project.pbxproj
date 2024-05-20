@@ -26,6 +26,7 @@
 		18D3BE012BCEB1BF006CFFC0 /* AppSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BE002BCEB1BF006CFFC0 /* AppSelector.swift */; };
 		18D3BE042BCEC847006CFFC0 /* SCContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BE032BCEC847006CFFC0 /* SCContext.swift */; };
 		18F1A0E22BD3E4C000DB102C /* AreaSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F1A0E12BD3E4C000DB102C /* AreaSelector.swift */; };
+		18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */ = {isa = PBXBuildFile; productRef = 18F40B482BFB988A00F0AC70 /* SwiftLAME */; };
 		18FDFC8E2BDA435F0020E685 /* ScreenMagnifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FDFC8D2BDA435F0020E685 /* ScreenMagnifier.swift */; };
 		18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */; };
 		18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDA92BCF8200003F09BC /* RecordEngine.swift */; };
@@ -46,6 +47,9 @@
 		189BD5EC2BDE971B0056D06C /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 		189BD5F42BDF8A800056D06C /* CameraOverlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayer.swift; sourceTree = "<group>"; };
 		189BD5F62BDFDF200056D06C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		18A735972BFBA12F002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = it; path = it.lproj/Credits.rtf; sourceTree = "<group>"; };
+		18A735982BFBA132002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		18A735992BFBA138002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecorderApp.swift; sourceTree = "<group>"; };
 		18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -71,6 +75,7 @@
 			files = (
 				18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
+				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +173,7 @@
 			packageProductDependencies = (
 				18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */,
 				181724042BE3BEA600F5F539 /* Sparkle */,
+				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
 			);
 			productName = QuickRecorder;
 			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
@@ -196,11 +202,13 @@
 				en,
 				Base,
 				"zh-Hans",
+				it,
 			);
 			mainGroup = 18D3BDDE2BCE5DC1006CFFC0;
 			packageReferences = (
 				18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */,
 			);
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
@@ -260,6 +268,7 @@
 			children = (
 				1862BF902BD5494F003ED522 /* zh-Hans */,
 				1862BF912BD5495D003ED522 /* Base */,
+				18A735972BFBA12F002314AF /* it */,
 			);
 			name = Credits.rtf;
 			sourceTree = "<group>";
@@ -268,6 +277,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				189BD5E72BDE34B80056D06C /* zh-Hans */,
+				18A735992BFBA138002314AF /* it */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -276,6 +286,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				18D3BDFC2BCE5DF5006CFFC0 /* zh-Hans */,
+				18A735982BFBA132002314AF /* it */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -409,7 +420,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 124;
+				CURRENT_PROJECT_VERSION = 125;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -425,7 +436,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -441,7 +452,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 124;
+				CURRENT_PROJECT_VERSION = 125;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -457,7 +468,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -497,6 +508,14 @@
 				minimumVersion = 2.6.0;
 			};
 		};
+		18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hidden-spectrum/SwiftLAME.git";
+			requirement = {
+				kind = revision;
+				revision = e8256a8151594f47f103c742f684253c6c44871d;
+			};
+		};
 		18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
@@ -512,6 +531,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		18F40B482BFB988A00F0AC70 /* SwiftLAME */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */;
+			productName = SwiftLAME;
 		};
 		18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */ = {
 			isa = XCSwiftPackageProductDependency;
