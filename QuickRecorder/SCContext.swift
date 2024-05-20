@@ -319,8 +319,7 @@ class SCContext {
                                 showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(Date.now)")
                                 if ud.bool(forKey: "trimAfterRecord") {
                                     DispatchQueue.main.async {
-                                        let fileURL = URL(fileURLWithPath: filePath).deletingPathExtension()
-                                        AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+                                        AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent)
                                     }
                                 }
                             case .failure(let error):
