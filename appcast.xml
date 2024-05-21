@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.6</title>
+            <pubDate>Tue, 21 May 2024 16:54:08 +0800</pubDate>
+            <sparkle:version>126</sparkle:version>
+            <sparkle:shortVersionString>1.2.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <sparkle:criticalUpdate></sparkle:criticalUpdate>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>添加了"降低麦克风音频串扰"的选项, 开启后可以抑制外放回音</li>
+                  <li>修复了视频修剪器导出缓慢和丢失声音的问题</li>
+                  </ul><ul>
+                  <li>Added: New "Enable Acoustic Echo Cancellation" option</li>
+                  <li>Fixed: Fixed: Video trimmer export slow and missing audio</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.6/QuickRecorder_v1.2.6.dmg" length="3242644" type="application/octet-stream" sparkle:edSignature="SN9BJBEyK+R2D0KFQbRiplE4PgwVh7Kqg4gFL9HMvs4pmhDHoCVJ6cMqCJbRcB767Nj0tOeKvGeAaD1ktNd8Bw=="/>
+        </item>
+        <item>
             <title>v1.2.5</title>
             <pubDate>Mon, 20 May 2024 22:47:06 +0800</pubDate>
             <sparkle:version>125</sparkle:version>
