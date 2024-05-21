@@ -8,9 +8,9 @@
 ## Screenshot
 <p align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./img/preview_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="./img/preview.png">
-  <img alt="QuickRecorder Screenshots" src="./img/preview.png" width="840"/>
+  <source media="(prefers-color-scheme: dark)" srcset="./img/preview_en_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./img/preview_en.png">
+  <img alt="QuickRecorder Screenshots" src="./img/preview_en.png" width="840"/>
 </picture>
 </p>
 
@@ -47,7 +47,10 @@ brew install lihaoyun6/tap/quickrecorder
 > The source of inspiration and part of the code of the screen recording engine comes from the Azayaka project, and I am also one of the code contributors to this project
 
 [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) @sindresorhus  
-> QuickRecorder uses this swift library to handle shortcut key events    
+> QuickRecorder uses this swift library to handle shortcut key events  
+
+[SwiftLAME](https://github.com/hidden-spectrum/SwiftLAME) @Hidden Spectrum
+> QuickRecorder uses this swift library to handle MP3 output
 
 [ChatGPT](https://chat.openai.com) @OpenAI
 > Note: Part of the code in this project was generated or refactored using ChatGPT.

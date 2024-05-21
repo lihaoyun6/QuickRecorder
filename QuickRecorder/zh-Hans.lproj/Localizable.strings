@@ -2,8 +2,7 @@
   Localizable.strings
   QuickRecorder
 
-  Created by apple on 2024/4/16.
-  
+  Created by lihaoyun6 on 2024/4/16.
 */
 
 "System Audio" = "录制系统声音";
@@ -143,6 +142,7 @@
 "OK" = "好";
 "Failed to save file" = "保存文件时出错";
 
+// Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";
 "[err] failed to fetch available content:" = "[错误] 无法获取可用的上下文:";
 "There needs to be at least one display connected" = "至少需要连接一台显示器";

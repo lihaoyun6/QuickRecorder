@@ -52,11 +52,7 @@ class RecorderPlayerModel: NSObject, ObservableObject {
                             let endTime = playerItem.forwardPlaybackEndTime
                             let timeRange = CMTimeRangeFromTimeToTime(start: startTime, end: endTime)
                             guard let asset = self.asset else { return }
-                            let assetTrack = asset.tracks(withMediaType: .video).first!
-                            let composition = AVMutableComposition()
-                            let compositionTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
-                            try! compositionTrack?.insertTimeRange(timeRange, of: assetTrack, at: .zero)
-                            let exportSession = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
+                            let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough)
                             let dateFormatter = DateFormatter()
                             let fileEnding = fileUrl.pathExtension.lowercased()
                             var fileType: AVFileType?

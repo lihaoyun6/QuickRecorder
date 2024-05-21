@@ -53,5 +53,9 @@ brew install lihaoyun6/tap/quickrecorder
 [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) @sindresorhus  
 > QuickRecorder 使用此swift库来处理快捷键事件  
 
+
+[SwiftLAME](https://github.com/hidden-spectrum/SwiftLAME) @Hidden Spectrum
+> QuickRecorder 使用此swift库来处理 MP3 输出
+
 [ChatGPT](https://chat.openai.com) @OpenAI  
 > 注: 本项目部分代码使用 ChatGPT 生成或重构整理
