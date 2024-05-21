@@ -34,6 +34,7 @@ struct SettingsView: View {
     @AppStorage("showOnDock")       private var showOnDock: Bool = true
     @AppStorage("showMenubar")      private var showMenubar: Bool = false
     @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
+    @AppStorage("enableAEC")        private var enableAEC: Bool = false
     
     var body: some View {
         VStack {
@@ -58,7 +59,7 @@ struct SettingsView: View {
                                 Text("H.264").tag(Encoder.h264)
                                 Text("H.265").tag(Encoder.h265)
                             }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 1.5)
+                            .padding([.leading, .trailing], 10)
                             .disabled(withAlpha)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         Toggle(isOn: $withAlpha) { Text("Recording with Alpha Channel") }
@@ -82,7 +83,7 @@ struct SettingsView: View {
                                 Text("High - 256Kbps").tag(AudioQuality.high)
                                 Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
                             }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 5.5)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 6)
                             .disabled(audioFormat == .alac || audioFormat == .flac)
                             Picker("Format", selection: $audioFormat) {
                                 Text("MP3").tag(AudioFormat.mp3)
@@ -92,12 +93,15 @@ struct SettingsView: View {
                                 Text("Opus").tag(AudioFormat.opus)
                             }.padding([.leading, .trailing], 10)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
-                        Text("Opus doesn't support MP4, it will fall back to AAC")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading, .trailing], 6).fixedSize(horizontal: false, vertical: true)
-                        Toggle(isOn: $remuxAudio) { Text("Mixdown the track from microphone") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 9)
+                        /*Text("Opus doesn't support MP4, it will fall back to AAC")
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading, .trailing], 6).fixedSize(horizontal: false, vertical: true)*/
+                        Toggle(isOn: $remuxAudio) { Text("Record Microphone to Main Track") }
+                            .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)
                             .disabled(isMacOS12)
+                        Toggle(isOn: $enableAEC) { Text("Enable Acoustic Echo Cancellation") }
+                            .padding([.leading, .trailing], 10).padding(.bottom, 9)
+                            .toggleStyle(.checkbox)
                     }
                 }.frame(width: 270)
                 VStack {
@@ -119,31 +123,31 @@ struct SettingsView: View {
                             .disabled(!isMacOS14)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         ColorPicker("Set custom background color:", selection: $userColor)
-                            .padding([.leading, .trailing], 10).padding(.bottom, 1)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 2.5)
                             .onChange(of: userColor) { userColor in
                                 ud.setColor(userColor, forKey: "userColor")
                             }
                         Toggle(isOn: $trimAfterRecord) { Text("Open video trimmer after recording") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 4)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 5)
                             .toggleStyle(.checkbox)
                         Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 4)
+                            .padding([.leading, .trailing], 10).padding(.bottom, 5)
                             .toggleStyle(.checkbox)
                         Toggle(isOn: $includeMenuBar) { Text("Include MenuBar in Recording") }
-                             .padding([.leading, .trailing], 10).padding(.bottom, 4)
+                             .padding([.leading, .trailing], 10).padding(.bottom, 5)
                              .toggleStyle(.checkbox)
                              .disabled(isMacOS12)
-                        Toggle(isOn: $highlightMouse) { Text("Highlight the mouse cursor") }
+                        Toggle(isOn: $highlightMouse) { Text("Highlight the Mouse Cursor") }
                             .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)
                         //.onChange(of: highlightMouse) {_ in Task { if highlightMouse { hideSelf = false }}}
                         Text("Not available for \"Single Window Capture\"")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.top, -7).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).padding(.top, -5).fixedSize(horizontal: false, vertical: true)
                         Toggle(isOn: $hideDesktopFiles) { Text("Exclude the \"Desktop Files\" layer") }
                             .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)
                         Text("If enabled, all files on the Desktop will be hidden from the video when recording.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, -7).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing, .bottom], 6).padding(.top, -5).fixedSize(horizontal: false, vertical: true)
                         
                     }
                 }.frame(width: 270)

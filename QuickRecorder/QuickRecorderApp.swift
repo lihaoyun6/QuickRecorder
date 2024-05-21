@@ -189,7 +189,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "recordWinSound": true,
                 "trimAfterRecord": false,
                 "showOnDock": true,
-                "showMenubar": false
+                "showMenubar": false,
+                "enableAEC": false
             ]
         )
         

@@ -304,8 +304,10 @@ class SCContext {
             if #available(macOS 13, *) { awInput.markAsFinished() }
             if ud.bool(forKey: "recordMic") {
                 micInput.markAsFinished()
+                //try! audioEngine.stopAudioUnit()
                 audioEngine.inputNode.removeTap(onBus: 0)
                 audioEngine.stop()
+                try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
             }
             vW.finishWriting {
                 startTime = nil

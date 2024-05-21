@@ -262,6 +262,10 @@ extension AppDelegate {
             }
 
             let input = SCContext.audioEngine.inputNode
+            if ud.bool(forKey: "enableAEC") {
+                try? input.setVoiceProcessingEnabled(true)
+                input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min
+            }
             input.installTap(onBus: 0, bufferSize: 1024, format: input.inputFormat(forBus: 0)) {buffer, time in
                 if SCContext.micInput.isReadyForMoreMediaData && SCContext.startTime != nil {
                     SCContext.micInput.append(buffer.asSampleBuffer!)
