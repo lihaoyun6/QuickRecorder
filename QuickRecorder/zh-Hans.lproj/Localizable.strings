@@ -63,7 +63,7 @@
 "Video Settings" = "视频设置";
 "Exclude QuickRecorder itself" = "排除QuickRecorder窗口";
 "Highlight the Mouse Cursor" = "为鼠标光标添加高亮效果";
-"Not available for \"Single Window Capture\"" = "此功能不适用于\"录制单个窗口\"的情况";
+"Not available for \"Single Window Capture\"" = "此功能在录制单个窗口时不可用";
 "Normal - 128Kbps" = "标准 - 128Kbps";
 "Good - 192Kbps" = "优质 - 192Kbps";
 "High - 256Kbps" = "高清 - 256Kbps";
@@ -81,7 +81,6 @@
 "Set custom background color:" = "设置用户预设颜色(自定义背景):";
 "File size: %@" = "文件大小: %@";
 "Recording: " = "正在录制: ";
-"Display " = "显示器 ";
 "Preferences…" = "设置…";
 "Quit QuickRecorder" = "退出QuickRecorder";
 "Multiple Windows" = "多个窗口";

@@ -169,26 +169,26 @@ struct SettingsView: View {
                     VStack(spacing: 5.5) {
                         BundleSelector()
                         Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\"\n* But if the app is launched after the recording starts, it cannot be excluded.")
-                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 6).fixedSize(horizontal: false, vertical: true)
+                            .font(.footnote).foregroundColor(Color.gray).padding([.leading,.trailing], 0).fixedSize(horizontal: false, vertical: true)
                     }
                 }.frame(width: 220)
             }
             HStack(alignment: .top, spacing: 17) {
-                GroupBox(label: Text("Update Settings".local).fontWeight(.bold)) {
-                    ZStack(){
+                ZStack(alignment: .bottomTrailing){
+                    GroupBox(label: Text("Update Settings".local).fontWeight(.bold)) {
                         Form(){
                             UpdaterSettingsView(updater: updaterController.updater)
                         }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
-                        Button(action: {
-                            updaterController.updater.checkForUpdates()
-                        }) {
-                            Image(systemName: "arrow.clockwise.circle.fill")
-                                .foregroundStyle(.blue)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.leading, 250).padding(.top, 36)
                     }
-                }.frame(width: 270)
+                    Button(action: {
+                        updaterController.updater.checkForUpdates()
+                    }) {
+                        Image(systemName: "arrow.clockwise.circle.fill")
+                            .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(2)
+                }.frame(width: 320)
                 GroupBox(label: Text("Icon Settings".local).fontWeight(.bold)) {
                     Form(){
                         Toggle(isOn: $showOnDock) { Text("Show Dock Icon") }
@@ -200,7 +200,7 @@ struct SettingsView: View {
                             .toggleStyle(.checkbox)
                             .onChange(of: showMenubar) { _ in appDelegate.updateStatusBar() }
                     }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
-                }.frame(width: 270)
+                }.frame(width: 220)
             }
             Divider()
             HStack {
