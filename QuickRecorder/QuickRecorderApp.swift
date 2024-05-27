@@ -190,7 +190,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "trimAfterRecord": false,
                 "showOnDock": true,
                 "showMenubar": false,
-                "enableAEC": false
+                "enableAEC": false,
+                "savedArea": [String: [String: CGFloat]]()
             ]
         )
         

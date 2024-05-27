@@ -425,6 +425,11 @@ class SCContext {
         return discoverySession.devices
     }
     
+    static func getMicrophone() -> [AVCaptureDevice] {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone, .externalUnknown], mediaType: .audio, position: .unspecified)
+        return discoverySession.devices
+    }
+    
     static func getiDevice() -> [AVCaptureDevice] {
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: .muxed, position: .unspecified)
         return discoverySession.devices

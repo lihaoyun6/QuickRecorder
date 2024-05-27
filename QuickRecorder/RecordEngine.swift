@@ -72,13 +72,20 @@ extension AppDelegate {
             }
         } else {
             if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
+                let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
+                if SCContext.streamType == .screenarea {
+                    if let area = SCContext.screenArea, let name = screen.nsScreen?.localizedName {
+                        let a = ["x": area.origin.x, "y": area.origin.y, "width": area.width, "height": area.height]
+                        ud.set([name: a], forKey: "savedArea")
+                    }
+                }
                 var excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
                 excluded += excliudedApps
                 if ud.bool(forKey: "hideSelf") { if let qrWindows = qrWindows { except += qrWindows }}
                 if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { if dockApp != nil { except += wallpaper}}
                 if ud.bool(forKey: "hideDesktopFiles") { except += desktopFiles }
-                SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, excludingApplications: excluded, exceptingWindows: except)
+                SCContext.filter = SCContentFilter(display: screen, excludingApplications: excluded, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && ud.bool(forKey: "includeMenuBar")) }
             }
             if SCContext.streamType == .application {
