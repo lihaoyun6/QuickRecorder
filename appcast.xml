@@ -3,6 +3,23 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.8</title>
+            <pubDate>Mon, 27 May 2024 23:57:45 +0800</pubDate>
+            <sparkle:version>128</sparkle:version>
+            <sparkle:shortVersionString>1.2.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>使用"屏幕区域"录制功能时会自动恢复上次的选择区域</li>
+                  </ul><ul>
+                  <li>Auto restore the last selected area when use "Screen Area" mode</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="350"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.8/QuickRecorder_v1.2.8.dmg" length="3244872" type="application/octet-stream" sparkle:edSignature="SUhY8gxYIc/MwGgnZtauClkSoApjNeFPDN7UdvLeVvPjxRW31Ist0teWfv3Jb5zHWqxO5CyQBQ+frxtYPW+1CQ=="/>
+        </item>
+        <item>
             <title>v1.2.7</title>
             <pubDate>Fri, 24 May 2024 14:40:21 +0800</pubDate>
             <sparkle:version>127</sparkle:version>
