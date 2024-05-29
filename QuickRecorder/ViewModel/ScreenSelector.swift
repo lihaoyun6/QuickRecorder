@@ -235,7 +235,7 @@ struct ScreenSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected == nil)
-                }.padding([.leading, .trailing], 50)
+                }.padding([.leading, .trailing], 40)
                 Spacer()
             }
             .padding(.top, -5)

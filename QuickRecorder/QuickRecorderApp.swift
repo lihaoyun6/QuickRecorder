@@ -162,6 +162,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationWillFinishLaunching(_ notification: Notification) {
+        let process = NSWorkspace.shared.runningApplications.filter({ $0.bundleIdentifier == "com.lihaoyun6.QuickRecorder" })
+        if process.count > 1 {
+            DispatchQueue.main.async {
+                let button = self.createAlert(title: "QuickRecorder is Running".local, message: "Please do not run multiple instances!".local, button1: "Quit".local).runModal()
+                if button == .alertFirstButtonReturn { NSApp.terminate(self) }
+            }
+        }
+        
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
         //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
         

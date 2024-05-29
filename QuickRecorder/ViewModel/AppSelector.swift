@@ -243,7 +243,7 @@ struct AppSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected.count < 1)
-                }.padding([.leading, .trailing], 50)
+                }.padding([.leading, .trailing], 40)
                 Spacer()
             }
             .padding(.top, -5)

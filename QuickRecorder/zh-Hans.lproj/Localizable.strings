@@ -141,6 +141,10 @@
 "OK" = "好";
 "Failed to save file" = "保存文件时出错";
 "Enable Acoustic Echo Cancellation" = "降低麦克风音频串扰";
+"QuickRecorder is Running" = "QuickRecorder 已在运行";
+"Please do not run multiple instances!" = "请勿重复运行多个 QuickRecorder 实例!";
+"Show Windows with No Title" = "显示无标题窗口";
+"Don't Create Thumbnails" = "不生成缩略图";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

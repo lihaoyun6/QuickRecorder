@@ -13,6 +13,7 @@ import ScreenCaptureKit
 struct WinSelector: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = WindowSelectorViewModel()
+    @State private var altKeyPressed = false
     //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selected = [SCWindow]()
     @State private var display: SCDisplay!
@@ -21,6 +22,9 @@ struct WinSelector: View {
     @State private var start = Date.now
     @State private var counter: Int?
     @State private var isPopoverShowing = false
+    @State private var isPopoverShowing2 = false
+    @State private var disableFilter = false
+    @State private var donotCapture = false
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
     
@@ -141,7 +145,7 @@ struct WinSelector: View {
                 }
                 HStack(spacing: 4){
                     Button(action: {
-                        self.viewModel.setupStreams()
+                        self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
                         self.selected.removeAll()
                     }, label: {
                         VStack{
@@ -154,6 +158,26 @@ struct WinSelector: View {
                         }
                         
                     }).buttonStyle(.plain)
+                    Button(action: {
+                        isPopoverShowing2 = true
+                    }, label: {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.blue)
+                    })
+                    .buttonStyle(.plain)
+                    .padding(.top, 42.5)
+                    .popover(isPresented: $isPopoverShowing2, arrowEdge: .bottom, content: {
+                        VStack(alignment: .leading) {
+                            Toggle(isOn: $disableFilter) {
+                                Text("Show Windows with No Title")
+                            }.toggleStyle(.checkbox)
+                            Toggle(isOn: $donotCapture) {
+                                Text("Don't Create Thumbnails")
+                            }.toggleStyle(.checkbox)
+                        }
+                        .padding()
+                    })
                     Spacer()
                     VStack(spacing: 6) {
                         HStack {
@@ -227,7 +251,7 @@ struct WinSelector: View {
                                 }
                             }.needScale()
                         }
-                    }.padding(.leading, 18)
+                    }
                     Spacer()
                     Button(action: {
                         isPopoverShowing = true
@@ -272,7 +296,7 @@ struct WinSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected.count < 1)
-                }.padding([.leading, .trailing], 50)
+                }.padding([.leading, .trailing], 40)
                 Spacer()
             }
             .padding(.top, -5)
@@ -334,11 +358,11 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                 }
             }
             self.streams[index].stopCapture()
-            if index + 1 == self.streams.count { self.isReady = true }
+            if index + 1 == self.streams.count { DispatchQueue.main.async { self.isReady = true }}
         }
     }
 
-    func setupStreams() {
+    func setupStreams(filter: Bool = true, capture: Bool = true) {
         SCContext.updateAvailableContent{
             Task {
                 do {
@@ -349,25 +373,45 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                         && $0.owningApplication?.bundleIdentifier != Bundle.main.bundleIdentifier
                         && $0.owningApplication?.applicationName != ""
                     })
-                    let contentFilters = self.allWindows.map { SCContentFilter(desktopIndependentWindow: $0) }
-                    for (index, contentFilter) in contentFilters.enumerated() {
-                        let streamConfiguration = SCStreamConfiguration()
-                        let width = self.allWindows[index].frame.width
-                        let height = self.allWindows[index].frame.height
-                        var factor = 0.5
-                        if width < 200 && height < 200 { factor = 1.0 }
-                        streamConfiguration.width = Int(width * factor)
-                        streamConfiguration.height = Int(height * factor)
-                        streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
-                        streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
-                        if #available(macOS 13, *) { streamConfiguration.capturesAudio = false }
-                        streamConfiguration.showsCursor = false
-                        streamConfiguration.scalesToFit = true
-                        streamConfiguration.queueDepth = 3
-                        let stream = SCStream(filter: contentFilter, configuration: streamConfiguration, delegate: self)
-                        try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
-                        try await stream.startCapture()
-                        self.streams.append(stream)
+                    if filter { self.allWindows = self.allWindows.filter({ $0.title != "" }) }
+                    if capture {
+                        let contentFilters = self.allWindows.map { SCContentFilter(desktopIndependentWindow: $0) }
+                        for (index, contentFilter) in contentFilters.enumerated() {
+                            let streamConfiguration = SCStreamConfiguration()
+                            let width = self.allWindows[index].frame.width
+                            let height = self.allWindows[index].frame.height
+                            var factor = 0.5
+                            if width < 200 && height < 200 { factor = 1.0 }
+                            streamConfiguration.width = Int(width * factor)
+                            streamConfiguration.height = Int(height * factor)
+                            streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
+                            streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
+                            if #available(macOS 13, *) { streamConfiguration.capturesAudio = false }
+                            streamConfiguration.showsCursor = false
+                            streamConfiguration.scalesToFit = true
+                            streamConfiguration.queueDepth = 3
+                            let stream = SCStream(filter: contentFilter, configuration: streamConfiguration, delegate: self)
+                            try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
+                            try await stream.startCapture()
+                            self.streams.append(stream)
+                        }
+                    } else {
+                        for w in self.allWindows {
+                            let thumbnail = WindowThumbnail(image: NSImage.unknowScreen, window: w)
+                            guard let displays = SCContext.availableContent?.displays.filter({ NSIntersectsRect(w.frame, $0.frame) }) else { break }
+                            for d in displays {
+                                DispatchQueue.main.async {
+                                    if self.windowThumbnails[d] != nil {
+                                        if !self.windowThumbnails[d]!.contains(where: { $0.window == w }) {
+                                            self.windowThumbnails[d]!.append(thumbnail)
+                                        }
+                                    } else {
+                                        self.windowThumbnails[d] = [thumbnail]
+                                    }
+                                }
+                            }
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { self.isReady = true }
                     }
                 } catch {
                     print("Get windowshot error：\(error)")
