@@ -3,6 +3,25 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.2.9</title>
+            <pubDate>Wed, 29 May 2024 10:01:37 +0800</pubDate>
+            <sparkle:version>129</sparkle:version>
+            <sparkle:shortVersionString>1.2.9</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description>
+              <![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了某些情况下无法正常列出所有窗口缩略图的问题</li>
+                  <li>添加了警告防止用户运行多个 QuickRecorder 实例</li>
+                  </ul><ul>
+                  <li>Fixed: Unable to create window thumbnail list</li>
+                  <li>Prevent users from running multiple instances of QuickRecorder</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+              ]]>
+            </description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.2.9/QuickRecorder_v1.2.9.dmg" length="3274843" type="application/octet-stream" sparkle:edSignature="KoRg9jqsHeMiHtSVdpUXv9D34XrFGmjG3Xpb0Zg+Xpv602HadXrJtR1ns9uWLTeFBpHUhHGU6tx/yXJjTy5NAg=="/>
+        </item>
+        <item>
             <title>v1.2.8</title>
             <pubDate>Mon, 27 May 2024 23:57:45 +0800</pubDate>
             <sparkle:version>128</sparkle:version>
