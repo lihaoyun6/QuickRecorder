@@ -30,7 +30,7 @@
 "Please select the screen to record" = "请选择需要录制的屏幕, 仅支持单选";
 "Refresh" = "刷新列表";
 "Start" = "开始录制";
-"Resolution" = "清晰度";
+"Resolution" = "分辨率";
 "Frame rate" = "帧速率";
 "Auto" = "自动";
 "High (auto)" = "高 (自动)";

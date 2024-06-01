@@ -289,6 +289,7 @@ class SCContext {
         autoStop = 0
         recordCam = ""
         recordDevice = ""
+        isMagnifierEnabled = false
         mousePointer.orderOut(nil)
         screenMagnifier.orderOut(nil)
         AppDelegate.shared.stopGlobalMouseMonitor()

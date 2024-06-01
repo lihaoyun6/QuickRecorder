@@ -13,7 +13,7 @@ struct ContentView: View {
     var fromStatusBar = false
     @State private var xmarkGlowing = false
     @State private var infoGlowing = false
-    @State private var showSettings = false
+    //@State private var showSettings = false
     @State private var isPopoverShowing = false
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
@@ -95,17 +95,14 @@ struct ContentView: View {
                         .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView(closePopover: { isPopoverShowing = false })}
                     Divider().frame(height: 70)
                     Button(action: {
-                        if fromStatusBar {
-                            appDelegate.openSettingPanel()
-                        } else {
-                            showSettings = true
-                        }
+                        appDelegate.openSettingPanel()
+                        //if fromStatusBar { appDelegate.openSettingPanel() } else { showSettings = true }
                     }, label: {
                         SelectorView(title: "Preferences".local, symbol: "gearshape")
                             .cornerRadius(8)
                     })
                     .buttonStyle(.plain)
-                    .sheet(isPresented: $showSettings) { SettingsView() }
+                    //.sheet(isPresented: $showSettings) { SettingsView() }
                     Spacer()
                 }.padding([.top, .bottom], 10).padding([.leading, .trailing], 19.5)
             }

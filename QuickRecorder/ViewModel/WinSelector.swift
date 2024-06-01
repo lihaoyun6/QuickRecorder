@@ -169,12 +169,18 @@ struct WinSelector: View {
                     .padding(.top, 42.5)
                     .popover(isPresented: $isPopoverShowing2, arrowEdge: .bottom, content: {
                         VStack(alignment: .leading) {
-                            Toggle(isOn: $disableFilter) {
-                                Text("Show Windows with No Title")
-                            }.toggleStyle(.checkbox)
-                            Toggle(isOn: $donotCapture) {
-                                Text("Don't Create Thumbnails")
-                            }.toggleStyle(.checkbox)
+                            Toggle(isOn: $disableFilter) { Text("Show Windows with No Title") }
+                                .toggleStyle(.checkbox)
+                                .onChange(of: disableFilter) { _ in
+                                    self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
+                                    self.selected.removeAll()
+                                }
+                            Toggle(isOn: $donotCapture) { Text("Don't Create Thumbnails") }
+                                .toggleStyle(.checkbox)
+                                .onChange(of: donotCapture) { _ in
+                                    self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
+                                    self.selected.removeAll()
+                                }
                         }
                         .padding()
                     })
