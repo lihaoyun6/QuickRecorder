@@ -3,6 +3,25 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.3.0</title>
+            <pubDate>Sun, 02 Jun 2024 00:37:27 +0800</pubDate>
+            <sparkle:version>130</sparkle:version>
+            <sparkle:shortVersionString>1.3.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了使用屏幕放大镜后下次还是自动启用的问题</li>
+                  <li>在改变窗口选择器过滤选项的时候自动刷新窗口列表</li>
+                  <li>改变了偏好设置面板的弹出方式</li>
+                  </ul><ul>
+                  <li>Fixed: Screen magnifier pops up even if it is not enabled</li>
+                  <li>Auto refresh the window list when changing the filter options</li>
+                  <li>Show preferences in a separate window</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.0/QuickRecorder_v1.3.0.dmg" length="3274823" type="application/octet-stream" sparkle:edSignature="AUeqQLKJmC4Rb1A2RLUdoRLfQqvqazx5scjZ00dX84Hzzem+VFe/veegi+BAyIigilnskOwkg/1Z5w8fnw0yCw=="/>
+        </item>
+        <item>
             <title>v1.2.9</title>
             <pubDate>Wed, 29 May 2024 10:01:37 +0800</pubDate>
             <sparkle:version>129</sparkle:version>
