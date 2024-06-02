@@ -42,11 +42,11 @@ extension AppDelegate {
         let dockApp = SCContext.availableContent!.applications.first(where: { $0.bundleIdentifier.description == "com.apple.dock" })
         let wallpaper = SCContext.availableContent!.windows.filter({
             guard let title = $0.title else { return false }
-            return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title.contains("Wallpaper-")
+            return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title != "LPSpringboard" && title != "Dock"
         })
         let dockWindow = SCContext.availableContent!.windows.filter({
             guard let title = $0.title else { return true }
-            return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && !title.contains("Wallpaper-")
+            return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title == "Dock"
         })
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
@@ -271,7 +271,7 @@ extension AppDelegate {
             let input = SCContext.audioEngine.inputNode
             if ud.bool(forKey: "enableAEC") {
                 try? input.setVoiceProcessingEnabled(true)
-                input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min
+                if #available(macOS 14, *) { input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min }
             }
             input.installTap(onBus: 0, bufferSize: 1024, format: input.inputFormat(forBus: 0)) {buffer, time in
                 if SCContext.micInput.isReadyForMoreMediaData && SCContext.startTime != nil {
