@@ -42,6 +42,9 @@ brew install lihaoyun6/tap/quickrecorder
 **3. How to independently control the volume of system sound and sound from microphone in other video editor?**
 > QuickRecorder will merge the audio input from the microphone to the main audio track after recording by default. If you need to edit the video, you can turn off the "Mixdown the track from microphone" option in the settings panel. After turning off, the system sound and sound from microphone will be recorded into two audio tracks and can be edited independently.  
 
+## Donate
+<img src="./img/donate.png" width="350"/>
+
 ## Thanks
 [Azayaka](https://github.com/Mnpn/Azayaka) @Mnpn
 > The source of inspiration and part of the code of the screen recording engine comes from the Azayaka project, and I am also one of the code contributors to this project
