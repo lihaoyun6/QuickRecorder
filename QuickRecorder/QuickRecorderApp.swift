@@ -204,6 +204,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         )
         
         if !ud.bool(forKey: "showOnDock") && !ud.bool(forKey: "showMenubar") { ud.setValue(true, forKey: "showOnDock") }
+        if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
@@ -225,7 +226,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         if #available(macOS 13, *) { isMacOS12 = false }
         if #available(macOS 14, *) { isMacOS14 = true }
         
-        if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
+        //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         
         var allow : UInt32 = 1
         let dataSize : UInt32 = 4

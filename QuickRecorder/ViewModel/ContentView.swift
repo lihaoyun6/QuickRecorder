@@ -95,6 +95,7 @@ struct ContentView: View {
                         .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView(closePopover: { isPopoverShowing = false })}
                     Divider().frame(height: 70)
                     Button(action: {
+                        appDelegate.closeMainWindow()
                         appDelegate.openSettingPanel()
                         //if fromStatusBar { appDelegate.openSettingPanel() } else { showSettings = true }
                     }, label: {

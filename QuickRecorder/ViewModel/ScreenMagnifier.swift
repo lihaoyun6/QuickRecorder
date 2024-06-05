@@ -23,8 +23,8 @@ struct ScreenMagnifier: View {
                 )
                 .background(
                     Image(nsImage: screenShot!)
+                        .interpolation(.none)
                         .resizable()
-                        .interpolation(.high)
                         .scaledToFit()
                         .frame(width: (screenShot?.size.width)!*3, height: (screenShot?.size.height)!*3)
                 )

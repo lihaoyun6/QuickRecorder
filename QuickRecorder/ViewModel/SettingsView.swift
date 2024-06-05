@@ -196,7 +196,7 @@ struct SettingsView: View {
                          .toggleStyle(.checkbox)
                          .disabled(!showMenubar)
                          .onChange(of: showOnDock) { newValue in
-                         if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
+                             if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
                          }
                          Toggle(isOn: $showMenubar) { Text("Show MenuBar Icon") }
                          .padding([.leading, .trailing], 10)
