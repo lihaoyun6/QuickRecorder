@@ -17,7 +17,7 @@
                   <li>Fixed: "App Blacklist" cannot be saved</li>
                   <li>Fixed: "Screen Magnifier" is not sharp</li>
                   <li>Allow users to specify the size of the recording area</li>
-                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="290"/>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="270"/>
             ]]></description>
             <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.2/QuickRecorder_v1.3.2.dmg" length="3315840" type="application/octet-stream" sparkle:edSignature="otR8PFscp/lW1Ra2O8rPOHPSoNbxlayhjAUm83Us5x5tLl++8xHZNk3sTqeMQvihC6cRv9Lua/Klvv/8oSm9AA=="/>
             <sparkle:deltas>
