@@ -3,10 +3,10 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
-            <title>v1.3.2</title>
-            <pubDate>Thu, 13 Jun 2024 14:23:30 +0800</pubDate>
-            <sparkle:version>132</sparkle:version>
-            <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
+            <title>v1.3.3</title>
+            <pubDate>Thu, 13 Jun 2024 14:53:10 +0800</pubDate>
+            <sparkle:version>133</sparkle:version>
+            <sparkle:shortVersionString>1.3.3</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
             <description><![CDATA[
                   <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
@@ -19,10 +19,7 @@
                   <li>Allow users to specify the size of the recording area</li>
                   </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="270"/>
             ]]></description>
-            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.2/QuickRecorder_v1.3.2.dmg" length="3315840" type="application/octet-stream" sparkle:edSignature="otR8PFscp/lW1Ra2O8rPOHPSoNbxlayhjAUm83Us5x5tLl++8xHZNk3sTqeMQvihC6cRv9Lua/Klvv/8oSm9AA=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.2/Update132-131.delta" sparkle:deltaFrom="131" length="409086" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="osn/sGC+S84aNHbfDocx3cUQeyuBRTsNOykhlBJDLI+EzDg8l4+ay4LqT3a3HoOrRKiI5zLhX3ZcpFX8wUSHCw=="/>
-            </sparkle:deltas>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.3/QuickRecorder_v1.3.3.dmg" length="3309476" type="application/octet-stream" sparkle:edSignature="M4JBvdnkBJT8+74lZ4jwHwVV+4saF0r1+73HoEwbPRN91NWYUi6lKJx3fI5zt8zmRI8Wl9C8T1NZQMVkM5zXDQ=="/>
         </item>
         <item>
             <title>v1.3.1</title>
