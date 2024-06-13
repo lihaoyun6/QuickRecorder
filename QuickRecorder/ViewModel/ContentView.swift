@@ -194,7 +194,7 @@ extension AppDelegate {
             let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
             let wY = screen.visibleFrame.minY + 80
             let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-            contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 100)
+            contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 110)
             contentView.focusRingType = .none
             let areaPanel = NNSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
             areaPanel.setFrame(contentView.frame, display: true)
