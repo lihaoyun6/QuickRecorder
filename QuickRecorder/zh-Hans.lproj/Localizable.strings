@@ -31,11 +31,11 @@
 "Refresh" = "刷新列表";
 "Start" = "开始录制";
 "Resolution" = "分辨率";
-"Frame rate" = "帧速率";
+"Frame Rate" = "帧速率";
 "Auto" = "自动";
 "High (auto)" = "高 (自动)";
-"Normal (1x)" = "中 (1x)";
-"Low (0.5x)" = "低 (0.5x)";
+"Normal (1x)" = "普通 (1x)";
+//"Low (0.5x)" = "低 (0.5x)";
 "Quality" = "输出质量";
 "Format" = "输出格式";
 "Encoder" = "编码方式";
@@ -59,6 +59,8 @@
 "White" = "纯白色";
 "Orange" = "系统橙色";
 "Custom" = "用户预设";
+"Area Size" = "选区尺寸";
+"Output Size:" = "输出尺寸:";
 "Audio Settings" = "音频设置";
 "Video Settings" = "视频设置";
 "Exclude QuickRecorder itself" = "排除QuickRecorder窗口";

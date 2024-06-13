@@ -52,14 +52,14 @@ struct ContentView: View {
                         appDelegate.closeMainWindow()
                         SCContext.updateAvailableContent{
                             DispatchQueue.main.async {
-                                appDelegate.showAreaSelector()
+                                appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
                                 var currentDisplay = SCContext.getSCDisplayWithMouse()
                                 mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.mouseMoved, .rightMouseDown, .leftMouseDown, .otherMouseDown]) { event in
                                     let display = SCContext.getSCDisplayWithMouse()
                                     if display != currentDisplay {
                                         currentDisplay = display
-                                        for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
-                                        appDelegate.showAreaSelector()
+                                        appDelegate.closeAllWindow()
+                                        appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
                                     }
                                 }
                             }
@@ -180,36 +180,38 @@ extension AppDelegate {
     
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
     
-    func closeAllWindow(_ title: String = "") { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != title }) { w.close() }}
+    func closeAllWindow(except: String = "") { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != except }) { w.close() }}
     
-    func showAreaSelector() {
+    func showAreaSelector(size: NSSize, noPanel: Bool = false) {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
         guard let screen = scDisplay.nsScreen else { return }
-        let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false)
+        let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false, size: size, force: noPanel)
         screenshotWindow.title = "Area Selector".local
         //screenshotWindow.isReleasedWhenClosed = true
         screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
-        let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
-        let wY = screen.visibleFrame.minY + 80
-        let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-        contentView.frame = NSRect(x: wX, y: wY, width: 700, height: 80)
-        contentView.focusRingType = .none
-        let areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
-        areaPanel.setFrame(contentView.frame, display: true)
-        areaPanel.level = .screenSaver
-        areaPanel.title = "Start Recording".local
-        areaPanel.standardWindowButton(.closeButton)?.isHidden = true
-        areaPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
-        areaPanel.standardWindowButton(.zoomButton)?.isHidden = true
-        areaPanel.contentView = contentView
-        areaPanel.backgroundColor = .clear
-        areaPanel.titleVisibility = .hidden
-        areaPanel.isReleasedWhenClosed = false
-        areaPanel.titlebarAppearsTransparent = true
-        areaPanel.isMovableByWindowBackground = true
-        //areaPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
-        areaPanel.makeKeyAndOrderFront(self)
+        if !noPanel {
+            let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
+            let wY = screen.visibleFrame.minY + 80
+            let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
+            contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 100)
+            contentView.focusRingType = .none
+            let areaPanel = NNSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+            areaPanel.setFrame(contentView.frame, display: true)
+            areaPanel.level = .screenSaver
+            areaPanel.title = "Start Recording".local
+            areaPanel.standardWindowButton(.closeButton)?.isHidden = true
+            areaPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+            areaPanel.standardWindowButton(.zoomButton)?.isHidden = true
+            areaPanel.contentView = contentView
+            areaPanel.backgroundColor = .clear
+            areaPanel.titleVisibility = .hidden
+            areaPanel.isReleasedWhenClosed = false
+            areaPanel.titlebarAppearsTransparent = true
+            areaPanel.isMovableByWindowBackground = true
+            //areaPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
+            areaPanel.makeKeyAndOrderFront(self)
+        }
     }
     
     func createNewWindow(view: some View, title: String, random: Bool = false) {
@@ -248,7 +250,7 @@ extension AppDelegate {
 extension View {
     func needScale() -> some View {
         if #available(macOS 13, *) {
-            return self.scaleEffect(0.79).padding(.leading, -4)
+            return self.scaleEffect(0.8).padding(.leading, -4)
         } else {
             return self
         }

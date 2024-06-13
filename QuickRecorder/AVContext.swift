@@ -109,7 +109,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         
         SCContext.previewSession.startRunning()
         DispatchQueue.main.async {
-            AppDelegate.shared.closeAllWindow("Area Overlayer".local)
+            AppDelegate.shared.closeAllWindow(except: "Area Overlayer".local)
             AppDelegate.shared.updateStatusBar()
             AppDelegate.shared.startDeviceOverlayer(size: NSSize(width: 300, height: 500))
         }

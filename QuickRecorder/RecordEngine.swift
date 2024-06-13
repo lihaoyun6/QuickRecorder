@@ -138,10 +138,10 @@ extension AppDelegate {
                 conf.width = conf.width * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
                 conf.height = conf.height * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
             }
-            if ud.integer(forKey: "highRes") == 0 {
+            /*if ud.integer(forKey: "highRes") == 0 {
                 conf.width = Int(conf.width/2)
                 conf.height = Int(conf.height/2)
-            }
+            }*/
             conf.showsCursor = ud.bool(forKey: "showMouse") || fastStart
             if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if let colorSpace = SCContext.getColorSpace() { conf.colorSpaceName = colorSpace }
@@ -168,10 +168,10 @@ extension AppDelegate {
                     conf.width = Int(conf.sourceRect.width) * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
                     conf.height = Int(conf.sourceRect.height) * (ud.integer(forKey: "highRes") == 2 ? Int(pointPixelScaleOld) : 1)
                 }
-                if ud.integer(forKey: "highRes") == 0 {
+                /*if ud.integer(forKey: "highRes") == 0 {
                     conf.width = Int(conf.width/2)
                     conf.height = Int(conf.height/2)
-                }
+                }*/
             }
         }
         
@@ -345,6 +345,7 @@ extension AppDelegate {
             var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
             let dur = CMSampleBufferGetDuration(SampleBuffer)
             if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
+            //if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
             SCContext.lastPTS = pts
             if SCContext.vwInput.isReadyForMoreMediaData {
                 if #available(macOS 14.2, *) {
@@ -379,6 +380,7 @@ extension AppDelegate {
                 var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
                 let dur = CMSampleBufferGetDuration(SampleBuffer)
                 if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
+                //if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
                 SCContext.lastPTS = pts
                 if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
             }

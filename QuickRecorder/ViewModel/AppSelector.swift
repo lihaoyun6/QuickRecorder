@@ -49,18 +49,19 @@ struct AppSelector: View {
                                         ForEach(0..<5, id: \.self) { columnIndex in
                                             let index = 5 * rowIndex + columnIndex
                                             if index <= apps.count - 1 {
+                                                let item = apps[index]
                                                 Button(action: {
-                                                    if !selected.contains(apps[index]) {
-                                                        selected.append(apps[index])
+                                                    if !selected.contains(item) {
+                                                        selected.append(item)
                                                     } else {
-                                                        selected.removeAll{ $0 == apps[index] }
+                                                        selected.removeAll{ $0 == item }
                                                     }
                                                 }, label: {
                                                     ZStack {
                                                         VStack {
-                                                            Image(nsImage: SCContext.getAppIcon(apps[index])!)
-                                                            let appName = apps[index].applicationName
-                                                            let appID = apps[index].bundleIdentifier
+                                                            Image(nsImage: SCContext.getAppIcon(item)!)
+                                                            let appName = item.applicationName
+                                                            let appID = item.bundleIdentifier
                                                             Text(appName != "" ? appName : appID)
                                                                 .foregroundStyle(.secondary)
                                                                 .lineLimit(1)
@@ -72,17 +73,17 @@ struct AppSelector: View {
                                                             Rectangle()
                                                                 .foregroundStyle(.blue)
                                                                 .cornerRadius(5)
-                                                                .opacity(selected.contains(apps[index]) ? 0.2 : 0.0)
+                                                                .opacity(selected.contains(item) ? 0.2 : 0.0)
                                                         )
                                                         Image(systemName: "circle.fill")
                                                             .font(.system(size: 31))
                                                             .foregroundStyle(.white)
-                                                            .opacity(selected.contains(apps[index]) ? 1.0 : 0.0)
+                                                            .opacity(selected.contains(item) ? 1.0 : 0.0)
                                                             .offset(x: 20, y: 10)
                                                         Image(systemName: "checkmark.circle.fill")
                                                             .font(.system(size: 27))
                                                             .foregroundStyle(.green)
-                                                            .opacity(selected.contains(apps[index]) ? 1.0 : 0.0)
+                                                            .opacity(selected.contains(item) ? 1.0 : 0.0)
                                                             .offset(x: 20, y: 10)
                                                     }
                                                 }).buttonStyle(.plain)
@@ -130,13 +131,13 @@ struct AppSelector: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Resolution")
-                                Text("Frame rate")
+                                Text("Frame Rate")
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $highRes) {
                                     Text("High (auto)").tag(2)
                                     Text("Normal (1x)").tag(1)
-                                    Text("Low (0.5x)").tag(0)
+                                    //Text("Low (0.5x)").tag(0)
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $frameRate) {
                                     Text("240 FPS").tag(240)

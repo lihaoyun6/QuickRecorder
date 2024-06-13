@@ -122,13 +122,13 @@ struct ScreenSelector: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Resolution")
-                                Text("Frame rate")
+                                Text("Frame Rate")
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $highRes) {
                                     Text("High (auto)").tag(2)
                                     Text("Normal (1x)").tag(1)
-                                    Text("Low (0.5x)").tag(0)
+                                    //Text("Low (0.5x)").tag(0)
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $frameRate) {
                                     Text("240 FPS").tag(240)

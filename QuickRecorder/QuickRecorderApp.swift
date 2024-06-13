@@ -203,6 +203,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             ]
         )
         
+        if ud.integer(forKey: "highRes") == 0 { ud.setValue(2, forKey: "highRes") }
         if !ud.bool(forKey: "showOnDock") && !ud.bool(forKey: "showMenubar") { ud.setValue(true, forKey: "showOnDock") }
         if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
         
@@ -290,7 +291,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         KeyboardShortcuts.onKeyDown(for: .startWithArea) {[self] in
             if SCContext.stream != nil { return }
             closeAllWindow()
-            showAreaSelector()
+            showAreaSelector(size: NSSize(width: 600, height: 450))
         }
         KeyboardShortcuts.onKeyDown(for: .startWithWindow) { [self] in
             if SCContext.stream != nil { return }
@@ -411,6 +412,12 @@ extension NSImage {
 
         result.unlockFocus()
         return result
+    }
+}
+
+class NNSWindow: NSWindow {
+    override var canBecomeKey: Bool {
+        return true
     }
 }
 

@@ -55,17 +55,18 @@ struct WinSelector: View {
                                         ForEach(0..<4, id: \.self) { columnIndex in
                                             let index = 4 * rowIndex + columnIndex
                                             if index <= thumbnails.count - 1 {
+                                                let item = thumbnails[index]
                                                 Button(action: {
-                                                    if !selected.contains(thumbnails[index].window) {
-                                                        selected.append(thumbnails[index].window)
+                                                    if !selected.contains(item.window) {
+                                                        selected.append(item.window)
                                                     } else {
-                                                        selected.removeAll{ $0 == thumbnails[index].window }
+                                                        selected.removeAll{ $0 == item.window }
                                                     }
                                                 }, label: {
                                                     VStack(spacing: 1){
                                                         ZStack{
                                                             if colorScheme == .light {
-                                                                Image(nsImage: thumbnails[index].image)
+                                                                Image(nsImage: item.image)
                                                                     .resizable()
                                                                     .aspectRatio(contentMode: .fit)
                                                                     .colorMultiply(.black)
@@ -73,7 +74,7 @@ struct WinSelector: View {
                                                                     .opacity(1)
                                                                     .frame(width: 160, height: 90, alignment: .center)
                                                             } else {
-                                                                Image(nsImage: thumbnails[index].image)
+                                                                Image(nsImage: item.image)
                                                                     .resizable()
                                                                     .aspectRatio(contentMode: .fit)
                                                                     .colorMultiply(.black)
@@ -82,21 +83,21 @@ struct WinSelector: View {
                                                                     .opacity(1)
                                                                     .frame(width: 160, height: 90, alignment: .center)
                                                             }
-                                                            Image(nsImage: thumbnails[index].image)
+                                                            Image(nsImage: item.image)
                                                                 .resizable()
                                                                 .aspectRatio(contentMode: .fit)
                                                                 .frame(width: 160, height: 90, alignment: .center)
                                                             Image(systemName: "circle.fill")
                                                                 .font(.system(size: 31))
                                                                 .foregroundStyle(.white)
-                                                                .opacity(selected.contains(thumbnails[index].window) ? 1.0 : 0.0)
+                                                                .opacity(selected.contains(item.window) ? 1.0 : 0.0)
                                                                 .offset(x: 55, y: 25)
                                                             Image(systemName: "checkmark.circle.fill")
                                                                 .font(.system(size: 27))
                                                                 .foregroundStyle(.green)
-                                                                .opacity(selected.contains(thumbnails[index].window) ? 1.0 : 0.0)
+                                                                .opacity(selected.contains(item.window) ? 1.0 : 0.0)
                                                                 .offset(x: 55, y: 25)
-                                                            Image(nsImage: SCContext.getAppIcon(thumbnails[index].window.owningApplication!)!)
+                                                            Image(nsImage: SCContext.getAppIcon(item.window.owningApplication!)!)
                                                                 .resizable()
                                                                 .aspectRatio(contentMode: .fit)
                                                                 .frame(width: 40, height: 40, alignment: .center)
@@ -108,9 +109,9 @@ struct WinSelector: View {
                                                             Rectangle()
                                                                 .foregroundStyle(.blue)
                                                                 .cornerRadius(5)
-                                                                .opacity(selected.contains(thumbnails[index].window) ? 0.2 : 0.0001)
+                                                                .opacity(selected.contains(item.window) ? 0.2 : 0.0001)
                                                         )
-                                                        Text(thumbnails[index].window.title!)
+                                                        Text(item.window.title!)
                                                             .font(.system(size: 12))
                                                             .foregroundStyle(.secondary)
                                                             .lineLimit(1)
@@ -189,13 +190,13 @@ struct WinSelector: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("Resolution")
-                                Text("Frame rate")
+                                Text("Frame Rate")
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 Picker("", selection: $highRes) {
                                     Text("High (auto)").tag(2)
                                     Text("Normal (1x)").tag(1)
-                                    Text("Low (0.5x)").tag(0)
+                                    //Text("Low (0.5x)").tag(0)
                                 }.buttonStyle(.borderless)
                                 Picker("", selection: $frameRate) {
                                     Text("240 FPS").tag(240)
