@@ -3,27 +3,6 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
-            <title>1.3.4</title>
-            <pubDate>Fri, 14 Jun 2024 23:53:32 +0800</pubDate>
-            <sparkle:version>134</sparkle:version>
-            <sparkle:shortVersionString>1.3.4</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
-            <sparkle:criticalUpdate></sparkle:criticalUpdate>
-            <description><![CDATA[
-                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
-                  <li>修复了与 macOS 15 系统的兼容性</li>
-                  <li>更新了开发者签名</li>
-                  </ul><ul>
-                  <li>Fixed compatibility with macOS 15</li>
-                  <li>Updated developer signature</li>
-                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
-            ]]></description>
-            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.4/QuickRecorder_v1.3.4.dmg" length="2269854" type="application/octet-stream" sparkle:edSignature="8wnwpnxmuRm96/yTkI92R8K6Al51Bpii9Ajx6CuIHPQkxsH3PjecEs7pel2e7bTDqS/uONuJzrUkPK+7cQQ6CQ=="/>
-            <sparkle:deltas>
-                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.4/Update134-133.delta" sparkle:deltaFrom="133" length="425918" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Fr6xCfwQY+7f7hmtfXMx4Yu4m/qJXcyZ6WDAdcF0x1M3d9yjlnMw5an0HYTegVo/FIkWCZhPI69CSR89YBYwBA=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
             <title>v1.3.3</title>
             <pubDate>Thu, 13 Jun 2024 14:53:10 +0800</pubDate>
             <sparkle:version>133</sparkle:version>
