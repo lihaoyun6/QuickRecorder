@@ -16,7 +16,7 @@
                   </ul><ul>
                   <li>Fixed compatibility with macOS 15</li>
                   <li>Updated developer signature</li>
-                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
             ]]></description>
             <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.4/QuickRecorder_v1.3.4.dmg" length="2269854" type="application/octet-stream" sparkle:edSignature="8wnwpnxmuRm96/yTkI92R8K6Al51Bpii9Ajx6CuIHPQkxsH3PjecEs7pel2e7bTDqS/uONuJzrUkPK+7cQQ6CQ=="/>
             <sparkle:deltas>
