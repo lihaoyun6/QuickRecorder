@@ -384,6 +384,8 @@ extension AppDelegate {
                 SCContext.lastPTS = pts
                 if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
             }
+        //case .microphone:
+        //    break
         @unknown default:
             assertionFailure("unknown stream type".local)
         }

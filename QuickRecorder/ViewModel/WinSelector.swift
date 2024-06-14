@@ -42,7 +42,11 @@ struct WinSelector: View {
     var body: some View {
         ZStack {
             VStack(spacing: 15) {
-                Text("Please select the window(s) to record")
+                if #available(macOS 15, *) {
+                    Text("Please select the window(s) to record").offset(y: 8)
+                } else {
+                    Text("Please select the window(s) to record")
+                }
                 TabView(selection: $selectedTab) {
                     let allApps = viewModel.windowThumbnails.sorted(by: { $0.key.displayID < $1.key.displayID })
                     ForEach(allApps, id: \.key) { element in
