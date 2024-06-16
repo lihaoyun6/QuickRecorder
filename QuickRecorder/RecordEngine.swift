@@ -110,7 +110,12 @@ extension AppDelegate {
         SCContext.isPaused = false
         SCContext.isResume = false
         
-        let conf = SCStreamConfiguration()
+        let conf: SCStreamConfiguration
+        if ud.bool(forKey: "recordHDR") {
+            if #available(macOS 15, *) {
+                conf = SCStreamConfiguration(preset: .captureHDRStreamLocalDisplay)
+            } else { conf = SCStreamConfiguration() }
+        } else { conf = SCStreamConfiguration() }
         conf.width = 2
         conf.height = 2
         
@@ -144,8 +149,8 @@ extension AppDelegate {
             }*/
             conf.showsCursor = ud.bool(forKey: "showMouse") || fastStart
             if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
-            if let colorSpace = SCContext.getColorSpace() { conf.colorSpaceName = colorSpace }
-            if ud.bool(forKey: "withAlpha") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+            if let colorSpace = SCContext.getColorSpace(), !ud.bool(forKey: "recordHDR") { conf.colorSpaceName = colorSpace }
+            if ud.bool(forKey: "withAlpha") && !ud.bool(forKey: "recordHDR") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
         }
         
         if #available(macOS 13, *) {
@@ -239,7 +244,7 @@ extension AppDelegate {
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
         let targetBitrate = (Double(conf.width) * Double(conf.height) * fpsMultiplier * encoderMultiplier * ud.double(forKey: "videoQuality"))
         let videoSettings: [String: Any] = [
-            AVVideoCodecKey: encoderIsH265 ? (ud.bool(forKey: "withAlpha") ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
+            AVVideoCodecKey: encoderIsH265 ? ((ud.bool(forKey: "withAlpha") && !ud.bool(forKey: "recordHDR")) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
             AVVideoWidthKey: conf.width,
             AVVideoHeightKey: conf.height,

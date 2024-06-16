@@ -199,6 +199,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "showOnDock": true,
                 "showMenubar": false,
                 "enableAEC": false,
+                "recordHDR": false,
                 "savedArea": [String: [String: CGFloat]]()
             ]
         )

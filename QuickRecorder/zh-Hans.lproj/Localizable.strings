@@ -147,6 +147,7 @@
 "Please do not run multiple instances!" = "请勿重复运行多个 QuickRecorder 实例!";
 "Show Windows with No Title" = "显示无标题窗口";
 "Don't Create Thumbnails" = "不生成缩略图";
+"Record HDR" = "录制HDR格式";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

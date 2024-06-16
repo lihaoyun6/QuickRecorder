@@ -38,6 +38,7 @@ struct WinSelector: View {
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
     @AppStorage("highRes")         private var highRes: Int = 2
     @AppStorage("countdown")       private var countdown: Int = 0
+    @AppStorage("recordHDR")       private var recordHDR: Bool = false
     
     var body: some View {
         ZStack {
@@ -277,6 +278,14 @@ struct WinSelector: View {
                                     .onChange(of: recordMic) { _ in
                                         Task { await SCContext.performMicCheck() }
                                     }
+                                }
+                                if #available(macOS 15, *) {
+                                    Toggle(isOn: $recordHDR) {
+                                        HStack(spacing:0){
+                                            Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
+                                            Text("Record HDR")
+                                        }
+                                    }.toggleStyle(.checkbox)
                                 }
                             }.needScale()
                         }

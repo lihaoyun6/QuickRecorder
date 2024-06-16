@@ -53,6 +53,7 @@ struct AreaSelector: View {
     //@AppStorage("removeWallpaper") private var removeWallpaper: Bool = false
     @AppStorage("highRes")         private var highRes: Int = 2
     @AppStorage("countdown")       private var countdown: Int = 0
+    @AppStorage("recordHDR")       private var recordHDR: Bool = false
     
     @AppStorage("areaWidth") private var areaWidth: Int = 600
     @AppStorage("areaHeight") private var areaHeight: Int = 450
@@ -169,6 +170,14 @@ struct AreaSelector: View {
                                         Task { await SCContext.performMicCheck() }
                                     }
                                 }
+                                if #available(macOS 15, *) {
+                                    Toggle(isOn: $recordHDR) {
+                                        HStack(spacing:0){
+                                            Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
+                                            Text("Record HDR")
+                                        }
+                                    }.toggleStyle(.checkbox)
+                                }
                             }.needScale()
                         }
                     }.padding(.leading, 18)
@@ -280,6 +289,7 @@ struct AreaSelector: View {
                     let scale = Int(screen.nsScreen!.backingScaleFactor)
                     Text("\(highRes == 2 ? areaWidth * scale : areaWidth) x \(highRes == 2 ? areaHeight * scale : areaHeight)")
                 }.onAppear{ focusedField = .width }
+                if #available(macOS 15, *) { Spacer() }
             }
         }
         .frame(width: 700, height: 110)
