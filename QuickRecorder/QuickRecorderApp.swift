@@ -18,6 +18,7 @@ import Sparkle
 
 var isMacOS12 = true
 var isMacOS14 = false
+var isMacOS15 = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -33,6 +34,7 @@ let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402,
 let camWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+let countdownPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 120, height: 120), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
 @main
@@ -185,6 +187,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "hideDesktopFiles": false,
                 "includeMenuBar": true,
                 "videoQuality": 1.0,
+                "countdown": 0,
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "pixelFormat": PixFormat.delault.rawValue,
                 "colorSpace": ColSpace.srgb.rawValue,
@@ -227,6 +230,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         
         if #available(macOS 13, *) { isMacOS12 = false }
         if #available(macOS 14, *) { isMacOS14 = true }
+        if #available(macOS 15, *) { isMacOS15 = true }
         
         //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         
@@ -260,6 +264,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         camWindow.isReleasedWhenClosed = false
         camWindow.isMovableByWindowBackground = true
         camWindow.backgroundColor = NSColor.clear
+        
+        countdownPanel.title = "Countdown Panel".local
+        countdownPanel.level = .floating
+        countdownPanel.isReleasedWhenClosed = false
+        countdownPanel.isMovableByWindowBackground = false
+        countdownPanel.backgroundColor = NSColor.clear
         
         deviceWindow.title = "iDevice Overlayer".local
         deviceWindow.level = .floating

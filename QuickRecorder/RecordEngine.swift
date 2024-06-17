@@ -350,7 +350,7 @@ extension AppDelegate {
             var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
             let dur = CMSampleBufferGetDuration(SampleBuffer)
             if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
-            //if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
+            if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
             SCContext.lastPTS = pts
             if SCContext.vwInput.isReadyForMoreMediaData {
                 if #available(macOS 14.2, *) {
@@ -385,12 +385,12 @@ extension AppDelegate {
                 var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
                 let dur = CMSampleBufferGetDuration(SampleBuffer)
                 if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
-                //if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
+                if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
                 SCContext.lastPTS = pts
                 if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
             }
-        //case .microphone:
-        //    break
+        case .microphone:
+            break
         @unknown default:
             assertionFailure("unknown stream type".local)
         }

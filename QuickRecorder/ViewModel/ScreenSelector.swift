@@ -11,11 +11,8 @@ import ScreenCaptureKit
 struct ScreenSelector: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = ScreenSelectorViewModel()
-    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @State private var selected: SCDisplay?
-    @State private var timer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
-    @State private var start = Date.now
-    @State private var counter: Int?
     @State private var isPopoverShowing = false
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
@@ -27,7 +24,6 @@ struct ScreenSelector: View {
     @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
     @AppStorage("background")      private var background: BackgroundType = .wallpaper
     @AppStorage("highRes")         private var highRes: Int = 2
-    @AppStorage("countdown")       private var countdown: Int = 0
     @AppStorage("recordHDR")       private var recordHDR: Bool = false
     
     var body: some View {
@@ -226,7 +222,6 @@ struct ScreenSelector: View {
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.blue)
                     })
-                    .disabled(!(counter == nil))
                     .buttonStyle(.plain)
                     .padding(.top, 42.5)
                     .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom, content: {
@@ -242,22 +237,15 @@ struct ScreenSelector: View {
                         .padding()
                     })
                     Button(action: {
-                        if counter == 0 { startRecording() }
-                        if counter != nil { counter = nil } else { counter = countdown; start = Date.now }
+                        startRecording()
                     }, label: {
                         VStack{
                             Image(systemName: "record.circle.fill")
                                 .font(.system(size: 36))
                                 .foregroundStyle(.red)
-                            ZStack{
-                                Text("Start")
-                                    .foregroundStyle((counter != nil && counter != 0) ? .clear : .secondary)
-                                    .font(.system(size: 12))
-                                Text((counter != nil && counter != 0) ? "\(counter!)" : "")
-                                    .foregroundStyle(.secondary)
-                                    .font(.system(size: 12))
-                                    .offset(x: 1)
-                            }
+                            Text("Start")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 12))
                         }
                     })
                     .buttonStyle(.plain)
@@ -266,21 +254,16 @@ struct ScreenSelector: View {
                 Spacer()
             }
             .padding(.top, -5)
-        }
-        .frame(width: 780, height:530)
-        .onReceive(timer) { t in
-            if counter == nil { return }
-            if counter! <= 1 { counter = nil; startRecording(); return }
-            if t.timeIntervalSince1970 - start.timeIntervalSince1970 >= 1 { counter! -= 1; start = Date.now }
-        }
+        }.frame(width: 780, height:530)
     }
     
     func startRecording() {
-        //if let w = NSApplication.shared.windows.first(where: { $0.title == "Screen Selector".local }) { w.close() }
         appDelegate.closeAllWindow()
         if let screen = selected {
-            SCContext.autoStop = autoStop
-            appDelegate.prepRecord(type: "display", screens: screen, windows: nil, applications: nil)
+            appDelegate.createCountdownPanel(screen: screen) {
+                SCContext.autoStop = autoStop
+                appDelegate.prepRecord(type: "display", screens: screen, windows: nil, applications: nil)
+            }
         }
     }
 }

@@ -176,6 +176,48 @@ struct ContentView: View {
     }
 }
 
+struct CountdownView: View {
+    @State var countdownValue: Int = 00
+    @State private var timer: Timer?
+    var atEnd: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color("mypurple")
+            Text("\(countdownValue)")
+                .font(.system(size: 72))
+                .foregroundColor(.white)
+                .offset(y: -10)
+            Button(action: {
+                timer?.invalidate()
+                if let w = NSApp.windows.first(where: { $0.title == "Countdown Panel".local }) { w.close() }
+            }, label: {
+                ZStack {
+                    Color.white.opacity(0.2)
+                    Text("Cancel").foregroundColor(.white)
+                }.frame(width: 120, height: 24)
+            })
+            .buttonStyle(.plain)
+            .padding(.top, 96)
+        }
+        .frame(width: 120, height: 120)
+        .cornerRadius(10)
+        .onAppear{
+            timer?.invalidate()
+            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+                if countdownValue > 1 {
+                    countdownValue -= 1
+                } else {
+                    timer.invalidate()
+                    if let w = NSApp.windows.first(where: { $0.title == "Countdown Panel".local }) { w.close() }
+                    atEnd()
+                }
+            }
+        }
+    }
+}
+
+
 extension AppDelegate {
     
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
@@ -211,6 +253,23 @@ extension AppDelegate {
             areaPanel.isMovableByWindowBackground = true
             //areaPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
             areaPanel.makeKeyAndOrderFront(self)
+        }
+    }
+    
+    func createCountdownPanel(screen: SCDisplay, action: @escaping () -> Void) {
+        guard let screen = screen.nsScreen else { return }
+        let countdown = ud.integer(forKey: "countdown")
+        if countdown == 0 {
+            action()
+        } else {
+            let wX = (screen.frame.width - 120) / 2 + screen.frame.minX
+            let wY = (screen.frame.height - 120) / 2 + screen.frame.minY
+            let frame =  NSRect(x: wX, y: wY, width: 120, height: 120)
+            let contentView = NSHostingView(rootView: CountdownView(countdownValue: countdown, atEnd: action))
+            contentView.frame = frame
+            countdownPanel.contentView = contentView
+            countdownPanel.setFrame(frame, display: true)
+            countdownPanel.makeKeyAndOrderFront(self)
         }
     }
     
