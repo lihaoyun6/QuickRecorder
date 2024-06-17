@@ -53,7 +53,7 @@
                   <li><b>If macOS asks for permission again, delete it in Preferences and add it again!</b></li>
                   </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="260"/>
             ]]></description>
-            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.4/QuickRecorder_v1.3.4.dmg" length="3314653" type="application/octet-stream" sparkle:edSignature="UylcfIV2cbFZjxG+TEvFSF2BCqDN34bNDBHKEREef140E2CN5LnPn6gY4XXbYb2f/COLdVOFhycOpOxcIwQDBg=="/>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.4/QuickRecorder_v1.3.4.dmg" length="3315885" type="application/octet-stream" sparkle:edSignature="+ftKXND7RwbgkiECne11Lv3Q4LYhJZUJU776EKSS1tWNh3ROIrp8meOImXWr1DtSwiDdPI3mKHoFZDWd4Ei6Dw=="/>
         </item>
         <item>
             <title>v1.3.3</title>
@@ -72,7 +72,7 @@
                   <li>Allow users to specify the size of the recording area</li>
                   </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="270"/>
             ]]></description>
-            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.3/QuickRecorder_v1.3.3.dmg" length="3309476" type="application/octet-stream" sparkle:edSignature="M4JBvdnkBJT8+74lZ4jwHwVV+4saF0r1+73HoEwbPRN91NWYUi6lKJx3fI5zt8zmRI8Wl9C8T1NZQMVkM5zXDQ=="/>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.3/QuickRecorder_v1.3.3.dmg" length="3336034" type="application/octet-stream" sparkle:edSignature="meU+IQhYRmnKo3loubJH1VaLigvwdWGcP6XBlfJFGsWuoTJ2vjXPw0oeGDLqhLPCXbt7DJg7qOd6QAIct5fXCw=="/>
         </item>
         <item>
             <title>v1.3.1</title>
