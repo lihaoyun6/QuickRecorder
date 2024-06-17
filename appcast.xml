@@ -15,7 +15,7 @@
                   </ul><ul>
                   <li>Fixed: Crash when recording screen area</li>
                   <li>Added countdown dialog, which can be interrupted at any time</li>
-                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
             ]]></description>
             <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.6/QuickRecorder_v1.3.6.dmg" length="2251796" type="application/octet-stream" sparkle:edSignature="jlvXUn+TuLLX2AyGHEbqQcAtNkcTDdO4/wHNzRUS0D4XaCG4rYZWY0BZg86eN+cv/5j4x92lk3eHFDExsB8iCw=="/>
         </item>
