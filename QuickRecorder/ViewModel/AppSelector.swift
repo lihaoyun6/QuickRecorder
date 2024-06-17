@@ -32,12 +32,11 @@ struct AppSelector: View {
     var body: some View {
         ZStack {
             VStack(spacing: 15) {
-                /*if #available(macOS 15, *) {
+                if #available(macOS 15, *) {
                     Text("Please select the App(s) to record").offset(y: 8)
                 } else {
                     Text("Please select the App(s) to record")
-                }*/
-                Text("Please select the App(s) to record")
+                }
                 TabView(selection: $selectedTab) {
                     let allApps = viewModel.allApps.sorted(by: { $0.key.displayID < $1.key.displayID })
                     ForEach(allApps, id: \.key) { element in
