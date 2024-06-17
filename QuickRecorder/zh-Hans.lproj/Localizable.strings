@@ -30,7 +30,7 @@
 "Please select the screen to record" = "请选择需要录制的屏幕, 仅支持单选";
 "Refresh" = "刷新列表";
 "Start" = "开始录制";
-"Resolution" = "分辨率";
+"Resolution" = "清晰度";
 "Frame Rate" = "帧速率";
 "Auto" = "自动";
 "High (auto)" = "高 (自动)";
@@ -59,7 +59,7 @@
 "White" = "纯白色";
 "Orange" = "系统橙色";
 "Custom" = "用户预设";
-"Area Size" = "选区尺寸";
+"Area Size:" = "选区尺寸:";
 "Output Size:" = "输出尺寸:";
 "Audio Settings" = "音频设置";
 "Video Settings" = "视频设置";
@@ -148,6 +148,8 @@
 "Show Windows with No Title" = "显示无标题窗口";
 "Don't Create Thumbnails" = "不生成缩略图";
 "Record HDR" = "录制HDR格式";
+"Resize" = "编辑选区";
+"Back" = "返回";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

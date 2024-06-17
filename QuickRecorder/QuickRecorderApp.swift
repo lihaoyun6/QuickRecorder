@@ -18,7 +18,6 @@ import Sparkle
 
 var isMacOS12 = true
 var isMacOS14 = false
-var isMacOS15 = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -73,7 +72,7 @@ struct QuickRecorderApp: App {
         for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
             w.level = .floating
             w.styleMask = [.fullSizeContentView]
-            w.hasShadow = false
+            //w.hasShadow = false
             w.isRestorable = false
             w.isMovableByWindowBackground = true
             w.standardWindowButton(.closeButton)?.isHidden = true
@@ -104,6 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var filter: SCContentFilter?
     var isCameraReady = false
     var isPresenterON = false
+    var isResizing = false
     var presenterType = "OFF"
     //var lastTime = CMTime(value: 0, timescale: 600)
     
@@ -230,7 +230,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         
         if #available(macOS 13, *) { isMacOS12 = false }
         if #available(macOS 14, *) { isMacOS14 = true }
-        if #available(macOS 15, *) { isMacOS15 = true }
         
         //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         

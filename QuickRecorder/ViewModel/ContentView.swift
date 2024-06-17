@@ -24,7 +24,7 @@ struct ContentView: View {
                     Color.clear
                         .background(.ultraThinMaterial)
                         .environment(\.controlActiveState, .active)
-                        .cornerRadius(13.1)
+                        .cornerRadius(14)
                     //.environment(\.colorScheme, .dark)
                 }
                 HStack {
@@ -140,10 +140,10 @@ struct ContentView: View {
                 }
             }
         }
-        .overlay(
+        /*.overlay(
             RoundedRectangle(cornerRadius: 13, style: .continuous)
                 .strokeBorder(.secondary.opacity(fromStatusBar ? 0.0 : 0.4), lineWidth: isMacOS14 ? 1.5 : 0.0)
-        )
+        )*/
     }
     
     struct SelectorView: View {
@@ -183,7 +183,7 @@ struct CountdownView: View {
 
     var body: some View {
         ZStack {
-            Color("mypurple")
+            Color("mypurple").environment(\.colorScheme, .dark)
             Text("\(countdownValue)")
                 .font(.system(size: 72))
                 .foregroundColor(.white)
@@ -229,7 +229,6 @@ extension AppDelegate {
         guard let screen = scDisplay.nsScreen else { return }
         let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false, size: size, force: noPanel)
         screenshotWindow.title = "Area Selector".local
-        //screenshotWindow.isReleasedWhenClosed = true
         screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
         if !noPanel {
@@ -242,9 +241,6 @@ extension AppDelegate {
             areaPanel.setFrame(contentView.frame, display: true)
             areaPanel.level = .screenSaver
             areaPanel.title = "Start Recording".local
-            areaPanel.standardWindowButton(.closeButton)?.isHidden = true
-            areaPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
-            areaPanel.standardWindowButton(.zoomButton)?.isHidden = true
             areaPanel.contentView = contentView
             areaPanel.backgroundColor = .clear
             areaPanel.titleVisibility = .hidden

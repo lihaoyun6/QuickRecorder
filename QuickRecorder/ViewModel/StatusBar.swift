@@ -115,8 +115,9 @@ struct StatusBarItem: View {
                 }, label: {
                     ZStack {
                         Color.white.opacity(0.0001)
-                        Image(systemName: "record.circle")
-                            .font(.system(size: 16))
+                        Image(systemName: "dot.circle.and.hand.point.up.left.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .offset(y: 1)
                     }
                 })
                 .buttonStyle(.plain)
