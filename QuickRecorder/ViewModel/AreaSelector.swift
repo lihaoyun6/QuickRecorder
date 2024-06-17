@@ -529,7 +529,7 @@ class ScreenshotWindow: NSWindow {
         let overlayView = ScreenshotOverlayView(frame: contentRect, size:size, force: force)
         super.init(contentRect: contentRect, styleMask: style, backing: bufferingType, defer: flag)
         self.isOpaque = false
-        //self.level = .statusBar
+        self.level = .statusBar
         self.backgroundColor = NSColor.clear
         self.collectionBehavior = [.canJoinAllSpaces, .fullScreenPrimary]
         self.isReleasedWhenClosed = false

@@ -237,7 +237,7 @@ extension AppDelegate {
             let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
             contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 110)
             contentView.focusRingType = .none
-            let areaPanel = NNSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+            let areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
             areaPanel.setFrame(contentView.frame, display: true)
             areaPanel.level = .screenSaver
             areaPanel.title = "Start Recording".local
@@ -248,7 +248,7 @@ extension AppDelegate {
             areaPanel.titlebarAppearsTransparent = true
             areaPanel.isMovableByWindowBackground = true
             //areaPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
-            areaPanel.makeKeyAndOrderFront(self)
+            areaPanel.orderFront(self)
         }
     }
     
