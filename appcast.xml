@@ -3,6 +3,27 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.3.8</title>
+            <pubDate>Wed, 19 Jun 2024 15:24:50 +0800</pubDate>
+            <sparkle:version>138</sparkle:version>
+            <sparkle:shortVersionString>1.3.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了音频录制异常和视频画面偏色的问题</li>
+                  <li>修复了某些情况下暂停录制可能导致文件保存失败的问题</li>
+                  <li>修复了低分辨率录制的时候码率偏低导致画面模糊的问题</li>
+                  <li><b>对于近期由于证书过期和适配 macOS 15 过程中产生的 bug 跟大家说声抱歉</b></li>
+                  </ul><ul>
+                  <li>Fixed: Distorted audio and color cast of video output</li>
+                  <li>Fixed: Pausing recording sometimes corrupts output file</li>
+                  <li>Fixed: Blurry video when recording at low resolution</li>
+                  <li><b>Sorry about created tons of bugs when adapt my app for macOS 15</b></li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="200"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.3.8/QuickRecorder_v1.3.8.dmg" length="3236184" type="application/octet-stream" sparkle:edSignature="hNzs6BsfdGubVVFgEsDEEdRNulqIymSqBbt3rUpC/PGL1doHDfoOJYlaV7Gs9hSoNgyG3bFu9nsKFQj3A2jxBQ=="/>
+        </item>
+        <item>
             <title>v1.3.7</title>
             <pubDate>Mon, 17 Jun 2024 18:22:24 +0800</pubDate>
             <sparkle:version>137</sparkle:version>
