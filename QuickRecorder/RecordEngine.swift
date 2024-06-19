@@ -110,8 +110,11 @@ extension AppDelegate {
         SCContext.isPaused = false
         SCContext.isResume = false
         
+        let recordHDR = ud.bool(forKey: "recordHDR")
+        let encoderIsH265 = (ud.string(forKey: "encoder") == Encoder.h265.rawValue) || recordHDR
+        
         let conf: SCStreamConfiguration
-        if ud.bool(forKey: "recordHDR") {
+        if recordHDR {
             if #available(macOS 15, *) {
                 conf = SCStreamConfiguration(preset: .captureHDRStreamLocalDisplay)
             } else { conf = SCStreamConfiguration() }
@@ -149,8 +152,17 @@ extension AppDelegate {
             }*/
             conf.showsCursor = ud.bool(forKey: "showMouse") || fastStart
             if ud.string(forKey: "background") != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
-            if let colorSpace = SCContext.getColorSpace(), !ud.bool(forKey: "recordHDR") { conf.colorSpaceName = colorSpace }
-            if ud.bool(forKey: "withAlpha") && !ud.bool(forKey: "recordHDR") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+            if !recordHDR {
+                if encoderIsH265 {
+                    conf.pixelFormat = kCVPixelFormatType_ARGB2101010LEPacked
+                    conf.colorSpaceName = CGColorSpace.displayP3
+                } else {
+                    conf.pixelFormat = kCVPixelFormatType_32BGRA
+                    conf.colorSpaceName = CGColorSpace.sRGB
+                }
+                if ud.bool(forKey: "withAlpha") { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+            }
+            //if let colorSpace = SCContext.getColorSpace(), !ud.bool(forKey: "recordHDR") { conf.colorSpaceName = colorSpace }
         }
         
         if #available(macOS 13, *) {
@@ -239,20 +251,36 @@ extension AppDelegate {
             SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
         }
         SCContext.vW = try? AVAssetWriter.init(outputURL: URL(fileURLWithPath: SCContext.filePath), fileType: fileType!)
-        let encoderIsH265 = ud.string(forKey: "encoder") == Encoder.h265.rawValue
+        let recordHDR = ud.bool(forKey: "recordHDR")
+        let encoderIsH265 = (ud.string(forKey: "encoder") == Encoder.h265.rawValue) || recordHDR
         let fpsMultiplier: Double = Double(ud.integer(forKey: "frameRate"))/8
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
-        let targetBitrate = (Double(conf.width) * Double(conf.height) * fpsMultiplier * encoderMultiplier * ud.double(forKey: "videoQuality"))
-        let videoSettings: [String: Any] = [
-            AVVideoCodecKey: encoderIsH265 ? ((ud.bool(forKey: "withAlpha") && !ud.bool(forKey: "recordHDR")) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
+        let targetBitrate = (Double(max(600, conf.width)) * Double(max(600, conf.height)) * fpsMultiplier * encoderMultiplier * ud.double(forKey: "videoQuality"))
+        var videoSettings: [String: Any] = [
+            AVVideoCodecKey: encoderIsH265 ? ((ud.bool(forKey: "withAlpha") && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
             AVVideoWidthKey: conf.width,
             AVVideoHeightKey: conf.height,
             AVVideoCompressionPropertiesKey: [
-                AVVideoAverageBitRateKey: Int(targetBitrate),
+                AVVideoAverageBitRateKey: max(200000, Int(targetBitrate)),
                 AVVideoExpectedSourceFrameRateKey: ud.integer(forKey: "frameRate")
             ] as [String : Any]
         ]
+        
+        if encoderIsH265 {
+            if !recordHDR {
+                videoSettings[AVVideoColorPropertiesKey] = [
+                    AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
+                    AVVideoColorPrimariesKey: AVVideoColorPrimaries_P3_D65,
+                    AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2 ] as [String : Any]
+            }
+        } else {
+            videoSettings[AVVideoColorPropertiesKey] = [
+                AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
+                AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
+                AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2 ] as [String : Any]
+        }
+        
         
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
         //SCContext.vwInputAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: SCContext.vwInput, sourcePixelBufferAttributes: videoSettings)
@@ -350,7 +378,7 @@ extension AppDelegate {
             var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
             let dur = CMSampleBufferGetDuration(SampleBuffer)
             if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
-            if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
+            if frameQueue.getArray().contains(where: { $0 >= pts }) { print("Skip this frame"); return } else { frameQueue.append(pts) }
             SCContext.lastPTS = pts
             if SCContext.vwInput.isReadyForMoreMediaData {
                 if #available(macOS 14.2, *) {
@@ -380,13 +408,8 @@ extension AppDelegate {
                 guard let samples = SampleBuffer.asPCMBuffer else { return }
                 do { try SCContext.audioFile?.write(from: samples) }
                 catch { assertionFailure("audio file writing issue".local) }
-            } else { // otherwise send the audio data to AVAssetWriter
-                if (SCContext.timeOffset.value > 0) { SampleBuffer = SCContext.adjustTime(sample: SampleBuffer, by: SCContext.timeOffset) ?? sampleBuffer }
-                var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
-                let dur = CMSampleBufferGetDuration(SampleBuffer)
-                if (dur.value > 0) { pts = CMTimeAdd(pts, dur) }
-                if let lastPTS = SCContext.lastPTS { if !(pts > lastPTS) { return } }
-                SCContext.lastPTS = pts
+            } else {
+                if SCContext.lastPTS == nil { return }
                 if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
             }
         case .microphone:

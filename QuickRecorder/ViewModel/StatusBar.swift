@@ -148,10 +148,10 @@ extension AppDelegate: NSMenuDelegate {
             guard let button = statusBarItem.button else { return }
             var width = 158
             switch SCContext.streamType {
-            case nil: width = 36
-            case .idevice: width = 138
-            case .systemaudio: width = 94
-            default: width = 158
+                case nil: width = 36
+                case .idevice: width = 138
+                case .systemaudio: width = 94
+                default: width = 158
             }
             //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)
             let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, isMacOS14 ? -2 : -1))

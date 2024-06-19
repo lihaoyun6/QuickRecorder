@@ -27,7 +27,6 @@ class SCContext {
     static var isResume = false
     static var isSkipFrame = false
     static var lastPTS: CMTime?
-    static var lsatPts: CMTime?
     static var timeOffset = CMTimeMake(value: 0, timescale: 0)
     static var screenArea: NSRect?
     static let audioEngine = AVAudioEngine()
@@ -136,7 +135,7 @@ class SCContext {
         return nil
     }
     
-    static func getColorSpace() -> CFString? {
+    /*static func getColorSpace() -> CFString? {
         switch ud.string(forKey: "colorSpace") {
         case ColSpace.srgb.rawValue: return CGColorSpace.sRGB
         case ColSpace.bt709.rawValue: return CGColorSpace.itur_709
@@ -146,7 +145,7 @@ class SCContext {
         }
     }
     
-    /*static func getPixelFormat() -> OSType? {
+    static func getPixelFormat() -> OSType? {
         switch ud.string(forKey: "pixelFormat") {
         case PixFormat.bgra32.rawValue: return kCVPixelFormatType_32BGRA
         case PixFormat.yuv420p8v.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
@@ -287,6 +286,7 @@ class SCContext {
     static func stopRecording() {
         //statusBarItem.isVisible = false
         autoStop = 0
+        lastPTS = nil
         recordCam = ""
         recordDevice = ""
         isMagnifierEnabled = false
@@ -314,7 +314,8 @@ class SCContext {
                 startTime = nil
                 if vW.status != .completed {
                     print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
-                    showNotification(title: "Failed to save file".local, body: "\(String(describing: vW.error?.localizedDescription))", id: "quickrecorder.error.\(Date.now)")
+                    let err = vW.error?.localizedDescription ?? "Unknow Error"
+                    showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(Date.now)")
                 } else {
                     if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
                         mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in

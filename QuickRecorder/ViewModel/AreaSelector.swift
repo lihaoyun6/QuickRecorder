@@ -289,20 +289,20 @@ struct AreaSelector: View {
     func startRecording() {
         appDelegate.closeAllWindow()
         appDelegate.stopGlobalMouseMonitor()
+        var window = NSWindow()
+        let area = SCContext.screenArea!
+        guard let nsScreen = screen.nsScreen else { return }
+        let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 5), y: Int(area.origin.y + nsScreen.frame.minY - 5), width: Int(area.width + 10), height: Int(area.height + 10))
+        window = NSWindow(contentRect: frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+        window.hasShadow = false
+        window.level = .screenSaver
+        window.ignoresMouseEvents = true
+        window.isReleasedWhenClosed = false
+        window.title = "Area Overlayer".local
+        window.backgroundColor = NSColor.clear
+        window.contentView = NSHostingView(rootView: DashWindow())
+        window.orderFront(self)
         appDelegate.createCountdownPanel(screen: screen) {
-            var window = NSWindow()
-            let area = SCContext.screenArea!
-            guard let nsScreen = screen.nsScreen else { return }
-            let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 5), y: Int(area.origin.y + nsScreen.frame.minY - 5), width: Int(area.width + 10), height: Int(area.height + 10))
-            window = NSWindow(contentRect: frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
-            window.hasShadow = false
-            window.level = .screenSaver
-            window.ignoresMouseEvents = true
-            window.isReleasedWhenClosed = false
-            window.title = "Area Overlayer".local
-            window.backgroundColor = NSColor.clear
-            window.contentView = NSHostingView(rootView: DashWindow())
-            window.orderFront(self)
             SCContext.autoStop = autoStop
             appDelegate.prepRecord(type: "area", screens: screen, windows: nil, applications: nil)
         }

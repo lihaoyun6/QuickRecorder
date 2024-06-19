@@ -150,6 +150,7 @@
 "Record HDR" = "录制HDR格式";
 "Resize" = "编辑选区";
 "Back" = "返回";
+"Unknow Error" = "未知错误";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

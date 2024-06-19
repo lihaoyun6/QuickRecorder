@@ -183,14 +183,17 @@ struct CountdownView: View {
 
     var body: some View {
         ZStack {
-            Color("mypurple").environment(\.colorScheme, .dark)
+            Color.mypurple.environment(\.colorScheme, .dark)
             Text("\(countdownValue)")
                 .font(.system(size: 72))
                 .foregroundColor(.white)
                 .offset(y: -10)
             Button(action: {
                 timer?.invalidate()
-                if let w = NSApp.windows.first(where: { $0.title == "Countdown Panel".local }) { w.close() }
+                for w in NSApp.windows.filter({
+                    $0.title == "Countdown Panel".local ||
+                    $0.title == "Area Overlayer".local
+                }) { w.close() }
             }, label: {
                 ZStack {
                     Color.white.opacity(0.2)

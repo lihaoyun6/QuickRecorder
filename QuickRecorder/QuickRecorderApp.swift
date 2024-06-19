@@ -105,6 +105,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isPresenterON = false
     var isResizing = false
     var presenterType = "OFF"
+    var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
     //var lastTime = CMTime(value: 0, timescale: 600)
     
     func mousePointerReLocation(event: NSEvent) {
@@ -190,7 +191,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "countdown": 0,
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "pixelFormat": PixFormat.delault.rawValue,
-                "colorSpace": ColSpace.srgb.rawValue,
+                //"colorSpace": ColSpace.srgb.rawValue,
                 "encoder": Encoder.h264.rawValue,
                 "poSafeDelay": 1,
                 "saveDirectory": userDesktop as NSString,
@@ -323,7 +324,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 }
             }
         }
-        
         updateStatusBar()
     }
     
@@ -428,6 +428,26 @@ extension NSImage {
 class NNSWindow: NSWindow {
     override var canBecomeKey: Bool {
         return true
+    }
+}
+
+struct FixedLengthArray<T> {
+    private var array: [T] = []
+    private let maxLength: Int
+
+    init(maxLength: Int) {
+        self.maxLength = maxLength
+    }
+
+    mutating func append(_ element: T) {
+        if array.count >= maxLength {
+            array.removeFirst()
+        }
+        array.append(element)
+    }
+
+    func getArray() -> [T] {
+        return array
     }
 }
 

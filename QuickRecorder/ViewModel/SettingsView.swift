@@ -20,7 +20,7 @@ struct SettingsView: View {
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
     @AppStorage("pixelFormat")      private var pixelFormat: PixFormat = .delault
-    @AppStorage("colorSpace")       private var colorSpace: ColSpace = .delault
+    //@AppStorage("colorSpace")       private var colorSpace: ColSpace = .delault
     @AppStorage("background")       private var background: BackgroundType = .wallpaper
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
     @AppStorage("countdown")        private var countdown: Int = 0
@@ -42,13 +42,13 @@ struct SettingsView: View {
                 VStack(alignment: .leading) {
                     GroupBox(label: Text("Video Settings".local).fontWeight(.bold)) {
                         Form() {
-                            Picker("Color Space", selection: $colorSpace) {
+                            /*Picker("Color Space", selection: $colorSpace) {
                                 Text("Default").tag(ColSpace.delault)
                                 Text("sRGB").tag(ColSpace.srgb)
                                 Text("BT.709").tag(ColSpace.bt709)
                                 Text("BT.2020").tag(ColSpace.bt2020)
                                 Text("Display P3").tag(ColSpace.p3)
-                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)
+                            }.padding([.leading, .trailing], 10).padding(.bottom, 6)*/
                             Picker("Format", selection: $videoFormat) {
                                 Text("MOV").tag(VideoFormat.mov)
                                 Text("MP4").tag(VideoFormat.mp4)
@@ -56,8 +56,8 @@ struct SettingsView: View {
                             .padding([.leading, .trailing], 10).padding(.bottom, 6)
                             .disabled(withAlpha)
                             Picker("Encoder", selection: $encoder) {
-                                Text("H.264").tag(Encoder.h264)
-                                Text("H.265").tag(Encoder.h265)
+                                Text("H.264 + sRGB").tag(Encoder.h264)
+                                Text("H.265 + P3").tag(Encoder.h265)
                             }
                             .padding([.leading, .trailing], 10)
                             .disabled(withAlpha)
@@ -69,7 +69,7 @@ struct SettingsView: View {
                                 } else {
                                     if background == .clear { background = .wallpaper }
                                 }}
-                            .padding([.leading, .trailing, .bottom], 10)
+                            .padding([.leading, .trailing, .bottom], 10).padding(.top, 3.5)
                             .toggleStyle(.checkbox)
                     }//.padding(.bottom, 7)
                     GroupBox(label: Text("Audio Settings".local).fontWeight(.bold)) {
@@ -96,11 +96,11 @@ struct SettingsView: View {
                         /*Text("Opus doesn't support MP4, it will fall back to AAC")
                             .font(.footnote).foregroundColor(Color.gray).padding([.leading, .trailing], 6).fixedSize(horizontal: false, vertical: true)*/
                         Toggle(isOn: $remuxAudio) { Text("Record Microphone to Main Track") }
-                            .padding([.leading, .trailing], 10)
+                            .padding([.leading, .trailing], 10).padding(.top, 5)
                             .toggleStyle(.checkbox)
                             .disabled(isMacOS12)
                         Toggle(isOn: $enableAEC) { Text("Enable Acoustic Echo Cancellation") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 9)
+                            .padding([.leading, .trailing,.bottom], 10).padding(.top, 4)
                             .toggleStyle(.checkbox)
                     }
                 }.frame(width: 270)
@@ -123,18 +123,16 @@ struct SettingsView: View {
                             .disabled(!isMacOS14)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
                         ColorPicker("Set custom background color:", selection: $userColor)
-                            .padding([.leading, .trailing], 10).padding(.bottom, 2.5)
-                            .onChange(of: userColor) { userColor in
-                                ud.setColor(userColor, forKey: "userColor")
-                            }
+                            .padding([.leading, .trailing], 10)
+                            .onChange(of: userColor) { userColor in ud.setColor(userColor, forKey: "userColor") }
                         Toggle(isOn: $trimAfterRecord) { Text("Open video trimmer after recording") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 5)
+                            .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)
                         Toggle(isOn: $hideSelf) { Text("Exclude QuickRecorder itself") }
-                            .padding([.leading, .trailing], 10).padding(.bottom, 5)
+                            .padding([.leading, .trailing], 10)
                             .toggleStyle(.checkbox)
                         Toggle(isOn: $includeMenuBar) { Text("Include MenuBar in Recording") }
-                             .padding([.leading, .trailing], 10).padding(.bottom, 5)
+                             .padding([.leading, .trailing], 10)
                              .toggleStyle(.checkbox)
                              .disabled(isMacOS12)
                         Toggle(isOn: $highlightMouse) { Text("Highlight the Mouse Cursor") }
