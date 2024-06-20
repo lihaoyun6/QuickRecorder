@@ -166,7 +166,7 @@ extension AppDelegate {
         }
         
         if #available(macOS 13, *) {
-            conf.capturesAudio = ud.bool(forKey: "recordWinSound") || fastStart
+            conf.capturesAudio = ud.bool(forKey: "recordWinSound") || fastStart || audioOnly
             conf.sampleRate = SCContext.audioSettings["AVSampleRateKey"] as! Int
             conf.channelCount = SCContext.audioSettings["AVNumberOfChannelsKey"] as! Int
         }
@@ -255,7 +255,14 @@ extension AppDelegate {
         let encoderIsH265 = (ud.string(forKey: "encoder") == Encoder.h265.rawValue) || recordHDR
         let fpsMultiplier: Double = Double(ud.integer(forKey: "frameRate"))/8
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
-        let targetBitrate = (Double(max(600, conf.width)) * Double(max(600, conf.height)) * fpsMultiplier * encoderMultiplier * ud.double(forKey: "videoQuality"))
+        let resolution = Double(max(600, conf.width)) * Double(max(600, conf.height))
+        var qualityMultiplier = 1 - (log10(sqrt(resolution) * fpsMultiplier) / 5)
+        switch ud.double(forKey: "videoQuality") {
+            case 0.3: qualityMultiplier = max(0.1, qualityMultiplier)
+            case 0.7: qualityMultiplier = max(0.4, min(0.6, qualityMultiplier * 3))
+            default: qualityMultiplier = 1.0
+        }
+        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((ud.bool(forKey: "withAlpha") && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
