@@ -313,8 +313,13 @@ extension AppDelegate {
                 try? input.setVoiceProcessingEnabled(true)
                 if #available(macOS 14, *) { input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min }
             }
-            input.installTap(onBus: 0, bufferSize: 1024, format: input.inputFormat(forBus: 0)) {buffer, time in
+            let inputFormat = input.inputFormat(forBus: 0)
+            let monoFormat = AVAudioFormat(commonFormat: inputFormat.commonFormat,
+                                           sampleRate: inputFormat.sampleRate,
+                                           channels: 1, interleaved: inputFormat.isInterleaved) ?? inputFormat
+            input.installTap(onBus: 0, bufferSize: 1024, format: monoFormat) {buffer, time in
                 if SCContext.micInput.isReadyForMoreMediaData && SCContext.startTime != nil {
+                    if SCContext.isPaused { return }
                     SCContext.micInput.append(buffer.asSampleBuffer!)
                 }
             }
