@@ -3,6 +3,29 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.0</title>
+            <pubDate>Sat, 22 Jun 2024 00:14:33 +0800</pubDate>
+            <sparkle:version>140</sparkle:version>
+            <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style>
+                  <b>对于近期由于证书过期和适配 macOS 15 过程中产生的 bug 跟大家说声抱歉</b><ul>
+                  <li>修复了暂停录制时麦克风输入没有被暂停的问题</li>
+                  <li>修复了启用"降低麦克风串扰"时麦克风变成单声道的问题</li>
+                  </ul>
+                  <b>Sorry about created tons of bugs when adapt my app for macOS 15</b><ul>
+                  <li>Fixed: Microphone input cannot be paused</li>
+                  <li>Fixed: Microphone becomes mono when ANC is enabled</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.0/QuickRecorder_v1.4.0.dmg" length="3183953" type="application/octet-stream" sparkle:edSignature="0S/W/u75Cjfk+kfzxp0TSP2HO/AG2b6PTHgUQM5tyPPdWXlYJWtXA8yVTXItnCO4sqoLIkLyzacIBseaXkesBg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.0/Update140-139.delta" sparkle:deltaFrom="139" length="106938" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="h08wQrPKuODNRScEjBr7OalQq+ezniMutzcak28C945u7N7GC5KvrqBm71Bqn6LTiWHCWd6E8DlDvt+HN6TQAQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.0/Update140-138.delta" sparkle:deltaFrom="138" length="300510" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="BRJHYnOkNBxLiZ0oC+EGDea41GAWkd+U/u+wlbrs5cwrJMYIgoMrN2NzN6APsq7Pr6xZwYOuGIXmSHtcdBslAg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.3.9</title>
             <pubDate>Fri, 21 Jun 2024 02:00:38 +0800</pubDate>
             <sparkle:version>139</sparkle:version>
