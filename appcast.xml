@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.1</title>
+            <pubDate>Mon, 01 Jul 2024 23:24:09 +0800</pubDate>
+            <sparkle:version>141</sparkle:version>
+            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>允许用户在"仅录音"的情况下同时录制系统声音和麦克风</li>
+                  <li>添加了新的".qma"文件容器格式用于保存多轨录音</li>
+                  <li>添加了麦克风选择功能, 可以从指定麦克风录制声音</li>
+                  </ul><ul>
+                  <li>Allow users to record both system sound and microphone.</li>
+                  <li>Added new ".qma" file format for saving multi-track recordings.</li>
+                  <li>Added new "microphone selection" feature.</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.1/QuickRecorder_v1.4.1.dmg" length="4065092" type="application/octet-stream" sparkle:edSignature="+oDj2eJiZPsk5a97V4EmHK/Uf2TlTIHFdE3poA5aprRBYcYXFHBqvkQwsnxWlbq9D1oZG1FmtPiiIseHm7pLAg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.1/Update141-140.delta" sparkle:deltaFrom="140" length="1288754" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="f1CODF4n9bYvBN9g0bg0EbRSZCAcB+9FTj4HAI+daoFrhJMHPHRNUwiLRCrR8LC3dqO6tjPNyGa3lXIhknb4AA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.1/Update141-139.delta" sparkle:deltaFrom="139" length="1289602" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="POyiCbiZfFghHhPlhNTMG87Uafmj1wgVi7Yb5L0phLNEuTSl4PZknOP1CdXoEysrwNT9okZ0j8lbgHTXRAVEDA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.1/Update141-138.delta" sparkle:deltaFrom="138" length="1312790" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="YkQPBup/+TirVVRWRejaiZnScvPFgDxThkv/M5TPAFLUWPs/uh6Xdsg4gdNvb2MXzZrtKUft3fPXaeyeS5dsDA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.0</title>
             <pubDate>Sat, 22 Jun 2024 00:14:33 +0800</pubDate>
             <sparkle:version>140</sparkle:version>
