@@ -124,7 +124,7 @@
 "If you are on a call, enable \"Mute\"" = "如需通话时录屏请启用\"静音\"";
 "Preset" = "预设";
 "Mute" = "静音";
-"Default" = "默认";
+"Default" = "系统默认";
 "Pixel Format" = "像素格式";
 "Color Space" = "色彩空间";
 "Check for Updates…" = "检查更新…";
@@ -142,7 +142,7 @@
 "Don't remind me again" = "不再提醒";
 "OK" = "好";
 "Failed to save file" = "保存文件时出错";
-"Enable Acoustic Echo Cancellation" = "降低麦克风音频串扰";
+"Enable Acoustic Echo Cancellation" = "消除麦克风回声";
 "QuickRecorder is Running" = "QuickRecorder 已在运行";
 "Please do not run multiple instances!" = "请勿重复运行多个 QuickRecorder 实例!";
 "Show Windows with No Title" = "显示无标题窗口";
@@ -151,6 +151,14 @@
 "Resize" = "编辑选区";
 "Back" = "返回";
 "Unknow Error" = "未知错误";
+"The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC." = "您已启用\"消除麦克风回声\", 但很可惜程序内自定义麦克风不支持此功能!\n\n如需在特定的麦克风上使用回音消除功能, 请将麦克风选项设为\"系统默认\", 并在系统偏好设置中选择您需要使用的输入设备.\n\n或者直接开始录制 (不使用回声消除功能)";
+"System Preferences" = "系统偏好设置";
+"Export Recording" = "导出录音";
+"Play / Pause" = "播放 / 暂停";
+"Save Changes" = "保存修改";
+"Stop Play" = "停止播放";
+"Export" = "导出";
+"Export as MP3" = "导出为 MP3";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

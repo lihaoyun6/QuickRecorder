@@ -13,7 +13,6 @@ import ScreenCaptureKit
 struct WinSelector: View {
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel = WindowSelectorViewModel()
-    @State private var altKeyPressed = false
     @State private var selected = [SCWindow]()
     @State private var display: SCDisplay!
     @State private var selectedTab = 0
@@ -24,22 +23,11 @@ struct WinSelector: View {
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
     
-    @AppStorage("frameRate")       private var frameRate: Int = 60
-    @AppStorage("videoQuality")    private var videoQuality: Double = 1.0
-    @AppStorage("saveDirectory")   private var saveDirectory: String?
-    @AppStorage("hideSelf")        private var hideSelf: Bool = false
-    @AppStorage("showMouse")       private var showMouse: Bool = true
-    @AppStorage("recordMic")       private var recordMic: Bool = false
-    @AppStorage("recordWinSound")  private var recordWinSound: Bool = true
-    @AppStorage("background")      private var background: BackgroundType = .wallpaper
-    @AppStorage("highRes")         private var highRes: Int = 2
-    @AppStorage("recordHDR")       private var recordHDR: Bool = false
-    
     var body: some View {
         ZStack {
             VStack(spacing: 15) {
                 if #available(macOS 15, *) {
-                    Text("Please select the window(s) to record").offset(y: 8)
+                    Text("Please select the window(s) to record").offset(y: 12)
                 } else {
                     Text("Please select the window(s) to record")
                 }
@@ -186,105 +174,7 @@ struct WinSelector: View {
                         .padding()
                     })
                     Spacer()
-                    VStack(spacing: 6) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Resolution")
-                                Text("Frame Rate")
-                            }
-                            VStack(alignment: .leading, spacing: 10) {
-                                Picker("", selection: $highRes) {
-                                    Text("High (auto)").tag(2)
-                                    Text("Normal (1x)").tag(1)
-                                    //Text("Low (0.5x)").tag(0)
-                                }.buttonStyle(.borderless)
-                                Picker("", selection: $frameRate) {
-                                    Text("240 FPS").tag(240)
-                                    Text("144 FPS").tag(144)
-                                    Text("120 FPS").tag(120)
-                                    Text("90 FPS").tag(90)
-                                    Text("60 FPS").tag(60)
-                                    Text("30 FPS").tag(30)
-                                    Text("24 FPS").tag(24)
-                                    Text("15 FPS").tag(15)
-                                    Text("10 FPS").tag(10)
-                                }.buttonStyle(.borderless)
-                            }.scaledToFit()
-                            Divider().frame(height: 50)
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Quality")
-                                Text("Background")
-                            }.padding(.leading, isMacOS12 ? 0 : 8)
-                            VStack(alignment: .leading, spacing: 10) {
-                                Picker("", selection: $videoQuality) {
-                                    Text("Low").tag(0.3)
-                                    Text("Medium").tag(0.7)
-                                    Text("High").tag(1.0)
-                                }.buttonStyle(.borderless)
-                                Picker("", selection: $background) {
-                                    Text("Wallpaper").tag(BackgroundType.wallpaper)
-                                    if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
-                                    Text("Black").tag(BackgroundType.black)
-                                    Text("White").tag(BackgroundType.white)
-                                    Text("Gray").tag(BackgroundType.gray)
-                                    Text("Yellow").tag(BackgroundType.yellow)
-                                    Text("Orange").tag(BackgroundType.orange)
-                                    Text("Green").tag(BackgroundType.green)
-                                    Text("Blue").tag(BackgroundType.blue)
-                                    Text("Red").tag(BackgroundType.red)
-                                    Text("Custom").tag(BackgroundType.custom)
-                                }.buttonStyle(.borderless)
-                            }.scaledToFit()
-                            Divider().frame(height: 50)
-                            VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
-                                Toggle(isOn: $showMouse) {
-                                    HStack(spacing:0){
-                                        Image(systemName: "cursorarrow").frame(width: 20)
-                                        Text("Record Cursor")
-                                    }
-                                }.toggleStyle(.checkbox)
-                                if #available(macOS 13, *) {
-                                    Toggle(isOn: $recordWinSound) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "speaker.wave.1.fill").frame(width: 20)
-                                            Text("App's Audio")
-                                        }
-                                    }.toggleStyle(.checkbox)
-                                }
-                                if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
-                                    Toggle(isOn: $recordMic) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "mic.fill").frame(width: 20)
-                                            Text("Microphone")
-                                        }
-                                    }
-                                    .toggleStyle(.checkbox)
-                                    .onChange(of: recordMic) {
-                                        Task { await SCContext.performMicCheck() }
-                                    }
-                                } else {
-                                    Toggle(isOn: $recordMic) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "mic.fill").frame(width: 20)
-                                            Text("Microphone")
-                                        }
-                                    }
-                                    .toggleStyle(.checkbox)
-                                    .onChange(of: recordMic) { _ in
-                                        Task { await SCContext.performMicCheck() }
-                                    }
-                                }
-                                if #available(macOS 15, *) {
-                                    Toggle(isOn: $recordHDR) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
-                                            Text("Record HDR")
-                                        }
-                                    }.toggleStyle(.checkbox)
-                                }
-                            }.needScale()
-                        }
-                    }
+                    OptionsView()
                     Spacer()
                     Button(action: {
                         isPopoverShowing = true

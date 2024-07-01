@@ -123,7 +123,7 @@ struct ActivityIndicator: View {
         Circle()
             .trim(from: 0.0, to: 0.85)
             .stroke(colorGradient, style: StrokeStyle(lineWidth: 3))
-            .frame(width: 20, height: 20)
+            .frame(width: 18, height: 18)
             .rotationEffect(Angle(degrees: currentDegrees))
             .onAppear {
                 Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in

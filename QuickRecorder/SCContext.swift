@@ -33,7 +33,10 @@ class SCContext {
     static var backgroundColor: CGColor = CGColor.black
     //static var recordMic = false
     static var filePath: String!
+    static var filePath1: String!
+    static var filePath2: String!
     static var audioFile: AVAudioFile?
+    static var audioFile2: AVAudioFile?
     static var vW: AVAssetWriter!
     static var vwInput, awInput, micInput: AVAssetWriterInput!
     //static var vwInputAdaptor: AVAssetWriterInputPixelBufferAdaptor!
@@ -162,9 +165,9 @@ class SCContext {
         return ud.string(forKey: "saveDirectory")! + (capture ? "/Capturing at ".local : "/Recording at ".local) + dateFormatter.string(from: Date())
     }
     
-    static func updateAudioSettings() {
+    static func updateAudioSettings(format: String = ud.string(forKey: "audioFormat") ?? "") {
         audioSettings = [AVSampleRateKey : 48000, AVNumberOfChannelsKey : 2] // reset audioSettings
-        switch ud.string(forKey: "audioFormat") {
+        switch format {
         case AudioFormat.mp3.rawValue: fallthrough
         case AudioFormat.aac.rawValue:
             audioSettings[AVFormatIDKey] = kAudioFormatMPEG4AAC
@@ -298,18 +301,18 @@ class SCContext {
         
         if stream != nil { stream.stopCapture() }
         stream = nil
+        if ud.bool(forKey: "recordMic") {
+            if streamType != .systemaudio { micInput.markAsFinished() }
+            AudioRecorder.shared.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
+            audioEngine.stop()
+            try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
+        }
         if streamType != .systemaudio {
             let dispatchGroup = DispatchGroup()
             dispatchGroup.enter()
             vwInput.markAsFinished()
             if #available(macOS 13, *) { awInput.markAsFinished() }
-            if ud.bool(forKey: "recordMic") {
-                micInput.markAsFinished()
-                //try! audioEngine.stopAudioUnit()
-                audioEngine.inputNode.removeTap(onBus: 0)
-                audioEngine.stop()
-                try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
-            }
             vW.finishWriting {
                 startTime = nil
                 if vW.status != .completed {
@@ -350,15 +353,23 @@ class SCContext {
         }
         
         audioFile = nil // close audio file
+        audioFile2 = nil // close audio file2
         if streamType == .systemaudio {
-            if ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue {
+            if ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue && !ud.bool(forKey: "recordMic") {
                 Task {
                     let outPutUrl = URL(fileURLWithPath: String(filePath.dropLast(4)) + ".mp3")
                     do {
-                        try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath), outputUrl: outPutUrl)
                         let title = "Recording Completed".local
                         let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
                         let id = "quickrecorder.completed.\(Date.now)"
+                        try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
+                        try? FileManager.default.removeItem(atPath: filePath1)
+                        /*if ud.bool(forKey: "recordMic") {
+                            let outPutUrl2 = URL(fileURLWithPath: String(filePath2.dropLast(4)) + ".mp3")
+                            try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath2), outputUrl: outPutUrl2)
+                            try? FileManager.default.removeItem(atPath: filePath2)
+                            body = String(format: "File saved to: %@".local, filePath.removingPercentEncoding!)
+                        }*/
                         showNotification(title: title, body: body, id: id)
                     } catch {
                         showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(Date.now)")
@@ -429,7 +440,7 @@ class SCContext {
     
     static func getMicrophone() -> [AVCaptureDevice] {
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone, .externalUnknown], mediaType: .audio, position: .unspecified)
-        return discoverySession.devices
+        return discoverySession.devices.filter({ !$0.localizedName.contains("CADefaultDeviceAggregate") })
     }
     
     static func getiDevice() -> [AVCaptureDevice] {

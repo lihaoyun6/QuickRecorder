@@ -11,10 +11,16 @@ import ScreenCaptureKit
 
 struct ContentView: View {
     var fromStatusBar = false
+    @State private var window: NSWindow?
     @State private var xmarkGlowing = false
     @State private var infoGlowing = false
+    @State private var micGlowing = false
     //@State private var showSettings = false
     @State private var isPopoverShowing = false
+    @State private var micList = SCContext.getMicrophone()
+    @AppStorage("enableAEC") private var enableAEC: Bool = false
+    @AppStorage("recordMic") private var recordMic: Bool = false
+    @AppStorage("micDevice") private var micDevice: String = "default"
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some View {
@@ -25,19 +31,112 @@ struct ContentView: View {
                         .background(.ultraThinMaterial)
                         .environment(\.controlActiveState, .active)
                         .cornerRadius(14)
-                    //.environment(\.colorScheme, .dark)
                 }
                 HStack {
                     Spacer()
                     if #available(macOS 13, *) {
-                        Button(action: {
-                            appDelegate.closeMainWindow()
-                            AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
-                        }, label: {
-                            SelectorView(title: "System Audio".local, symbol: "waveform")
-                                .cornerRadius(8)
-                        })
-                        .buttonStyle(.plain)
+                        ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
+                            Button(action: {
+                                appDelegate.closeMainWindow()
+                                AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                            }, label: {
+                                SelectorView(title: "System Audio".local, symbol: "waveform")
+                                    .cornerRadius(8)
+                            }).buttonStyle(.plain)
+                            Button {} label: {
+                                HStack(spacing: -2) {
+                                    Button {
+                                        recordMic.toggle()
+                                    } label: {
+                                        ZStack {
+                                            Image(systemName: "square.fill")
+                                                .font(.system(size: 15, weight: .medium))
+                                                .foregroundColor(.primary)
+                                                .colorInvert()
+                                                .opacity(0.2)
+                                            Image(systemName: recordMic ? "checkmark.square" : "square")
+                                                .font(.system(size: 16, weight: .medium))
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .onChange(of: recordMic) { _ in  Task { await SCContext.performMicCheck() }}
+                                    if micDevice != "default" && enableAEC && recordMic{
+                                        Button {
+                                            let alert = AppDelegate.shared.createAlert(
+                                                title: "Compatibility Warning".local,
+                                                message: "The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC.".local,
+                                                button1: "OK".local, button2: "System Preferences".local)
+                                            if alert.runModal() == .alertSecondButtonReturn {
+                                                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.sound?input")!)
+                                            }
+                                        } label: {
+                                            ZStack {
+                                                Image(systemName: "circle.fill").font(.system(size: 15))
+                                                Image(systemName: "exclamationmark")
+                                                    .font(.system(size: 11.5, weight: .black))
+                                                    .foregroundColor(.black)
+                                                    .blendMode(.destinationOut)
+                                            }.compositingGroup()
+                                        }
+                                        .buttonStyle(.plain)
+                                        .frame(width: 24).fixedSize()
+                                        .padding(.leading, 1)
+                                    } else {
+                                        Image(systemName: "mic.fill")
+                                            .font(.system(size: 13, weight: .bold))
+                                            .foregroundColor(recordMic ? .primary : .secondary)
+                                            .frame(width: 24)
+                                            .padding(.leading, 1)
+                                    }
+                                    if #available(macOS 14, *) {
+                                        Picker("", selection: $micDevice) {
+                                            Text("Default".local).tag("default")
+                                            ForEach(micList, id: \.self) { device in
+                                                Text(device.localizedName).tag(device.localizedName)
+                                            }
+                                        }.frame(width: 90)
+                                            .background(
+                                                ZStack {
+                                                    Color.primary
+                                                        .opacity(0.1)
+                                                        .cornerRadius(4)
+                                                        .padding([.top, .bottom], -1)
+                                                        .padding([.leading, .trailing], 3)
+                                                        .padding(.trailing, -16)
+                                                    Image(systemName: "chevron.up.chevron.down")
+                                                        .offset(x: 50)
+                                                }
+                                            )
+                                            .disabled(!recordMic)
+                                            .padding(.leading, -10)
+                                            .frame(width: 99)
+                                            .onAppear{
+                                                let list = micList.map({ $0.localizedName })
+                                                if !list.contains(micDevice) { micDevice = "default" }
+                                            }
+                                    } else {
+                                        Spacer().frame(width: 6)
+                                        Picker("", selection: $micDevice) {
+                                            Text("Default".local).tag("default")
+                                            ForEach(micList, id: \.self) { device in
+                                                Text(device.localizedName).tag(device.localizedName)
+                                            }
+                                        }
+                                        .disabled(!recordMic)
+                                        .padding(.leading, -7.5)
+                                        .frame(width: 100)
+                                        .onAppear{
+                                            let list = micList.map({ $0.localizedName })
+                                            if !list.contains(micDevice) { micDevice = "default" }
+                                        }
+                                    }
+                                }.padding(.leading, -5)
+                            }.buttonStyle(.plain)
+                            .scaleEffect(0.69)
+                            .padding(.bottom, 4)
+                            .frame(width: 110)
+                            .background(.primary.opacity(0.00001))
+                        }
                         Divider().frame(height: 70)
                     }
                     Button(action: {
@@ -93,6 +192,14 @@ struct ContentView: View {
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
                         .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView(closePopover: { isPopoverShowing = false })}
+                    
+                    /*Divider().frame(height: 70)
+                    Button(action: {
+                        
+                    }, label: {
+                        SelectorView(title: "Tools".local, symbol: "wrench.and.screwdriver")
+                            .cornerRadius(8)
+                    }).buttonStyle(.plain)*/
                     Divider().frame(height: 70)
                     Button(action: {
                         appDelegate.closeMainWindow()
@@ -125,25 +232,19 @@ struct ContentView: View {
                 .buttonStyle(.plain)
                 .padding([.leading, .top], 6.5)
             } else {
-                if #available(macOS 14, *) {
-                    Button(action: {
-                        appDelegate.closeMainWindow()
-                    }, label: {
-                        Image(systemName: "x.circle")
-                            .font(.system(size: 12, weight: .bold))
-                            .opacity(xmarkGlowing ? 1.0 : 0.4)
-                            .foregroundStyle(.secondary)
-                            .onHover{ hovering in xmarkGlowing = hovering }
-                    })
-                    .buttonStyle(.plain)
-                    .padding([.leading, .top], 6.5)
-                }
+                Button(action: {
+                    appDelegate.closeMainWindow()
+                }, label: {
+                    Image(systemName: "x.circle")
+                        .font(.system(size: 12, weight: .bold))
+                        .opacity(xmarkGlowing ? 1.0 : 0.4)
+                        .foregroundStyle(.secondary)
+                        .onHover{ hovering in xmarkGlowing = hovering }
+                })
+                .buttonStyle(.plain)
+                .padding([.leading, .top], 6.5)
             }
         }
-        /*.overlay(
-            RoundedRectangle(cornerRadius: 13, style: .continuous)
-                .strokeBorder(.secondary.opacity(fromStatusBar ? 0.0 : 0.4), lineWidth: isMacOS14 ? 1.5 : 0.0)
-        )*/
     }
     
     struct SelectorView: View {
@@ -157,10 +258,18 @@ struct ContentView: View {
                 Text(title)
                     .opacity(0.95)
                     .font(.system(size: 12))
+                    .offset(y: title == "System Audio".local ? -3.5 : 0)
                 ZStack {
-                    Image(systemName: symbol)
-                        .opacity(0.95)
-                        .font(.system(size: 36))
+                    if title == "System Audio".local {
+                        Image(systemName: symbol)
+                            .opacity(0.95)
+                            .offset(y: -9.5)
+                            .font(.system(size: 26, weight: .bold))
+                    } else {
+                        Image(systemName: symbol)
+                            .opacity(0.95)
+                            .font(.system(size: 36))
+                    }
                     Text(overlayer)
                         .fontWeight(.bold)
                         .opacity(0.95)
@@ -225,7 +334,12 @@ extension AppDelegate {
     
     func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
     
-    func closeAllWindow(except: String = "") { for w in NSApp.windows.filter({ $0.title != "Item-0" && $0.title != "" && $0.title != except }) { w.close() }}
+    func closeAllWindow(except: String = "") {
+        for w in NSApp.windows.filter({
+            $0.title != "Item-0" && $0.title != ""
+            && !$0.title.lowercased().contains(".qma")
+            && !$0.title.contains(except) }) { w.close() }
+    }
     
     func showAreaSelector(size: NSSize, noPanel: Bool = false) {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }

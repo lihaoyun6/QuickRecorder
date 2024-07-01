@@ -18,22 +18,11 @@ struct AppSelector: View {
     @State private var autoStop = 0
     var appDelegate = AppDelegate.shared
     
-    @AppStorage("frameRate")      private var frameRate: Int = 60
-    @AppStorage("videoQuality")   private var videoQuality: Double = 1.0
-    @AppStorage("saveDirectory")  private var saveDirectory: String?
-    @AppStorage("hideSelf")       private var hideSelf: Bool = false
-    @AppStorage("showMouse")      private var showMouse: Bool = true
-    @AppStorage("recordMic")      private var recordMic: Bool = false
-    @AppStorage("recordWinSound") private var recordWinSound: Bool = true
-    @AppStorage("background")     private var background: BackgroundType = .wallpaper
-    @AppStorage("highRes")        private var highRes: Int = 2
-    @AppStorage("recordHDR")       private var recordHDR: Bool = false
-    
     var body: some View {
         ZStack {
             VStack(spacing: 15) {
                 if #available(macOS 15, *) {
-                    Text("Please select the App(s) to record").offset(y: 8)
+                    Text("Please select the App(s) to record").offset(y: 12)
                 } else {
                     Text("Please select the App(s) to record")
                 }
@@ -127,105 +116,7 @@ struct AppSelector: View {
                         
                     }).buttonStyle(.plain)
                     Spacer()
-                    VStack(spacing: 6) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Resolution")
-                                Text("Frame Rate")
-                            }
-                            VStack(alignment: .leading, spacing: 10) {
-                                Picker("", selection: $highRes) {
-                                    Text("High (auto)").tag(2)
-                                    Text("Normal (1x)").tag(1)
-                                    //Text("Low (0.5x)").tag(0)
-                                }.buttonStyle(.borderless)
-                                Picker("", selection: $frameRate) {
-                                    Text("240 FPS").tag(240)
-                                    Text("144 FPS").tag(144)
-                                    Text("120 FPS").tag(120)
-                                    Text("90 FPS").tag(90)
-                                    Text("60 FPS").tag(60)
-                                    Text("30 FPS").tag(30)
-                                    Text("24 FPS").tag(24)
-                                    Text("15 FPS").tag(15)
-                                    Text("10 FPS").tag(10)
-                                }.buttonStyle(.borderless)
-                            }.scaledToFit()
-                            Divider().frame(height: 50)
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("Quality")
-                                Text("Background")
-                            }.padding(.leading, isMacOS12 ? 0 : 8)
-                            VStack(alignment: .leading, spacing: 10) {
-                                Picker("", selection: $videoQuality) {
-                                    Text("Low").tag(0.3)
-                                    Text("Medium").tag(0.7)
-                                    Text("High").tag(1.0)
-                                }.buttonStyle(.borderless)
-                                Picker("", selection: $background) {
-                                    Text("Wallpaper").tag(BackgroundType.wallpaper)
-                                    if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
-                                    Text("Black").tag(BackgroundType.black)
-                                    Text("White").tag(BackgroundType.white)
-                                    Text("Gray").tag(BackgroundType.gray)
-                                    Text("Yellow").tag(BackgroundType.yellow)
-                                    Text("Orange").tag(BackgroundType.orange)
-                                    Text("Green").tag(BackgroundType.green)
-                                    Text("Blue").tag(BackgroundType.blue)
-                                    Text("Red").tag(BackgroundType.red)
-                                    Text("Custom").tag(BackgroundType.custom)
-                                }.buttonStyle(.borderless)
-                            }.scaledToFit()
-                            Divider().frame(height: 50)
-                            VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
-                                Toggle(isOn: $showMouse) {
-                                    HStack(spacing:0){
-                                        Image(systemName: "cursorarrow").frame(width: 20)
-                                        Text("Record Cursor")
-                                    }
-                                }.toggleStyle(.checkbox)
-                                if #available(macOS 13, *) {
-                                    Toggle(isOn: $recordWinSound) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "speaker.wave.1.fill").frame(width: 20)
-                                            Text("App's Audio")
-                                        }
-                                    }.toggleStyle(.checkbox)
-                                }
-                                if #available(macOS 14, *) { // apparently they changed onChange in Sonoma
-                                    Toggle(isOn: $recordMic) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "mic.fill").frame(width: 20)
-                                            Text("Microphone")
-                                        }
-                                    }
-                                    .toggleStyle(.checkbox)
-                                    .onChange(of: recordMic) {
-                                        Task { await SCContext.performMicCheck() }
-                                    }
-                                } else {
-                                    Toggle(isOn: $recordMic) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "mic.fill").frame(width: 20)
-                                            Text("Microphone")
-                                        }
-                                    }
-                                    .toggleStyle(.checkbox)
-                                    .onChange(of: recordMic) { _ in
-                                        Task { await SCContext.performMicCheck() }
-                                    }
-                                }
-                                if #available(macOS 15, *) {
-                                    Toggle(isOn: $recordHDR) {
-                                        HStack(spacing:0){
-                                            Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
-                                            Text("Record HDR")
-                                        }
-                                    }.toggleStyle(.checkbox)
-                                }
-                            }.needScale()
-                        }
-                    }.padding(.leading, 18)
+                    OptionsView().padding(.leading, 18)
                     Spacer()
                     Button(action: {
                         isPopoverShowing = true
@@ -241,6 +132,7 @@ struct AppSelector: View {
                             Text(" Stop after".local)
                             TextField("", value: $autoStop, formatter: NumberFormatter())
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                                //.onChange(of: autoStop) { newValue in SCContext.autoStop = newValue }
                             Stepper("", value: $autoStop)
                                 .padding(.leading, -10)
                             Text("minutes ".local)
@@ -306,4 +198,134 @@ class AppSelectorViewModel: ObservableObject {
             }
         }
     }*/
+}
+
+struct OptionsView: View {
+    @State private var micList = SCContext.getMicrophone()
+    
+    @AppStorage("frameRate")      private var frameRate: Int = 60
+    @AppStorage("videoQuality")   private var videoQuality: Double = 1.0
+    @AppStorage("saveDirectory")  private var saveDirectory: String?
+    @AppStorage("hideSelf")       private var hideSelf: Bool = false
+    @AppStorage("showMouse")      private var showMouse: Bool = true
+    @AppStorage("recordMic")      private var recordMic: Bool = false
+    @AppStorage("recordWinSound") private var recordWinSound: Bool = true
+    @AppStorage("background")     private var background: BackgroundType = .wallpaper
+    @AppStorage("highRes")        private var highRes: Int = 2
+    @AppStorage("recordHDR")      private var recordHDR: Bool = false
+    @AppStorage("micDevice")      private var micDevice: String = "default"
+    @AppStorage("enableAEC")      private var enableAEC: Bool = false
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Resolution")
+                    Text("Frame Rate")
+                }
+                VStack(alignment: .leading, spacing: 10) {
+                    Picker("", selection: $highRes) {
+                        Text("High (auto)").tag(2)
+                        Text("Normal (1x)").tag(1)
+                        //Text("Low (0.5x)").tag(0)
+                    }.buttonStyle(.borderless)
+                    Picker("", selection: $frameRate) {
+                        Text("240 FPS").tag(240)
+                        Text("144 FPS").tag(144)
+                        Text("120 FPS").tag(120)
+                        Text("90 FPS").tag(90)
+                        Text("60 FPS").tag(60)
+                        Text("30 FPS").tag(30)
+                        Text("24 FPS").tag(24)
+                        Text("15 FPS").tag(15)
+                        Text("10 FPS").tag(10)
+                    }.buttonStyle(.borderless)
+                }.scaledToFit()
+                Divider().frame(height: 50)
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Quality")
+                    Text("Background")
+                }.padding(.leading, isMacOS12 ? 0 : 8)
+                VStack(alignment: .leading, spacing: 10) {
+                    Picker("", selection: $videoQuality) {
+                        Text("Low").tag(0.3)
+                        Text("Medium").tag(0.7)
+                        Text("High").tag(1.0)
+                    }.buttonStyle(.borderless)
+                    Picker("", selection: $background) {
+                        Text("Wallpaper").tag(BackgroundType.wallpaper)
+                        if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
+                        Text("Black").tag(BackgroundType.black)
+                        Text("White").tag(BackgroundType.white)
+                        Text("Gray").tag(BackgroundType.gray)
+                        Text("Yellow").tag(BackgroundType.yellow)
+                        Text("Orange").tag(BackgroundType.orange)
+                        Text("Green").tag(BackgroundType.green)
+                        Text("Blue").tag(BackgroundType.blue)
+                        Text("Red").tag(BackgroundType.red)
+                        Text("Custom").tag(BackgroundType.custom)
+                    }.buttonStyle(.borderless)
+                }.scaledToFit()
+                Divider().frame(height: 50)
+                VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
+                    if #available(macOS 15, *) {
+                        Toggle(isOn: $recordHDR) {
+                            HStack(spacing:0){
+                                Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
+                                Text("Record HDR").fixedSize()
+                            }
+                        }.toggleStyle(.checkbox)
+                    }
+                    Toggle(isOn: $showMouse) {
+                        HStack(spacing: 0){
+                            Image(systemName: "cursorarrow").frame(width: 20)
+                            Text("Record Cursor")
+                        }
+                    }.toggleStyle(.checkbox).fixedSize()
+                    if #available(macOS 13, *) {
+                        Toggle(isOn: $recordWinSound) {
+                            HStack(spacing: 0){
+                                Image(systemName: "speaker.wave.1.fill").frame(width: 20)
+                                Text("App's Audio")
+                            }
+                        }.toggleStyle(.checkbox).fixedSize()
+                    }
+                    HStack(spacing: 0) {
+                        Toggle(isOn: $recordMic) {
+                            Image(systemName: "mic.fill").frame(width: 20)
+                        }
+                        .toggleStyle(.checkbox)
+                        .onChange(of: recordMic) { _ in
+                            Task { await SCContext.performMicCheck() }
+                        }
+                        Picker("", selection: $micDevice) {
+                            Text("Default".local).tag("default").frame(width: 40)
+                            ForEach(micList, id: \.self) { device in
+                                Text(device.localizedName).tag(device.localizedName).frame(width: 40)
+                            }
+                        }
+                        .disabled(!recordMic)
+                        .padding(.leading, -7.5)
+                        .frame(width: 99)
+                        .onAppear{
+                            let list = micList.map({ $0.localizedName })
+                            if !list.contains(micDevice) { micDevice = "default" }
+                        }
+                        Spacer().frame(width: 5)
+                        if micDevice != "default" && enableAEC{
+                            Button("⚠️", action: {
+                                let alert = AppDelegate.shared.createAlert(
+                                    title: "Compatibility Warning".local,
+                                    message: "The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC.".local,
+                                    button1: "OK".local, button2: "System Preferences".local)
+                                if alert.runModal() == .alertSecondButtonReturn {
+                                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.sound?input")!)
+                                }
+                            }).buttonStyle(.plain).fixedSize()
+                        }
+                    }
+                }.needScale().padding(.trailing, -18)
+            }
+        }//.padding(.leading, (micDevice != "default" && enableAEC) ? 20 : 0)
+    }
 }

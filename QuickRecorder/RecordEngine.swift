@@ -196,7 +196,12 @@ extension AppDelegate {
         do {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
-            if !audioOnly { initVideo(conf: conf) } else { SCContext.startTime = Date.now }
+            if !audioOnly {
+                initVideo(conf: conf)
+            } else {
+                SCContext.startTime = Date.now
+                startMicRecording()
+            }
             try await SCContext.stream.startCapture()
         } catch {
             assertionFailure("capture failed".local)
@@ -208,6 +213,7 @@ extension AppDelegate {
 
     func prepareAudioRecording() {
         var fileEnding = ud.string(forKey: "audioFormat") ?? "wat"
+        let encorder = fileEnding == AudioFormat.mp3.rawValue ? "aac" : fileEnding
         switch fileEnding { // todo: I'd like to store format info differently
             case AudioFormat.mp3.rawValue: fallthrough
             case AudioFormat.aac.rawValue: fallthrough
@@ -216,8 +222,25 @@ extension AppDelegate {
             case AudioFormat.opus.rawValue: fileEnding = "ogg"
         default: assertionFailure("loaded unknown audio format: ".local + fileEnding)
         }
-        SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
-        SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
+        let path = SCContext.getFilePath()
+        if ud.bool(forKey: "recordMic") && SCContext.streamType == .systemaudio {
+            if var settings = SCContext.audioSettings {
+                settings[AVNumberOfChannelsKey] = 1
+                SCContext.filePath = "\(path).qma"
+                SCContext.filePath1 = "\(path).qma/sys.\(fileEnding)"
+                SCContext.filePath2 = "\(path).qma/mic.\(fileEnding)"
+                let infoJsonURL = URL(fileURLWithPath: "\(path).qma/info.json")
+                let jsonString = "{\"format\": \"\(fileEnding)\", \"encoder\": \"\(encorder)\", \"exportMP3\": \(ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue), \"sysVol\": 1.0, \"micVol\": 1.0}"
+                try? FileManager.default.createDirectory(at: URL(fileURLWithPath: SCContext.filePath), withIntermediateDirectories: true, attributes: nil)
+                try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
+                SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath1), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
+                SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
+            }
+        } else {
+            SCContext.filePath = "\(path).\(fileEnding)"
+            SCContext.filePath1 = SCContext.filePath
+            SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.audioSettings, commonFormat: .pcmFormatFloat32, interleaved: false)
+        }
     }
 }
 
@@ -304,10 +327,14 @@ extension AppDelegate {
         }
 
         if ud.bool(forKey: "recordMic") {
-            if SCContext.vW.canAdd(SCContext.micInput) {
-                SCContext.vW.add(SCContext.micInput)
-            }
-
+            if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
+            startMicRecording()
+        }
+        SCContext.vW.startWriting()
+    }
+    
+    func startMicRecording() {
+        if ud.string(forKey: "micDevice") == "default" {
             let input = SCContext.audioEngine.inputNode
             if ud.bool(forKey: "enableAEC") {
                 try? input.setVoiceProcessingEnabled(true)
@@ -318,14 +345,21 @@ extension AppDelegate {
                                            sampleRate: inputFormat.sampleRate,
                                            channels: 1, interleaved: inputFormat.isInterleaved) ?? inputFormat
             input.installTap(onBus: 0, bufferSize: 1024, format: monoFormat) {buffer, time in
-                if SCContext.micInput.isReadyForMoreMediaData && SCContext.startTime != nil {
-                    if SCContext.isPaused { return }
-                    SCContext.micInput.append(buffer.asSampleBuffer!)
+                if SCContext.isPaused || SCContext.startTime == nil { return }
+                if SCContext.streamType == .systemaudio {
+                    do { try SCContext.audioFile2?.write(from: buffer) }
+                    catch { assertionFailure("audio file writing issue".local) }
+                } else {
+                    if SCContext.micInput.isReadyForMoreMediaData {
+                        SCContext.micInput.append(buffer.asSampleBuffer!)
+                    }
                 }
             }
             try! SCContext.audioEngine.start()
+        } else {
+            AudioRecorder.shared.setupAudioCapture()
+            AudioRecorder.shared.start()
         }
-        SCContext.vW.startWriting()
     }
     
     func outputVideoEffectDidStart(for stream: SCStream) {
@@ -437,6 +471,86 @@ extension AppDelegate {
         DispatchQueue.main.async {
             SCContext.stream = nil
             SCContext.stopRecording()
+        }
+    }
+}
+
+class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
+    static let shared = AudioRecorder()
+    private var captureSession: AVCaptureSession!
+    private var audioInput: AVCaptureDeviceInput!
+    private var audioDataOutput: AVCaptureAudioDataOutput!
+
+    func setupAudioCapture() {
+        captureSession = AVCaptureSession()
+
+        // Get the default audio device (microphone)
+        guard let audioDevice = SCContext.getMicrophone().first(where: { $0.localizedName == ud.string(forKey: "micDevice") }) else {
+            print("Unable to access microphone")
+            return
+        }
+        let channels = audioDevice.formats.first?.formatDescription.audioChannelLayout?.numberOfChannels ?? 0
+        if channels < 1 { return }
+        if channels != 1 {
+            SCContext.updateAudioSettings()
+            if var settings = SCContext.audioSettings {
+                settings[AVNumberOfChannelsKey] = channels
+                SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
+            }
+        }
+        //print(audioDevice.localizedName)
+        // Create audio input
+        do {
+            audioInput = try AVCaptureDeviceInput(device: audioDevice)
+        } catch {
+            print("Unable to create audio input: \(error)")
+            return
+        }
+        
+        // Add audio input to capture session
+        if captureSession.canAddInput(audioInput) {
+            captureSession.addInput(audioInput)
+        } else {
+            print("Unable to add audio input to capture session")
+            return
+        }
+
+        // Create audio data output
+        audioDataOutput = AVCaptureAudioDataOutput()
+        let audioQueue = DispatchQueue(label: "audioQueue")
+        audioDataOutput.setSampleBufferDelegate(self, queue: audioQueue)
+        
+        // Add audio data output to capture session
+        if captureSession.canAddOutput(audioDataOutput) {
+            captureSession.addOutput(audioDataOutput)
+        } else {
+            print("Unable to add audio data output to capture session")
+            return
+        }
+    }
+    
+    func start() {
+        if let session = captureSession {
+            session.startRunning()
+        }
+    }
+    
+    func stop() {
+        if let session = captureSession {
+            if session.isRunning { session.stopRunning() }
+        }
+    }
+
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        if SCContext.isPaused || SCContext.startTime == nil { return }
+        if SCContext.streamType == .systemaudio {
+            guard let samples = sampleBuffer.asPCMBuffer else { return }
+            do { try SCContext.audioFile2?.write(from: samples) }
+            catch { assertionFailure("Audio file writing issue: \(error.localizedDescription)") }
+        } else {
+            if SCContext.micInput.isReadyForMoreMediaData {
+                SCContext.micInput.append(sampleBuffer)
+            }
         }
     }
 }

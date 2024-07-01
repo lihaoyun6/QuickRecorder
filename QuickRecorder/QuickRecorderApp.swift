@@ -18,6 +18,7 @@ import Sparkle
 
 var isMacOS12 = true
 var isMacOS14 = false
+var isMacOS15 = false
 var firstRun = true
 let ud = UserDefaults.standard
 var statusMenu: NSMenu = NSMenu()
@@ -26,7 +27,7 @@ var mouseMonitor: Any?
 var keyMonitor: Any?
 var hideMousePointer = false
 var hideScreenMagnifier = false
-let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquivalent: "")
+//let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquivalent: "")
 let updateTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
@@ -49,40 +50,53 @@ struct QuickRecorderApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            /*ContentView()
                 .navigationTitle("QuickRecorder".local)
                 .fixedSize()
-                .onAppear { if #available(macOS 14, *) { setMainWindow() }}
-        }.commands { CommandGroup(replacing: .newItem) {} }
-            .commands {
-                CommandGroup(after: .appInfo) {
-                    CheckForUpdatesView(updater: updaterController.updater)
-                }
-            }
+                .onAppear { if #available(macOS 14, *) { setMainWindow() }}*/
+        }
         .myWindowIsContentResizable()
         .handlesExternalEvents(matching: [])
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
+            }
+        }
         
         Settings {
             SettingsView()
                 .fixedSize()
         }
+        
+        DocumentGroup(newDocument: qmaPackageHandle()) { file in
+            if SCContext.stream == nil {
+                if let fileURL = file.fileURL {
+                    qmaPlayerView(document: file.$document, fileURL: fileURL)
+                        .frame(minWidth: 400, minHeight: 100, maxHeight: 100)
+                        .focusable(false)
+                    //.onAppear{ AppDelegate.shared.closeAllWindow(except: ".qma") }
+                }
+            }
+        }
+        .myWindowIsContentResizable()
+        //.windowStyle(HiddenTitleBarWindowStyle())
+        .commands {
+            SidebarCommands()
+            CommandGroup(replacing: .saveItem) {}
+            CommandGroup(replacing: .newItem) {}
+            CommandGroup(replacing: .textEditing) {}
+        }
     }
     
     func setMainWindow() {
         for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
-            w.level = .floating
-            w.styleMask = [.fullSizeContentView]
-            //w.hasShadow = false
-            w.isRestorable = false
-            w.isMovableByWindowBackground = true
-            w.standardWindowButton(.closeButton)?.isHidden = true
-            w.standardWindowButton(.miniaturizeButton)?.isHidden = true
-            w.standardWindowButton(.zoomButton)?.isHidden = true
             w.isOpaque = false
+            w.level = .floating
+            w.isRestorable = false
             w.backgroundColor = .clear
-            //w.contentView?.wantsLayer = true
-            //w.contentView?.layer?.cornerRadius = 13
-            //w.contentView?.layer?.masksToBounds = true
+            w.isMovableByWindowBackground = true
+            w.styleMask = [.fullSizeContentView]
         }
     }
 }
@@ -153,7 +167,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if SCContext.stream == nil { return true }
+        if SCContext.stream == nil {
+            let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
+            let w2 = w1.filter({ !$0.title.contains(".qma") })
+            //print(w1.map({$0.title}), w2.map({$0.title}))
+            if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
+                let mainPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+                mainPanel.contentView = NSHostingView(rootView: ContentView())
+                mainPanel.title = "QuickRecorder".local
+                mainPanel.isOpaque = false
+                mainPanel.level = .floating
+                mainPanel.isRestorable = false
+                mainPanel.backgroundColor = .clear
+                mainPanel.isReleasedWhenClosed = false
+                mainPanel.isMovableByWindowBackground = true
+                mainPanel.center()
+                if let screen = mainPanel.screen {
+                    let wX = (screen.frame.width - mainPanel.frame.width) / 2 + screen.frame.minX
+                    let wY = (screen.frame.height - mainPanel.frame.height) / 2 + screen.frame.minY
+                    mainPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
+                }
+                mainPanel.orderFront(self)
+            }
+        }
         return false
     }
     
@@ -231,6 +267,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         
         if #available(macOS 13, *) { isMacOS12 = false }
         if #available(macOS 14, *) { isMacOS14 = true }
+        if #available(macOS 15, *) { isMacOS15 = true }
         
         //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         
@@ -328,12 +365,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        if let menu = NSApplication.shared.mainMenu { menu.items.remove(at: 1) }
         if #available(macOS 13, *) {
             if firstRun && (SMAppService.mainApp.status == .enabled) {
                 firstRun = false
                 closeAllWindow()
             }
         }
+        closeAllWindow()
+        _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
     }
     
     func openSettingPanel() {
@@ -348,9 +388,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 }
 
+func process(path: String, arguments: [String]) -> String? {
+    let task = Process()
+    task.launchPath = path
+    task.arguments = arguments
+    task.standardError = Pipe()
+    
+    let outputPipe = Pipe()
+    defer {
+        outputPipe.fileHandleForReading.closeFile()
+    }
+    task.standardOutput = outputPipe
+    
+    do {
+        try task.run()
+    } catch let error {
+        print("\(error.localizedDescription)")
+        return nil
+    }
+    
+    let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+    let output = String(decoding: outputData, as: UTF8.self)
+    
+    if output.isEmpty {
+        return nil
+    }
+    
+    return output.trimmingCharacters(in: .newlines)
+}
 
 extension String {
     var local: String { return NSLocalizedString(self, comment: "") }
+    var deletingPathExtension: String {
+        return (self as NSString).deletingPathExtension
+    }
 }
 
 extension NSMenuItem {
@@ -448,6 +519,21 @@ struct FixedLengthArray<T> {
 
     func getArray() -> [T] {
         return array
+    }
+}
+
+extension utsname {
+    static var sMachine: String {
+        var utsname = utsname()
+        uname(&utsname)
+        return withUnsafePointer(to: &utsname.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: Int(_SYS_NAMELEN)) {
+                String(cString: $0)
+            }
+        }
+    }
+    static var isAppleSilicon: Bool {
+        sMachine == "arm64"
     }
 }
 
