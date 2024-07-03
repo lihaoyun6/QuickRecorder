@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.2</title>
+            <pubDate>Wed, 03 Jul 2024 15:40:53 +0800</pubDate>
+            <sparkle:version>142</sparkle:version>
+            <sparkle:shortVersionString>1.4.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>内置的摄像头悬浮窗现在可以显示在全屏应用上层</li>
+                  </ul><ul>
+                  <li>Camera overlay can displayed on top of full-screen applications.</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.2/QuickRecorder_v1.4.2.dmg" length="4065391" type="application/octet-stream" sparkle:edSignature="SZ20JaPZZcwP+JyzBM97dqwBQWtZGvoN31O/4y9sBQFsU3NR612ayt0Ku9I1BeVo6/Xj2c8ee5T94egbHHjBCg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.2/Update142-141.delta" sparkle:deltaFrom="141" length="147622" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="HtQ380CRo8GWvMUkvf5aQe56C4fpgrRp0d4chUfXOSkIordiD1B5lvyQcBlmD3hmF9xv67r28q2KtHUnliv5BA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.2/Update142-140.delta" sparkle:deltaFrom="140" length="1291670" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="nD3UeL6D/HiQZGergNzQzROsIk6AQYcEdyb55dDYKcMfMI3z4XOPdq28sNWDwaBeI1dZJhhlPf+DbUNhkZGICQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.2/Update142-139.delta" sparkle:deltaFrom="139" length="1291266" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="fTeLLbpuLysJDLihsZzEbtq6VQ3LNPzmaK8iK+rZ2zXJHVMoEY9t87QnW9V9Eunl8YQmYj3+NXX9YBVGlgL1AQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.1</title>
             <pubDate>Mon, 01 Jul 2024 23:24:09 +0800</pubDate>
             <sparkle:version>141</sparkle:version>
