@@ -37,7 +37,7 @@ struct StatusBarItem: View {
                                 .foregroundStyle(.white)
                                 .frame(width: 16, alignment: .center)
                         }).buttonStyle(.plain)
-                        if SCContext.streamType != .idevice && SCContext.streamType != .systemaudio {
+                        if SCContext.streamType != .idevice {//&& SCContext.streamType != .systemaudio {
                             Button(action: {
                                 SCContext.pauseRecording()
                                 isPassed = SCContext.isPaused
@@ -54,7 +54,8 @@ struct StatusBarItem: View {
                             .offset(x: 0.5)
                     }
                 }
-                .frame(width: (SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 86 : 106)
+                //.frame(width: (SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 86 : 106)
+                .frame(width: SCContext.streamType == .idevice ? 86 : 106)
                 .padding([.leading,.trailing], 4)
                 .onReceive(updateTimer) { t in
                     recordingLength = SCContext.getRecordingLength()
@@ -150,7 +151,8 @@ extension AppDelegate: NSMenuDelegate {
             switch SCContext.streamType {
                 case nil: width = 36
                 case .idevice: width = 138
-                case .systemaudio: width = 94
+                case .systemaudio: width = 114
+                //case .systemaudio: width = 94
                 default: width = 158
             }
             //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)

@@ -25,7 +25,7 @@ struct ScreenSelector: View {
                 ScrollView(.vertical) {
                     VStack(spacing: 14){
                         ForEach(0..<viewModel.screenThumbnails.count/2 + 1, id: \.self) { rowIndex in
-                            HStack(spacing: 40) {
+                            HStack(spacing: 30) {
                                 ForEach(0..<2, id: \.self) { columnIndex in
                                     let index = 2 * rowIndex + columnIndex
                                     if index <= viewModel.screenThumbnails.count - 1 {
@@ -54,7 +54,7 @@ struct ScreenSelector: View {
                                                         Image(nsImage: viewModel.screenThumbnails[index].image)
                                                             .resizable()
                                                             .aspectRatio(contentMode: .fit)
-                                                    }.frame(width: count == 1 ? 640 : 288, height: count == 1 ? 360 : 162, alignment: .center)
+                                                    }.frame(width: count == 1 ? 672 : 320, height: count == 1 ? 378 : 180, alignment: .center)
                                                     let screenName = NSScreen.screens.first(where: { $0.displayID == viewModel.screenThumbnails[index].screen.displayID })?.localizedName ?? "Display ".local + "\(viewModel.screenThumbnails[index].screen.displayID)"
                                                     Text(screenName)
                                                         .foregroundStyle(.secondary)
@@ -85,11 +85,11 @@ struct ScreenSelector: View {
                                 }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, count == 1 ? 51 : 61)
+                            .padding(.leading, 35)
                         }
                     }
                 }
-                .frame(height: 420)
+                .frame(height: 445)
                 
                 HStack(spacing: 4) {
                     Button(action: {
@@ -147,7 +147,7 @@ struct ScreenSelector: View {
                 Spacer()
             }
             .padding(.top, -5)
-        }.frame(width: 780, height:530)
+        }.frame(width: 780, height:555)
     }
     
     func startRecording() {
