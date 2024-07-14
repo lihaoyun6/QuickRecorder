@@ -343,7 +343,7 @@ class SCContext {
         }
         
         DispatchQueue.main.async {
-            NSApp.windows.first(where: { $0.title == "Recording Controller".local })?.close()
+            controlPanel.close()
             if isCameraRunning() {
                 if camWindow.isVisible { camWindow.close() }
                 if deviceWindow.isVisible { deviceWindow.close() }

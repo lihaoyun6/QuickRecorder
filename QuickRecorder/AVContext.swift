@@ -123,8 +123,8 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             SCContext.streamType = nil
             SCContext.startTime = nil
             DispatchQueue.main.async {
-                //statusBarItem.isVisible = false
-                if deviceWindow.isVisible { deviceWindow.close() }
+                controlPanel.close()
+                deviceWindow.close()
                 AppDelegate.shared.updateStatusBar()
             }
         }
