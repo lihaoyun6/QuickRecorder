@@ -347,19 +347,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             closeAllWindow()
             let frontmostApp = NSWorkspace.shared.frontmostApplication
             if let pid = frontmostApp?.processIdentifier {
-                let options: CGWindowListOption = .optionOnScreenOnly
-                let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID)
-                if let infoList = windowListInfo as? [[String: AnyObject]] {
-                    for info in infoList {
-                        if let windowPID = info[kCGWindowOwnerPID as String] as? pid_t, windowPID == pid {
-                            if let windowNumber = info[kCGWindowNumber as String] as? CGWindowID {
-                                guard let scWindow = SCContext.getWindows().first(where: { $0.windowID == windowNumber }) else { return }
-                                prepRecord(type: "window", screens: SCContext.getSCDisplayWithMouse(), windows: [scWindow], applications: nil, fastStart: true)
-                                return
-                            }
-                        }
-                    }
-                }
+                guard let scWindow = SCContext.getWindows().first(where: { $0.owningApplication?.processID == pid && $0.title != "" && $0.isOnScreen }) else { return }
+                prepRecord(type: "window", screens: SCContext.getSCDisplayWithMouse(), windows: [scWindow], applications: nil, fastStart: true)
+                return
             }
         }
         updateStatusBar()
