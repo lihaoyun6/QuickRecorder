@@ -49,12 +49,7 @@ struct QuickRecorderApp: App {
     }
     
     var body: some Scene {
-        WindowGroup {
-            /*ContentView()
-                .navigationTitle("QuickRecorder".local)
-                .fixedSize()
-                .onAppear { if #available(macOS 14, *) { setMainWindow() }}*/
-        }
+        WindowGroup {}
         .myWindowIsContentResizable()
         .handlesExternalEvents(matching: [])
         .commands {
@@ -86,17 +81,6 @@ struct QuickRecorderApp: App {
             CommandGroup(replacing: .saveItem) {}
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .textEditing) {}
-        }
-    }
-    
-    func setMainWindow() {
-        for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
-            w.isOpaque = false
-            w.level = .floating
-            w.isRestorable = false
-            w.backgroundColor = .clear
-            w.isMovableByWindowBackground = true
-            w.styleMask = [.fullSizeContentView]
         }
     }
 }
@@ -453,14 +437,6 @@ extension NSImage {
         }
         let factor = SCContext.getScreenWithMouse()?.backingScaleFactor ?? 1.0
         return NSImage(cgImage: imageRef, size: NSSize(width: CGFloat(imageRef.width)/factor, height: CGFloat(imageRef.height)/factor))
-    }
-    
-    static func screenshot() -> NSImage? {
-        let mouseLocation = NSEvent.mouseLocation
-        guard let screen = NSScreen.screens.first(where: { NSMouseInRect(mouseLocation, $0.frame, false) }) else { return nil }
-        let frame = screen.frame
-        let image = CGDisplayCreateImage(CGMainDisplayID(), rect: frame)!
-        return NSImage(cgImage: image, size: frame.size)
     }
     
     func saveToFile(_ url: URL) {
