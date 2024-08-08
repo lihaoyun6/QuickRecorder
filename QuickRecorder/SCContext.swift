@@ -476,7 +476,7 @@ class SCContext {
             if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
         }
     }
-
+    
     static func mixAudioTracks(videoURL: URL, completion: @escaping (Result<URL, Error>) -> Void) {
         showNotification(title: "Still Processing".local, body: "Mixing audio track...".local, id: "quickrecorder.processing.\(Date.now)")
         
@@ -524,8 +524,6 @@ class SCContext {
         audioExportSession.outputURL = audioOutputURL
         audioExportSession.outputFileType = fileType ?? .mp4
         audioExportSession.audioMix = audioMix
-        
-        
         
         audioExportSession.exportAsynchronously {
             /*var exportStatus: AVAssetExportSession.Status = .unknown

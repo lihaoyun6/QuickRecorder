@@ -200,7 +200,7 @@ extension AppDelegate {
                 initVideo(conf: conf)
             } else {
                 SCContext.startTime = Date.now
-                startMicRecording()
+                if ud.bool(forKey: "recordMic") { startMicRecording() }
             }
             try await SCContext.stream.startCapture()
         } catch {
