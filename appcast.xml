@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.5</title>
+            <pubDate>Fri, 09 Aug 2024 00:26:38 +0800</pubDate>
+            <sparkle:version>145</sparkle:version>
+            <sparkle:shortVersionString>1.4.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了仅录制系统音频时, 即使没有启用麦克风也会录制麦克风音频的问题</li>
+                  </ul><ul>
+                  <li>Fixed: When recording system audio, microphone is recorded even if it is not enabled</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.5/QuickRecorder_v1.4.5.dmg" length="4060679" type="application/octet-stream" sparkle:edSignature="J4HOkKzZLiYu+S7sbNG0eMrRcHcR2cMGG13yJFIZTEacQK5h4QKGt+2c8v1V+17od0f9WmmMjzMyqYNoYFLDCg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.5/Update145-144.delta" sparkle:deltaFrom="144" length="444322" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="HXrHXxfrQ1ZuD47cTHUeZNh5tA5wOBrv3AJnkUkJ9nwt6MdfA3Vj/28A8eNWZPwKFFuLhEQIw5yYGp3n7oUqBA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.5/Update145-143.delta" sparkle:deltaFrom="143" length="444922" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Ve7tW+tvwN/zse5KovEo4gwoP/sQZM4XDEOqTVzA6nrj0Znp8mddCoomW/nP6f64QiGoNbev2KKsrth1n2JODA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.5/Update145-142.delta" sparkle:deltaFrom="142" length="438694" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="3Vr8fNxWnP79EQ9sW2Vxb4P3RbV8yM/fePv7JciY05DTH4jvqsOlkYx8ZmtMCwY1etTq3q8K/pAVviGG4Z30AA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.4</title>
             <pubDate>Sun, 14 Jul 2024 11:09:29 +0800</pubDate>
             <sparkle:version>144</sparkle:version>
