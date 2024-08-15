@@ -9,6 +9,7 @@ import SwiftUI
 import Sparkle
 import ServiceManagement
 import KeyboardShortcuts
+import MatrixColorSelector
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -122,7 +123,7 @@ struct SettingsView: View {
                             .padding([.leading, .trailing], 10)
                             .disabled(!isMacOS14)
                         }.frame(maxWidth: .infinity).padding(.top, 10)
-                        ColorPicker("Set custom background color:", selection: $userColor)
+                        MatrixColorSelector("Set custom background color:", selection: $userColor)
                             .padding([.leading, .trailing], 10)
                             .onChange(of: userColor) { userColor in ud.setColor(userColor, forKey: "userColor") }
                         Toggle(isOn: $trimAfterRecord) { Text("Open video trimmer after recording") }
@@ -262,7 +263,7 @@ struct SettingsView: View {
         openPanel.allowedContentTypes = []
         openPanel.allowsOtherFileTypes = false
         if openPanel.runModal() == NSApplication.ModalResponse.OK {
-            saveDirectory = openPanel.urls.first?.path
+            if let path = openPanel.urls.first?.path { saveDirectory = path }
         }
     }
     

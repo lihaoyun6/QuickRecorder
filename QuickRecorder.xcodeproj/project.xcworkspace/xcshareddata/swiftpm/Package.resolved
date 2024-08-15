@@ -1,4 +1,5 @@
 {
+  "originHash" : "1b1d5eee536d7383fd89cd017b59783f56323dd3ee0eaa42a8fdfe9a288c991c",
   "pins" : [
     {
       "identity" : "keyboardshortcuts",
@@ -7,6 +8,15 @@
       "state" : {
         "revision" : "09e4a10ed6b65b3a40fe07b6bf0c84809313efc4",
         "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "matrixcolorselector",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lihaoyun6/MatrixColorSelector.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "941dcf7e3f9f3e93db5eb4889b4645fb1f0941f6"
       }
     },
     {
@@ -27,5 +37,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

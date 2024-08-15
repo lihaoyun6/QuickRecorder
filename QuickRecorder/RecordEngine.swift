@@ -22,6 +22,24 @@ extension AppDelegate {
         case "audio":   SCContext.streamType = .systemaudio
             default: return // if we don't even know what to record I don't think we should even try
         }
+        var isDirectory: ObjCBool = false
+        let fileManager = FileManager.default
+        let outputPath = ud.string(forKey: "saveDirectory")!
+        if fileManager.fileExists(atPath: outputPath, isDirectory: &isDirectory) {
+            if !isDirectory.boolValue {
+                SCContext.streamType = nil
+                _ = createAlert(title: "Failed to Record".local, message: "The output path is a file instead of a folder!".local, button1: "OK").runModal()
+                return
+            }
+        } else {
+            do {
+                try fileManager.createDirectory(atPath: outputPath, withIntermediateDirectories: true, attributes: nil)
+            } catch {
+                SCContext.streamType = nil
+                _ = createAlert(title: "Failed to Record".local, message: "Unable to create output folder!".local, button1: "OK").runModal()
+                return
+            }
+        }
         //statusBarItem.menu = nil
         SCContext.updateAudioSettings()
         // file preparation

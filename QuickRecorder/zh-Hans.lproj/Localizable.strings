@@ -159,6 +159,10 @@
 "Stop Play" = "停止播放";
 "Export" = "导出";
 "Export as MP3" = "导出为 MP3";
+"Show Colors..." = "显示颜色…";
+"Failed to Record" = "录制失败";
+"Unable to create output folder!" = "无法创建输出文件夹!";
+"The output path is a file instead of a folder!"= "所选的保存位置是一个文件, 应该是文件夹!";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

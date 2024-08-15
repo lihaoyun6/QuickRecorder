@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		181724052BE3BEA600F5F539 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 181724042BE3BEA600F5F539 /* Sparkle */; };
 		181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181724072BE3BF7300F5F539 /* Sparkle.swift */; };
+		184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */ = {isa = PBXBuildFile; productRef = 184506CD2C69213400AFDA45 /* MatrixColorSelector */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
 		184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */; };
 		1862BF8D2BD5494E003ED522 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1862BF8F2BD5494E003ED522 /* Credits.rtf */; };
@@ -75,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */,
 				18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
 				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
@@ -177,6 +179,7 @@
 				18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */,
 				181724042BE3BEA600F5F539 /* Sparkle */,
 				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
+				184506CD2C69213400AFDA45 /* MatrixColorSelector */,
 			);
 			productName = QuickRecorder;
 			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
@@ -212,6 +215,7 @@
 				18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */,
+				184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */,
 			);
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
@@ -428,7 +432,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 145;
+				CURRENT_PROJECT_VERSION = 146;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -446,7 +450,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.4.5;
+				MARKETING_VERSION = 1.4.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -462,7 +466,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 145;
+				CURRENT_PROJECT_VERSION = 146;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -480,7 +484,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.4.5;
+				MARKETING_VERSION = 1.4.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -520,6 +524,14 @@
 				minimumVersion = 2.6.0;
 			};
 		};
+		184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lihaoyun6/MatrixColorSelector.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hidden-spectrum/SwiftLAME.git";
@@ -543,6 +555,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		184506CD2C69213400AFDA45 /* MatrixColorSelector */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */;
+			productName = MatrixColorSelector;
 		};
 		18F40B482BFB988A00F0AC70 /* SwiftLAME */ = {
 			isa = XCSwiftPackageProductDependency;
