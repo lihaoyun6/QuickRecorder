@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.6</title>
+            <pubDate>Thu, 15 Aug 2024 21:53:56 +0800</pubDate>
+            <sparkle:version>146</sparkle:version>
+            <sparkle:shortVersionString>1.4.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>当检测到用户所选的输出目录不存在时, 自动创建指定文件夹</li>
+                  </ul><ul>
+                  <li>Automatically create the output directory if it does not exist.</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.6/QuickRecorder_v1.4.6.dmg" length="4151662" type="application/octet-stream" sparkle:edSignature="W4R/3e06No3xB5PeMUQDi2Jm8aUMC4jsTj5CE9vcTJjY/OtYTc+BazbduOIZiP678emHV+DCmed1utDyjy7WDg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.6/Update146-145.delta" sparkle:deltaFrom="145" length="409410" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="7QFLEB3epczl1/V/SDUdk8m7FaLyDjm+DHbOYwNZ3ayzN5DkYtU6Qts5+iDXzOaNGFDx3e8THRCFFfarOiaDCw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.6/Update146-144.delta" sparkle:deltaFrom="144" length="544314" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="w9y7T6mrn0rLjOlWxa+BoLYww8/wNBD585H9+YCqH+/qR/NVFAkdXwKw0xLTu32TqkDQj18/lccRmoBI7nlWDw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.6/Update146-143.delta" sparkle:deltaFrom="143" length="544354" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="s6pwx2+Vhqk8Ry95HSnfK6JFIVtoBuVZ7MQzX2k/qO7b5vKd4O55l6HdzpXVhpq0FMcDonbwtmLXSmspMROaCg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.5</title>
             <pubDate>Fri, 09 Aug 2024 00:26:38 +0800</pubDate>
             <sparkle:version>145</sparkle:version>
