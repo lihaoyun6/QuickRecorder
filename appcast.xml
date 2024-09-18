@@ -3,6 +3,28 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.7</title>
+            <pubDate>Wed, 18 Sep 2024 15:49:13 +0800</pubDate>
+            <sparkle:version>147</sparkle:version>
+            <sparkle:shortVersionString>1.4.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>支持在其他 App 处于全屏模式时框选录制区域</li>
+                  <li>添加了新的"迷你控制器"模式, 可以减少菜单栏空间占用</li>
+                  </ul><ul>
+                  <li>Support selecting the recording area on the top of full-screen apps.</li>
+                  <li>Added new "Mini Controller" mode to save menu bar space.</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.7/QuickRecorder_v1.4.7.dmg" length="4156014" type="application/octet-stream" sparkle:edSignature="bwU6QxRDKZQb1+CRG9LZwNMTAPMsvmmzuCTys3S7iSD/AupfqfU0ZJFUR7AOEFULwXQJtdRVsIQd2VJj3wcaCg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.7/Update147-146.delta" sparkle:deltaFrom="146" length="386258" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="TIBN9ntQOr0Oi5fu23CeSyFoDnrMcrOpsBV6m2l+LUuEWgGi8tyRJqh5Ivydt+OZyiGb6tCz3p4hnVusMuVtAQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.7/Update147-145.delta" sparkle:deltaFrom="145" length="505690" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="5k0c5LFiUJoLT52hJnHhww1NoEV07aBCSCT+u9f2fS2gJJ8GlP1U4FIi5V1uCPIEaxEF25kmcqL8KtATIaq6Bg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.7/Update147-144.delta" sparkle:deltaFrom="144" length="614102" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="D/iaph/g06bX2PUAfyZya7c48oXqCEXcUQmckaAPCfm/qI7Oe1aaI8JdlP9xzLb3l+xNnQ99B0ZCSZXkdrRBBQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.6</title>
             <pubDate>Thu, 15 Aug 2024 21:53:56 +0800</pubDate>
             <sparkle:version>146</sparkle:version>
