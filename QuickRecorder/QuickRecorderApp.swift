@@ -156,7 +156,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             let w2 = w1.filter({ !$0.title.contains(".qma") })
             //print(w1.map({$0.title}), w2.map({$0.title}))
             if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
-                let mainPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+                let mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
                 mainPanel.contentView = NSHostingView(rootView: ContentView())
                 mainPanel.title = "QuickRecorder".local
                 mainPanel.isOpaque = false
@@ -165,6 +165,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 mainPanel.backgroundColor = .clear
                 mainPanel.isReleasedWhenClosed = false
                 mainPanel.isMovableByWindowBackground = true
+                mainPanel.collectionBehavior = [.canJoinAllSpaces]
                 mainPanel.center()
                 if let screen = mainPanel.screen {
                     let wX = (screen.frame.width - mainPanel.frame.width) / 2 + screen.frame.minX
@@ -361,6 +362,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
         }
     }
+}
+
+func getStatusBarWidth() -> CGFloat {
+    @AppStorage("miniStatusBar") var miniStatusBar: Bool = false
+    var width = 158.0
+    switch SCContext.streamType {
+    case nil: width = miniStatusBar ? 36.0 : 36.0
+    case .idevice: width = miniStatusBar ? 68.0 : 138.0
+    case .systemaudio: width = miniStatusBar ? 68.0 : 114.0
+    default: width = miniStatusBar ? 84.0 : 158.0
+    }
+    return width
 }
 
 func process(path: String, arguments: [String]) -> String? {

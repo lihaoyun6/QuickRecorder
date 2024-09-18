@@ -36,6 +36,7 @@ struct SettingsView: View {
     @AppStorage("showMenubar")      private var showMenubar: Bool = false
     @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
     @AppStorage("enableAEC")        private var enableAEC: Bool = false
+    @AppStorage("miniStatusBar")    private var miniStatusBar: Bool = false
     
     var body: some View {
         VStack {
@@ -178,30 +179,30 @@ struct SettingsView: View {
                         Form(){
                             UpdaterSettingsView(updater: updaterController.updater)
                         }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
+                        Button(action: {
+                            updaterController.updater.checkForUpdates()
+                        }) {
+                            Text("Check for Updates")
+                        }
                     }
-                    Button(action: {
-                        updaterController.updater.checkForUpdates()
-                    }) {
-                        Image(systemName: "arrow.clockwise.circle.fill")
-                            .foregroundStyle(.blue)
-                    }
-                    .buttonStyle(.plain)
-                    .padding(2)
                 }.frame(width: 320)
                 GroupBox(label: Text("Icon Settings".local).fontWeight(.bold)) {
                     Form(){
-                         Toggle(isOn: $showOnDock) { Text("Show Dock Icon") }
-                         .padding([.leading, .trailing], 10)
-                         .toggleStyle(.checkbox)
-                         .disabled(!showMenubar)
-                         .onChange(of: showOnDock) { newValue in
-                             if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
-                         }
-                         Toggle(isOn: $showMenubar) { Text("Show MenuBar Icon") }
-                         .padding([.leading, .trailing], 10)
-                         .toggleStyle(.checkbox)
-                         .disabled(!showOnDock)
-                         .onChange(of: showMenubar) { _ in appDelegate.updateStatusBar() }
+                        Toggle(isOn: $showOnDock) { Text("Show Dock Icon") }
+                            .padding([.leading, .trailing], 10)
+                            .toggleStyle(.checkbox)
+                            .disabled(!showMenubar)
+                            .onChange(of: showOnDock) { newValue in
+                                if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
+                            }
+                        Toggle(isOn: $showMenubar) { Text("Show MenuBar Icon") }
+                            .padding([.leading, .trailing], 10)
+                            .toggleStyle(.checkbox)
+                            .disabled(!showOnDock)
+                            .onChange(of: showMenubar) { _ in appDelegate.updateStatusBar() }
+                        Toggle(isOn: $miniStatusBar) { Text("Use Mini Controller") }
+                            .padding([.leading, .trailing], 10)
+                            .toggleStyle(.checkbox)
                     }.frame(maxWidth: .infinity).padding([.top, .bottom], 5)
                 }.frame(width: 220)
             }

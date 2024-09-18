@@ -344,9 +344,9 @@ extension AppDelegate {
     func showAreaSelector(size: NSSize, noPanel: Bool = false) {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
         guard let screen = scDisplay.nsScreen else { return }
-        let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, styleMask: [], backing: .buffered, defer: false, size: size, force: noPanel)
+        let screenshotWindow = ScreenshotWindow(contentRect: screen.frame, backing: .buffered, defer: false, size: size, force: noPanel)
         screenshotWindow.title = "Area Selector".local
-        screenshotWindow.orderFront(self)
+        //screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
         if !noPanel {
             let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
@@ -354,7 +354,8 @@ extension AppDelegate {
             let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
             contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 110)
             contentView.focusRingType = .none
-            let areaPanel = NSWindow(contentRect: contentView.frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+            let areaPanel = NSPanel(contentRect: contentView.frame, styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+            areaPanel.collectionBehavior = [.canJoinAllSpaces]
             areaPanel.setFrame(contentView.frame, display: true)
             areaPanel.level = .screenSaver
             areaPanel.title = "Start Recording".local

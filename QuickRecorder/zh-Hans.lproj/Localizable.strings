@@ -163,6 +163,8 @@
 "Failed to Record" = "录制失败";
 "Unable to create output folder!" = "无法创建输出文件夹!";
 "The output path is a file instead of a folder!"= "所选的保存位置是一个文件, 应该是文件夹!";
+"Use Mini Controller" = "使用迷你控制器";
+"Check for Updates" = "立即检测程序更新";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

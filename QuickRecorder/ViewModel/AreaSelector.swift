@@ -410,17 +410,19 @@ class ScreenshotOverlayView: NSView {
     }
 }
 
-class ScreenshotWindow: NSWindow {
+class ScreenshotWindow: NSPanel {
     
-    init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing bufferingType: NSWindow.BackingStoreType, defer flag: Bool, size: NSSize, force: Bool = false) {
+    init(contentRect: NSRect, backing bufferingType: NSWindow.BackingStoreType, defer flag: Bool, size: NSSize, force: Bool = false) {
         let overlayView = ScreenshotOverlayView(frame: contentRect, size:size, force: force)
-        super.init(contentRect: contentRect, styleMask: style, backing: bufferingType, defer: flag)
+        super.init(contentRect: contentRect, styleMask: [.borderless, .nonactivatingPanel], backing: bufferingType, defer: flag)
         self.isOpaque = false
+        self.hasShadow = false
         self.level = .statusBar
         self.backgroundColor = NSColor.clear
-        self.collectionBehavior = [.canJoinAllSpaces, .fullScreenPrimary]
+        self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         self.isReleasedWhenClosed = false
         self.contentView = overlayView
+        
         if let monitor = keyMonitor { NSEvent.removeMonitor(monitor) }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.keyDown, handler: myKeyDownEvent)
     }
