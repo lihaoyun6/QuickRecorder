@@ -3,6 +3,28 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.8</title>
+            <pubDate>Tue, 24 Sep 2024 10:31:06 +0800</pubDate>
+            <sparkle:version>148</sparkle:version>
+            <sparkle:shortVersionString>1.4.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>支持通过 AppleScript 调用各种录制功能.</li>
+                  <li>修复了一些已知的问题.</li>
+                  </ul><ul>
+                  <li>Added AppleScript support for QuickRecorder.</li>
+                  <li>Fixed some known issues.</li>
+                  </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.8/QuickRecorder_v1.4.8.dmg" length="4186553" type="application/octet-stream" sparkle:edSignature="11USrM7sWFTu/WLCgyPNt/BK2u4WcHEn985upow/XxuMNLU0aLVO7iuIRccucvjfrYmkeSajCHKOSXYtjFY/CA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.8/Update148-147.delta" sparkle:deltaFrom="147" length="488198" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="sJvWfkSX+omv+oPtNoSC4+NK0dRqOi1gsPrq8//5LRrZfZQDYa+RWPutoyKrFOqPxj/bXtRVzFECnLFp8ux1BA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.8/Update148-146.delta" sparkle:deltaFrom="146" length="540278" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="yosKJfJQ1nt9i7dvS/WDXKL44v2Clj7SqajuOlOEWdXIewF9Ac3UGZFNHwXX/V0DFP9ASlSmLwo1el7CIvXLAQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.8/Update148-145.delta" sparkle:deltaFrom="145" length="624082" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Vh6m5Vj//d3XC+BgUCNcczh5NpRlm6tO7SzElBEPrKmDR6h44/RZpJVTHHq5/xS7BSqnlu1EphkkeDYRON6JDQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.7</title>
             <pubDate>Wed, 18 Sep 2024 15:49:13 +0800</pubDate>
             <sparkle:version>147</sparkle:version>
