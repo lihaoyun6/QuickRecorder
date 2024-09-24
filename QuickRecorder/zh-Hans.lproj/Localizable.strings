@@ -165,6 +165,15 @@
 "The output path is a file instead of a folder!"= "所选的保存位置是一个文件, 应该是文件夹!";
 "Use Mini Controller" = "使用迷你控制器";
 "Check for Updates" = "立即检测程序更新";
+"Error" = "错误";
+"Already recording!" = "正在录制中!";
+"Invalid screen number!" = "无效的屏幕编号!";
+"No such application!" = "未找到此应用程序!";
+"This application has no windows!" = "此应用程序没有可录制的窗口!";
+"This app exists in multiple screens, please select it manually!" = "此应用程序同时存在于多个屏幕中, 请手动选择!";
+"No such window!" = "未找到此窗口!";
+"Duplicate window exists, please select it manually!" = "存在多个同名窗口, 请手动选择!";
+"Unable to find the screen this window belongs to!" = "无法确认此窗口所属的屏幕!";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

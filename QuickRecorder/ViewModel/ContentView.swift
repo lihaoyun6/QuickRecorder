@@ -21,7 +21,8 @@ struct ContentView: View {
     @AppStorage("enableAEC") private var enableAEC: Bool = false
     @AppStorage("recordMic") private var recordMic: Bool = false
     @AppStorage("micDevice") private var micDevice: String = "default"
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    var appDelegate = AppDelegate.shared
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
@@ -37,8 +38,12 @@ struct ContentView: View {
                     if #available(macOS 13, *) {
                         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
                             Button(action: {
-                                appDelegate.closeMainWindow()
-                                AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                                if let display = SCContext.getSCDisplayWithMouse() {
+                                    appDelegate.closeMainWindow()
+                                    appDelegate.createCountdownPanel(screen: display) {
+                                        AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
+                                    }
+                                }
                             }, label: {
                                 SelectorView(title: "System Audio".local, symbol: "waveform")
                                     .cornerRadius(8)

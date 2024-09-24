@@ -13,7 +13,8 @@ import MatrixColorSelector
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    var appDelegate = AppDelegate.shared
     @State private var userColor: Color = Color.black
     @State private var launchAtLogin = false
     @AppStorage("encoder")          private var encoder: Encoder = .h264

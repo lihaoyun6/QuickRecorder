@@ -22,9 +22,10 @@ struct StatusBarItem: View {
     @State private var isHovering = false
     @State private var recordingLength = "00:00"
     @State private var isPassed = SCContext.isPaused
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
     @AppStorage("highlightMouse") private var highlightMouse: Bool = false
+    var appDelegate = AppDelegate.shared
     
     var body: some View {
         HStack(spacing: 0) {

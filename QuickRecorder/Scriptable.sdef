@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary title="QuickRecorder Scriptable">
+    <suite name="QuickRecorder Scripting" code="QKrd" description="QuickRecorder commands">
+        <command name="record screen" code="QKrdSlsn" description="Select screen to record">
+            <cocoa class="QuickRecorder.selectScreen"/>
+            <parameter name="numbered" code="NUMb" type="integer" description="Screen number" optional="yes">
+                <cocoa key="index"/>
+            </parameter>
+        </command>
+        
+        <command name="record screen area" code="QKrdSlar" description="Select screen area to record">
+            <cocoa class="QuickRecorder.selectArea"/>
+        </command>
+        
+        <command name="record application" code="QKrdSlap" description="Select apps to record">
+            <cocoa class="QuickRecorder.selectApps"/>
+            <parameter name="named" code="NAmd" type="text" description="Application Name" optional="yes">
+                <cocoa key="name"/>
+            </parameter>
+        </command>
+        
+        <command name="record window" code="QKrdSlwd" description="Select windows to record">
+            <cocoa class="QuickRecorder.selectWindows"/>
+            <parameter name="titled" code="TItd" type="text" description="Window Title" optional="yes">
+                <cocoa key="title"/>
+            </parameter>
+            <parameter name="in application" code="APli" type="text" description="Application Name" optional="yes">
+                <cocoa key="app"/>
+            </parameter>
+        </command>
+        
+        <command name="record system audio" code="QKrdREad" description="Record system audio">
+            <cocoa class="QuickRecorder.recordAudio"/>
+            <parameter name="microphone" code="MIcp" type="boolean" description="Whether to record the microphone at the same time" optional="yes">
+                <cocoa key="mic"/>
+            </parameter>
+        </command>
+        
+        <command name="configure" code="QKrdSEtt" description="Modify recording settings">
+            <cocoa class="QuickRecorder.setPreferences"/>
+            <parameter name="hires" code="REsl" type="boolean" description="Recording in Retina resolution" optional="yes">
+                <cocoa key="hires"/>
+            </parameter>
+            <parameter name="fps" code="FPss" type="integer" description="Set the recording frame rate" optional="yes">
+                <cocoa key="fps"/>
+            </parameter>
+            <parameter name="quality" code="QLty" type="integer" description="Video quality (3=high, 2=medium, 1=low)" optional="yes">
+                <cocoa key="quality"/>
+            </parameter>
+            <parameter name="cursor" code="MOus" type="boolean" description="Whether to record the cursor" optional="yes">
+                <cocoa key="cursor"/>
+            </parameter>
+            <parameter name="sound" code="SUnd" type="boolean" description="Whether to record the system sound" optional="yes">
+                <cocoa key="sound"/>
+            </parameter>
+            <parameter name="microphone" code="MIce" type="boolean" description="Whether to record the microphone" optional="yes">
+                <cocoa key="microphone"/>
+            </parameter>
+            <parameter name="mic device" code="MCNa" type="text" description="The name of the audio input device (default is 'default')" optional="yes">
+                <cocoa key="micname"/>
+            </parameter>
+            <parameter name="hdr" code="HDri" type="boolean" description="Whether to record in HDR mode (macOS 15 or later only)" optional="yes">
+                <cocoa key="hdr"/>
+            </parameter>
+        </command>
+    </suite>
+</dictionary>

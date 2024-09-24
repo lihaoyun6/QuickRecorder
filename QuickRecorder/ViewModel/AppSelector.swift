@@ -230,6 +230,9 @@ struct OptionsView: View {
                         //Text("Low (0.5x)").tag(0)
                     }.buttonStyle(.borderless)
                     Picker("", selection: $frameRate) {
+                        if ![240, 144, 120, 90, 60, 30, 24, 15 ,10].contains(frameRate) {
+                            Text("\(frameRate) FPS").tag(frameRate)
+                        }
                         Text("240 FPS").tag(240)
                         Text("144 FPS").tag(144)
                         Text("120 FPS").tag(120)

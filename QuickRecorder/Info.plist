@@ -40,6 +40,10 @@
 			<true/>
 		</dict>
 	</array>
+	<key>NSAppleScriptEnabled</key>
+	<true/>
+	<key>OSAScriptingDefinition</key>
+	<string>Scriptable</string>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/lihaoyun6/QuickRecorder/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>

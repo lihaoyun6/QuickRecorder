@@ -138,7 +138,8 @@ struct CameraPopoverView: View {
     @State private var hoverIndex = -1
     @State private var hoverIndex2 = -1
     @State private var disabled = false
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    var appDelegate = AppDelegate.shared
     
     var body: some View {
         VStack( alignment: .leading, spacing: 0) {

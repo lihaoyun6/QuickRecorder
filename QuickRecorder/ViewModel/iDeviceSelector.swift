@@ -27,7 +27,8 @@ struct iDevicePopoverView: View {
     @State private var hoverIndex = -1
     @State private var mute = false
     @State private var preset = AVCaptureSession.Preset.high
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    var appDelegate = AppDelegate.shared
     
     var body: some View {
         VStack( alignment: .center, spacing: 0) {
