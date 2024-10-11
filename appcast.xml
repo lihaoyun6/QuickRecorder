@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.4.9</title>
+            <pubDate>Fri, 11 Oct 2024 14:55:13 +0800</pubDate>
+            <sparkle:version>149</sparkle:version>
+            <sparkle:shortVersionString>1.4.9</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                  <style>ul{margin-top: 0;margin-bottom: 5;padding-left: 18;}</style><ul>
+                  <li>修复了迷你控制器模式下, 相机选择弹窗异常消失的 bug</li>
+                  </ul><ul>
+                  <li>Fixed: Camera menu automatically closes in mini controller mode.</li>
+                  </ul><br><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.9/QuickRecorder_v1.4.9.dmg" length="4186467" type="application/octet-stream" sparkle:edSignature="1HMuJyLhhKjtONUGZHZCJxnQdvlJf0/BVUHJpoPExA5LFxGIc0T9HevZeJxJfmlbaoSqIX8SkHR/cfUNVfTCBg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.9/Update149-148.delta" sparkle:deltaFrom="148" length="213178" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Nl9d+4UKpMmGOCAcW26rkPo+7vSbLufO21CU6CSRLpxY0mw2L9a+q9VHHYKU36A9vfLKDc1Lvz40hfmSg22rAg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.9/Update149-147.delta" sparkle:deltaFrom="147" length="500730" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="yDBGMLs+EEHnUjJPPlgPm913Pm11L2nl9KI/GGPb7/KcfREIFZMuLwrEYKTmVuo0wllZztfSSm7ZBYgafdloDA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.4.9/Update149-146.delta" sparkle:deltaFrom="146" length="544134" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="QwYGQRb+04mlhfJRzH5OpbRR/HY0eDsze4cQ2R7P9AfyRlnjAHQQ7F0tGVZBsOMnhkI5yNsEOP/QAfAvmHJ6AQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.8</title>
             <pubDate>Tue, 24 Sep 2024 10:31:06 +0800</pubDate>
             <sparkle:version>148</sparkle:version>
