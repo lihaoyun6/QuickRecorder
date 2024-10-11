@@ -67,39 +67,39 @@ struct StatusBarItem: View {
                                             .frame(width: 16, alignment: .center)
                                     }).buttonStyle(.plain)
                                 }
-                                if SCContext.streamType != .systemaudio {
-                                    if SCContext.streamType != .idevice {
-                                        Button(action:{
-                                            isPopoverShowing = true
-                                        }, label: {
-                                            Image(systemName: "camera.circle.fill")
-                                                .font(.system(size: 16))
-                                                .foregroundStyle(.white)
-                                                .frame(width: 16, alignment: .center)
-                                        })
-                                        .buttonStyle(.plain)
-                                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView(closePopover: { isPopoverShowing = false })}
-                                    } else {
-                                        Button(action:{
-                                            DispatchQueue.main.async {
-                                                if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
-                                                deviceWindowIsShowing = deviceWindow.isVisible
-                                            }
-                                        }, label: {
-                                            Image(systemName: "eye.circle.fill")
-                                                .font(.system(size: 16))
-                                                .foregroundStyle(.white)
-                                                .frame(width: 16, alignment: .center)
-                                                .opacity(deviceWindowIsShowing ? 1 : 0.7)
-                                        })
-                                        .buttonStyle(.plain)
-                                    }
-                                }
                             } else {
                                 Text(recordingLength)
                                     .foregroundStyle(.white)
                                     .font(.system(size: 15).monospaced())
                                     .offset(x: 0.5)
+                            }
+                            if SCContext.streamType != .systemaudio {
+                                if SCContext.streamType != .idevice {
+                                    Button(action:{
+                                        isPopoverShowing = true
+                                    }, label: {
+                                        Image(systemName: "camera.circle.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(.white)
+                                            .frame(width: 16, alignment: .center)
+                                    })
+                                    .buttonStyle(.plain)
+                                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView(closePopover: { isPopoverShowing = false })}
+                                } else {
+                                    Button(action:{
+                                        DispatchQueue.main.async {
+                                            if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
+                                            deviceWindowIsShowing = deviceWindow.isVisible
+                                        }
+                                    }, label: {
+                                        Image(systemName: "eye.circle.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(.white)
+                                            .frame(width: 16, alignment: .center)
+                                            .opacity(deviceWindowIsShowing ? 1 : 0.7)
+                                    })
+                                    .buttonStyle(.plain)
+                                }
                             }
                         } else {
                             Group {
