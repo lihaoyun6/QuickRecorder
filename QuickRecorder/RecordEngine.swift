@@ -132,11 +132,15 @@ extension AppDelegate {
         let encoderIsH265 = (ud.string(forKey: "encoder") == Encoder.h265.rawValue) || recordHDR
         
         let conf: SCStreamConfiguration
+#if compiler(>=6.0)
         if recordHDR {
             if #available(macOS 15, *) {
                 conf = SCStreamConfiguration(preset: .captureHDRStreamLocalDisplay)
             } else { conf = SCStreamConfiguration() }
         } else { conf = SCStreamConfiguration() }
+#else
+        conf = SCStreamConfiguration()
+#endif
         conf.width = 2
         conf.height = 2
         
@@ -476,8 +480,10 @@ extension AppDelegate {
                 if SCContext.lastPTS == nil { return }
                 if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
             }
+#if compiler(>=6.0)
         case .microphone:
             break
+#endif
         @unknown default:
             assertionFailure("unknown stream type".local)
         }
