@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.0</title>
+            <pubDate>Mon, 28 Oct 2024 16:35:53 +0800</pubDate>
+            <sparkle:version>150</sparkle:version>
+            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.0/QuickRecorder_v1.5.0.dmg" length="4210590" type="application/octet-stream" sparkle:edSignature="JrbeJ4Rqnvhgk1BeP+MLTOeewSj8SiFUcpc6MSl2N37ovgUImeBqLvBEaR6fAVGs6bJ7rGs0rnWz3rrwx5RzBQ=="/>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>重新设计了偏好设置窗口的样式.</li>
+                <li>修复了颜色选择器工作不正常的问题.</li>
+                <li>修复了多屏场景下菜单栏图标在非活动屏幕上异常高亮的问题.</li>
+                </ul><ul>
+                <li>Redesigned the preferences view.</li>
+                <li>Fixed: Color picker not working properly.</li>
+                <li>Fixed: Menu bar icons not auto greyed out on inactive screens.</li>
+                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.0/Update150-149.delta" sparkle:deltaFrom="149" length="546370" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="zZJw2JXzvhqXsdP+ibFF2Fk30R7Po8yglJcqzwlcapNlVt5M2sH2cJ7BSSrOLj507gmBc5R2hnEfL9KH6OISCA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.0/Update150-148.delta" sparkle:deltaFrom="148" length="554002" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="BzRarXZJhfnVTrSPdn1W757bMURsOpDKlbjGdYdnAaWFEanPO/91XvGJMUm8bxMQ4LwHdITPfCda16PA+r7BDQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.0/Update150-147.delta" sparkle:deltaFrom="147" length="687178" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="mdOk65KXhkCYDen0EuyGcH28T6ZgxU07ueFWYscdlwL+nkCgpRRPf8pHVMGj5S+c5rrMywi1ZvbMgnVoVMiiBg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.4.9</title>
             <pubDate>Fri, 11 Oct 2024 14:55:13 +0800</pubDate>
             <sparkle:version>149</sparkle:version>
