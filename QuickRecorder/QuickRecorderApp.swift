@@ -21,7 +21,7 @@ var isMacOS14 = false
 var isMacOS15 = false
 var firstRun = true
 let ud = UserDefaults.standard
-var statusMenu: NSMenu = NSMenu()
+//var statusMenu: NSMenu = NSMenu()
 var statusBarItem: NSStatusItem!
 var mouseMonitor: Any?
 var keyMonitor: Any?
@@ -265,9 +265,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
         
-        statusMenu.delegate = self
+        //statusMenu.delegate = self
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusBarItem.menu = statusMenu
+        //statusBarItem.menu = statusMenu
+        statusBarItem.button?.image = NSImage()
         
         mousePointer.title = "Mouse Pointer".local
         mousePointer.level = .screenSaver

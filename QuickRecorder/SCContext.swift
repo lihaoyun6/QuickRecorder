@@ -306,7 +306,9 @@ class SCContext {
             AudioRecorder.shared.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
             audioEngine.stop()
-            try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
+            DispatchQueue.global().async {
+                try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
+            }
         }
         if streamType != .systemaudio {
             let dispatchGroup = DispatchGroup()

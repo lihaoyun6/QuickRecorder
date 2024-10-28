@@ -51,16 +51,15 @@ struct UpdaterSettingsView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Toggle("Automatically check for updates", isOn: $automaticallyChecksForUpdates)
-                .onChange(of: automaticallyChecksForUpdates) { newValue in
-                    updater.automaticallyChecksForUpdates = newValue
-                }
-            Toggle("Automatically download updates", isOn: $automaticallyDownloadsUpdates)
-                .disabled(!automaticallyChecksForUpdates)
-                .onChange(of: automaticallyDownloadsUpdates) { newValue in
-                    updater.automaticallyDownloadsUpdates = newValue
-                }
-        }
+        SToggle("Automatically check for updates", isOn: $automaticallyChecksForUpdates)
+            .onChange(of: automaticallyChecksForUpdates) { newValue in
+                updater.automaticallyChecksForUpdates = newValue
+            }
+        Divider().opacity(0.5)
+        SToggle("Automatically download updates", isOn: $automaticallyDownloadsUpdates)
+            .disabled(!automaticallyChecksForUpdates)
+            .onChange(of: automaticallyDownloadsUpdates) { newValue in
+                updater.automaticallyDownloadsUpdates = newValue
+            }
     }
 }

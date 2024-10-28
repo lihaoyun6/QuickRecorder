@@ -13,7 +13,7 @@ struct BundleSelector: View {
     @State private var isShowingFilePicker = false
     
     var body: some View {
-        VStack(alignment: .trailing, spacing: 0) {
+        ZStack(alignment: Alignment(horizontal: .trailing, vertical: .bottom)) {
             List(Bundles, id: \.self) { item in
                 HStack{
                     Image(systemName: "minus.circle.fill")
@@ -27,14 +27,13 @@ struct BundleSelector: View {
                     Text(item.displayName).font(.system(size: 12))
                 }
             }
-            HStack {
-                Button(action: {
-                    self.isShowingFilePicker = true
-                }) {
-                    Image(systemName: "plus.square.fill")
-                        .foregroundStyle(.secondary)
-                }.buttonStyle(.plain)
-            }.padding(.top, -14.5)
+            Button(action: {
+                self.isShowingFilePicker = true
+            }) {
+                Image(systemName: "plus.square.fill")
+                    .font(.system(size: 20))
+                    .foregroundStyle(.secondary)
+            }.buttonStyle(.plain).offset(y: -1)
         }
         .onAppear {
             if let savedData = ud.data(forKey: "hiddenApps"),
