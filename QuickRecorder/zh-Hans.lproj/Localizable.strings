@@ -181,7 +181,7 @@
 "Output" = "输出设置";
 "Hotkey" = "快捷键";
 "Blocklist" = "屏蔽列表";
-"Open..." = "打开...";
+"Select..." = "选择...";
 "Go Back" = "返回";
 "If enabling Presenter Overlay causes recording failure, please increase this value." = "如果启用演讲者前置功能后无法保存录像, 请尝试增大此值";
 

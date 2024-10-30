@@ -232,7 +232,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         if ud.integer(forKey: "highRes") == 0 { ud.setValue(2, forKey: "highRes") }
         if !ud.bool(forKey: "showOnDock") && !ud.bool(forKey: "showMenubar") { ud.setValue(true, forKey: "showOnDock") }
         if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
-        
+        print(SCContext.getDefaultSampleRate())
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }

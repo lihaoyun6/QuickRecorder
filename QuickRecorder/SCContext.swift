@@ -20,7 +20,7 @@ class SCContext {
     static var previewSession: AVCaptureSession!
     static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
-    static var audioSettings: [String : Any]!
+    //static var audioSettings: [String : Any]!
     static var isMagnifierEnabled = false
     static var saveFrame = false
     static var isPaused = false
@@ -165,13 +165,15 @@ class SCContext {
         return ud.string(forKey: "saveDirectory")! + (capture ? "/Capturing at ".local : "/Recording at ".local) + dateFormatter.string(from: Date())
     }
     
-    static func updateAudioSettings(format: String = ud.string(forKey: "audioFormat") ?? "") {
-        audioSettings = [AVSampleRateKey : 48000, AVNumberOfChannelsKey : 2] // reset audioSettings
+    static func updateAudioSettings(format: String = ud.string(forKey: "audioFormat") ?? "", rate: Int = 48000) -> [String : Any] {
+        var audioSettings: [String : Any] = [AVSampleRateKey : rate, AVNumberOfChannelsKey : 2] // reset audioSettings
+        var bitRate = ud.integer(forKey: "audioQuality") * 1000
+        if rate < 44100 { bitRate = min(96000, bitRate / 2) }
         switch format {
         case AudioFormat.mp3.rawValue: fallthrough
         case AudioFormat.aac.rawValue:
             audioSettings[AVFormatIDKey] = kAudioFormatMPEG4AAC
-            audioSettings[AVEncoderBitRateKey] = ud.integer(forKey: "audioQuality") * 1000
+            audioSettings[AVEncoderBitRateKey] = bitRate
         case AudioFormat.alac.rawValue:
             audioSettings[AVFormatIDKey] = kAudioFormatAppleLossless
             audioSettings[AVEncoderBitDepthHintKey] = 16
@@ -179,10 +181,11 @@ class SCContext {
             audioSettings[AVFormatIDKey] = kAudioFormatFLAC
         case AudioFormat.opus.rawValue:
             audioSettings[AVFormatIDKey] = ud.string(forKey: "videoFormat") != VideoFormat.mp4.rawValue ? kAudioFormatOpus : kAudioFormatMPEG4AAC
-            audioSettings[AVEncoderBitRateKey] =  ud.integer(forKey: "audioQuality") * 1000
+            audioSettings[AVEncoderBitRateKey] =  bitRate
         default:
             assertionFailure("unknown audio format while setting audio settings: ".local + (ud.string(forKey: "audioFormat") ?? "[no defaults]".local))
         }
+        return audioSettings
     }
     
     static func getBackgroundColor() -> CGColor {
@@ -320,14 +323,14 @@ class SCContext {
                 if vW.status != .completed {
                     print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
                     let err = vW.error?.localizedDescription ?? "Unknow Error"
-                    showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(Date.now)")
+                    showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(UUID().uuidString)")
                 } else {
                     if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
                         mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in
                             switch result {
                             case .success(let url):
                                 print("Exported video to \(String(describing: url.path))")
-                                showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(Date.now)")
+                                showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(UUID().uuidString)")
                                 if ud.bool(forKey: "trimAfterRecord") {
                                     DispatchQueue.main.async {
                                         AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent)
@@ -363,7 +366,7 @@ class SCContext {
                     do {
                         let title = "Recording Completed".local
                         let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
-                        let id = "quickrecorder.completed.\(Date.now)"
+                        let id = "quickrecorder.completed.\(UUID().uuidString)"
                         try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
                         try? FileManager.default.removeItem(atPath: filePath1)
                         /*if ud.bool(forKey: "recordMic") {
@@ -374,15 +377,29 @@ class SCContext {
                         }*/
                         showNotification(title: title, body: body, id: id)
                     } catch {
-                        showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(Date.now)")
+                        showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(UUID().uuidString)")
                     }
                 }
             } else {
                 let title = "Recording Completed".local
                 var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
                 if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
-                let id = "quickrecorder.completed.\(Date.now)"
+                let id = "quickrecorder.completed.\(UUID().uuidString)"
                 showNotification(title: title, body: body, id: id)
+                if ud.bool(forKey: "remuxAudio") {
+                    let fileURL = URL(fileURLWithPath: filePath)
+                    let document = try? qmaPackageHandle.load(from: fileURL)
+                    if let document = document {
+                        let audioPlayerManager = AudioPlayerManager()
+                        audioPlayerManager.loadAudioFiles(format: document.info.format, package: fileURL, encoder: document.info.encoder, saveMP3: document.info.exportMP3)
+                        audioPlayerManager.sysVol = document.info.sysVol
+                        audioPlayerManager.micVol = document.info.micVol
+                        let exportMP3 = document.info.exportMP3
+                        let format = exportMP3 ? "mp3" : document.info.format
+                        let saveURL = fileURL.deletingPathExtension().appendingPathExtension(format)
+                        audioPlayerManager.saveFile(saveURL, saveAsMP3: exportMP3)
+                    }
+                }
             }
         }
         
@@ -398,7 +415,7 @@ class SCContext {
             let title = "Recording Completed".local
             var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
             if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
-            let id = "quickrecorder.completed.\(Date.now)"
+            let id = "quickrecorder.completed.\(UUID().uuidString)"
             if let vW = vW {
                 if vW.status == .completed {
                     showNotification(title: title, body: body, id: id)
@@ -441,13 +458,90 @@ class SCContext {
     }
     
     static func getMicrophone() -> [AVCaptureDevice] {
-        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone, .externalUnknown], mediaType: .audio, position: .unspecified)
+        var discoverySession: AVCaptureDevice.DiscoverySession
+        if #available(macOS 15.0, *) {
+            discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone, .microphone], mediaType: .audio, position: .unspecified)
+        } else {
+            discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInMicrophone, .externalUnknown], mediaType: .audio, position: .unspecified)
+        }
         return discoverySession.devices.filter({ !$0.localizedName.contains("CADefaultDeviceAggregate") })
     }
     
     static func getiDevice() -> [AVCaptureDevice] {
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.externalUnknown], mediaType: .muxed, position: .unspecified)
         return discoverySession.devices
+    }
+    
+    static func getCurrentMic() -> AVCaptureDevice? {
+        let deviceName = ud.string(forKey: "micDevice")
+        if deviceName == "Default" {
+            
+        }
+        return getMicrophone().first(where: { $0.localizedName == ud.string(forKey: "micDevice") })
+    }
+    
+    static func getSampleRate(for device: AVCaptureDevice) -> Int? {
+        let activeFormat = device.activeFormat
+        let description = activeFormat.formatDescription
+        
+        if let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee {
+            let sampleRate = audioStreamBasicDescription.mSampleRate
+            return Int(sampleRate)
+        } else {
+            return nil
+        }
+    }
+    
+    static func getDefaultSampleRate() -> Int? {
+        var deviceID = AudioObjectID(0)
+        var propertySize = UInt32(MemoryLayout.size(ofValue: deviceID))
+        
+        // 获取默认音频输入设备
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultInputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        
+        let status = AudioObjectGetPropertyData(
+            AudioObjectID(kAudioObjectSystemObject),
+            &address,
+            0,
+            nil,
+            &propertySize,
+            &deviceID
+        )
+        
+        guard status == noErr else {
+            print("Failed to get default audio input device")
+            return nil
+        }
+        
+        // 获取采样率
+        var sampleRate: Double = 0
+        propertySize = UInt32(MemoryLayout.size(ofValue: sampleRate))
+        
+        address = AudioObjectPropertyAddress(
+            mSelector: kAudioDevicePropertyNominalSampleRate,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain
+        )
+        
+        let sampleRateStatus = AudioObjectGetPropertyData(
+            deviceID,
+            &address,
+            0,
+            nil,
+            &propertySize,
+            &sampleRate
+        )
+        
+        guard sampleRateStatus == noErr else {
+            print("Failed to get sample rate for the default input device")
+            return nil
+        }
+        
+        return Int(sampleRate)
     }
     
     static func adjustTime(sample: CMSampleBuffer, by offset: CMTime) -> CMSampleBuffer? {
@@ -480,7 +574,7 @@ class SCContext {
     }
     
     static func mixAudioTracks(videoURL: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        showNotification(title: "Still Processing".local, body: "Mixing audio track...".local, id: "quickrecorder.processing.\(Date.now)")
+        showNotification(title: "Still Processing".local, body: "Mixing audio track...".local, id: "quickrecorder.processing.\(UUID().uuidString)")
         
         let asset = AVAsset(url: videoURL)
         let audioOutputURL = videoURL.deletingPathExtension()

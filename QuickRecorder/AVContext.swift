@@ -144,7 +144,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         content.body = String(format: "File saved to: %@".local, outputFileURL.path)
         content.sound = UNNotificationSound.default
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: "quickrecorder.completed.\(Date.now)", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "quickrecorder.completed.\(UUID().uuidString)", content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error { print("Notification failed to send：\(error.localizedDescription)") }
         }
