@@ -168,7 +168,7 @@ class SCContext {
     static func updateAudioSettings(format: String = ud.string(forKey: "audioFormat") ?? "", rate: Int = 48000) -> [String : Any] {
         var audioSettings: [String : Any] = [AVSampleRateKey : rate, AVNumberOfChannelsKey : 2] // reset audioSettings
         var bitRate = ud.integer(forKey: "audioQuality") * 1000
-        if rate < 44100 { bitRate = min(96000, bitRate / 2) }
+        if rate < 44100 { bitRate = min(64000, bitRate / 2) }
         switch format {
         case AudioFormat.mp3.rawValue: fallthrough
         case AudioFormat.aac.rawValue:
