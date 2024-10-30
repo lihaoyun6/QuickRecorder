@@ -121,12 +121,12 @@ struct SToggle: View {
 struct SSteper: View {
     var title: LocalizedStringKey
     @Binding var value: Int
-    var tips: LocalizedStringKey?
-    var length: CGFloat
     var min: Int
     var max: Int
+    var length: CGFloat
+    var tips: LocalizedStringKey?
     
-    init(_ title: LocalizedStringKey, value: Binding<Int>, tips: LocalizedStringKey? = nil, length: CGFloat = 45, min: Int = 0, max: Int = 100) {
+    init(_ title: LocalizedStringKey, value: Binding<Int>, min: Int = 0, max: Int = 100, length: CGFloat = 45, tips: LocalizedStringKey? = nil) {
         self.title = title
         self._value = value
         self.tips = tips

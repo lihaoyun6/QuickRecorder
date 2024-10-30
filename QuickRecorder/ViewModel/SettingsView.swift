@@ -116,10 +116,10 @@ struct RecorderView: View {
         VStack(spacing: 10) {
             GroupBox(label: Text("Recorder").font(.headline)) {
                 VStack(spacing: 10) {
-                    SSteper("Delay Before Recording", value: $countdown)
+                    SSteper("Delay Before Recording", value: $countdown, min: 0, max: 99)
                     Divider().opacity(0.5)
                     if #available(macOS 14, *) {
-                        SSteper("Presenter Overlay Delay", value: $poSafeDelay, tips: "If enabling Presenter Overlay causes recording failure, please increase this value.")
+                        SSteper("Presenter Overlay Delay", value: $poSafeDelay, min: 0, max: 99, tips: "If enabling Presenter Overlay causes recording failure, please increase this value.")
                         Divider().opacity(0.5)
                     }
                     HStack {
