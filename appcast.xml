@@ -3,6 +3,28 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.2</title>
+            <pubDate>Wed, 30 Oct 2024 10:55:03 +0800</pubDate>
+            <sparkle:version>152</sparkle:version>
+            <sparkle:shortVersionString>1.5.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.2/QuickRecorder_v1.5.2.dmg" length="4220417" type="application/octet-stream" sparkle:edSignature="49zusdKlI12mXATfFo0JI0pfyPFOlfgYbCGKsL+0iVDwhtuN2O+im3dzkLXkXaX0o3WKP5ZN3nucHGzWN0MjCg=="/>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了从 AirPods 麦克风录制声音时会被加速的问题.</li>
+                <li>启用"将麦克风录制到主音轨"后, 当仅录制音频+麦克风时会自动导出单轨文件.</li>
+                </ul><ul>
+                <li>Fixed: Audio is accelerated when recording from AirPods microphone.</li>
+                <li>By enabling "Record Microphone to Main Track", a single track copy of the audio file will be generated when recording "Audio Only + Mic".</li>
+                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.2/Update152-150.delta" sparkle:deltaFrom="150" length="389878" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="ObgPddqgBx7/CuyZq0XiFWWiuILNGe/Qta+E/uNoLi0ibWdDCdHnAeraS6dW/iZF1SbkA7WLBb9UoVd5LX/ODg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.2/Update152-149.delta" sparkle:deltaFrom="149" length="602658" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="6YCml9F0on60qpDk6N4q9FTpyjMjf0MlbrfTjPf4027RkyeKLETsr2ZtYfQCCwWjFJo+KFUjE+xervJ0TXJJAQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.2/Update152-148.delta" sparkle:deltaFrom="148" length="605742" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="U3Q/a7DJFA4T0Hadd1Zfdy6f3K2LaCJFVtYHYEIqZw7OtWhKwgVJkdv3T11oIBBeZVE2aM5HfwsA4jm/evOGDQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.0</title>
             <pubDate>Mon, 28 Oct 2024 16:35:53 +0800</pubDate>
             <sparkle:version>150</sparkle:version>
