@@ -333,7 +333,7 @@ class SCContext {
                                 showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(UUID().uuidString)")
                                 if ud.bool(forKey: "trimAfterRecord") {
                                     DispatchQueue.main.async {
-                                        AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent)
+                                        AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, only: false)
                                     }
                                 }
                             case .failure(let error):
@@ -448,7 +448,7 @@ class SCContext {
     static func trimVideo() {
         if ud.bool(forKey: "trimAfterRecord") {
             let fileURL = URL(fileURLWithPath: filePath)
-            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent)
+            AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent, only: false)
         }
     }
     

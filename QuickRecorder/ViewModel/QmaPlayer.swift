@@ -12,7 +12,6 @@ import SwiftUI
 struct qmaPlayerView: View {
     @Binding var document: qmaPackageHandle
     @State var fileURL: URL
-    @State private var window: NSWindow?
     @State private var overPlay: Bool = false
     @State private var overStop: Bool = false
     @State private var overSave: Bool = false
@@ -157,7 +156,7 @@ struct qmaPlayerView: View {
                 audioPlayerManager.sysVol = document.info.sysVol
                 audioPlayerManager.micVol = document.info.micVol
         }
-        .background(WindowAccessor(window: $window, onWindowOpen: {
+        .background(WindowAccessor(onWindowOpen: { window in
             guard let w = window else { return }
             w.setFrame(NSRect(origin: w.frame.origin, size: CGSize(width: 400, height: 100)), display: true)
             w.isMovableByWindowBackground = true
@@ -193,17 +192,20 @@ struct VisualEffectView: NSViewRepresentable {
 }
 
 struct WindowAccessor: NSViewRepresentable {
-    @Binding var window: NSWindow?
-    var onWindowOpen: () -> Void
+    var nsWindow: NSWindow? = nil
+    var onWindowOpen: (NSWindow?) -> Void
     var onWindowClose: () -> Void
     //var onWindowActive: () -> Void
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         DispatchQueue.main.async {
-            self.window = view.window
-            self.window?.delegate = context.coordinator
-            self.onWindowOpen()
+            if let window = view.window {
+                window.delegate = context.coordinator
+                self.onWindowOpen(window)
+            } else {
+                self.onWindowOpen(nil)
+            }
         }
         return view
     }
@@ -215,14 +217,13 @@ struct WindowAccessor: NSViewRepresentable {
     }
 
     class Coordinator: NSObject, NSWindowDelegate {
-        var onWindowOpen: () -> Void
+        var onWindowOpen: (NSWindow?) -> Void
         var onWindowClose: () -> Void
         //var onWindowActive: () -> Void
 
-        init(onWindowOpen: @escaping () -> Void, onWindowClose: @escaping () -> Void) {
+        init(onWindowOpen: @escaping (NSWindow?) -> Void, onWindowClose: @escaping () -> Void) {
             self.onWindowOpen = onWindowOpen
             self.onWindowClose = onWindowClose
-            //self.onWindowActive = onWindowActive
         }
 
         func windowWillClose(_ notification: Notification) { onWindowClose() }

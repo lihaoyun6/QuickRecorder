@@ -392,9 +392,9 @@ extension AppDelegate {
         }
     }
     
-    func createNewWindow(view: some View, title: String, random: Bool = false) {
+    func createNewWindow(view: some View, title: String, random: Bool = false, only: Bool = true) {
         guard let screen = SCContext.getScreenWithMouse() else { return }
-        closeAllWindow()
+        if only { closeAllWindow() }
         var seed = 0.0
         if random { seed = CGFloat(Int(arc4random_uniform(401)) - 200) }
         let wX = (screen.frame.width - 780) / 2 + seed + screen.frame.minX

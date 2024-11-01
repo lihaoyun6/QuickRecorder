@@ -7,6 +7,7 @@ class RecorderPlayerModel: NSObject, ObservableObject {
     @Published var playerView: AVPlayerView
     var asset: AVAsset?
     var fileUrl: URL?
+    var playerItem: AVPlayerItem!
     
     override init() {
         self.playerView = AVPlayerView()
@@ -19,7 +20,7 @@ class RecorderPlayerModel: NSObject, ObservableObject {
         fileUrl = fromUrl
         asset = AVAsset(url: fromUrl)
         guard let asset = asset else { return }
-        let playerItem = AVPlayerItem(asset: asset)
+        playerItem = AVPlayerItem(asset: asset)
         playerView.player?.replaceCurrentItem(with: playerItem)
         playerView.controlsStyle = .inline
         
@@ -99,6 +100,13 @@ class RecorderPlayerModel: NSObject, ObservableObject {
             playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
         }
     }
+    
+    func cleanup() {
+        // 移除所有观察者
+        playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+        playerView.player?.pause()
+        playerView.player = nil // 移除 player 对象
+    }
 }
 
 struct RecorderPlayerView: NSViewRepresentable {
@@ -137,7 +145,12 @@ struct VideoTrimmerView: View {
                             .cornerRadius(5)
                     )
             }.padding([.bottom, .leading, .trailing])
-        }.padding(.top, -22)
+        }
+        .padding(.top, -22)
+        .background(WindowAccessor(onWindowOpen: {_ in}, onWindowClose: {
+            playerViewModel.playerView.player?.replaceCurrentItem(with: nil)
+            playerViewModel.playerView.player = nil
+        }))
         //.navigationTitle(videoURL.lastPathComponent)
         //.preferredColorScheme(.dark)
     }
