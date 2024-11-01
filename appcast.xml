@@ -3,6 +3,26 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.3</title>
+            <pubDate>Fri, 01 Nov 2024 14:46:16 +0800</pubDate>
+            <sparkle:version>153</sparkle:version>
+            <sparkle:shortVersionString>1.5.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.3/QuickRecorder_v1.5.3.dmg" length="4219222" type="application/octet-stream" sparkle:edSignature="AlQ7+b2iHeMIiLQoo/xGjOCM2JX47RSybLwZnE86vA/fsiQ1gr+OoB92dHJc+iwWoN+7BUGoa+TVs+H167SZBQ=="/>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了退出视频修剪器后声音仍然在后台继续播放的bug.</li>
+                </ul><ul>
+                <li>Fixed: Sound continued to play in the background after exiting the video trimmer.</li>
+                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.3/Update153-152.delta" sparkle:deltaFrom="152" length="310970" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="1u/bG9nxkKdXrO6+bqDc1FMaWiQv5aGeKdGAkh4GKTfUlV6E8+8BdqXHlEAcpz8B+fYXetivknA4Xr580CIoCA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.3/Update153-150.delta" sparkle:deltaFrom="150" length="424802" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="wa6k58E/hHXksS9vfCW3MfJghkt40rMF/WD6iMZqgbc0iIk4a2y39x6ruO3VgbLLJK4xVsfdiTpsJIL/0CIrAA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.3/Update153-149.delta" sparkle:deltaFrom="149" length="613346" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="1Q0fhRggBHC9F5ctNYv01HjqUlkVfYAf5orhG6DPInPtBUpL+qo511gfu1ZG1y6jSGUG5+h5hQoflI0uA5FGDQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.2</title>
             <pubDate>Wed, 30 Oct 2024 10:55:03 +0800</pubDate>
             <sparkle:version>152</sparkle:version>
