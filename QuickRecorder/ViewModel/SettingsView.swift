@@ -35,8 +35,7 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }
-        .frame(width: 600, height: 430)
+        }.frame(width: 600, height: 430)
     }
 }
 
@@ -49,41 +48,30 @@ struct GeneralView: View {
     @State private var launchAtLogin = false
 
     var body: some View {
-        VStack(spacing: 30) {
-            GroupBox(label: Text("Startup").font(.headline)) {
-                VStack(spacing: 10) {
-                    if #available(macOS 13, *) {
-                        SToggle("Launch at Login", isOn: $launchAtLogin)
-                            .onChange(of: launchAtLogin) { newValue in
-                                do {
-                                    if newValue {
-                                        try SMAppService.mainApp.register()
-                                    } else {
-                                        try SMAppService.mainApp.unregister()
-                                    }
-                                }catch{
-                                    print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)")
+        SForm {
+            SGroupBox(label: "Startup") {
+                if #available(macOS 13, *) {
+                    SToggle("Launch at Login", isOn: $launchAtLogin)
+                        .onChange(of: launchAtLogin) { newValue in
+                            do {
+                                if newValue {
+                                    try SMAppService.mainApp.register()
+                                } else {
+                                    try SMAppService.mainApp.unregister()
                                 }
+                            }catch{
+                                print("Failed to \(newValue ? "enable" : "disable") launch at login: \(error.localizedDescription)")
                             }
-                        Divider().opacity(0.5)
-                        SToggle("Show QuickRecorder on Dock", isOn: $showOnDock)
-                            .disabled(!showMenubar)
-                            .onChange(of: showOnDock) { newValue in
-                                if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
-                            }
-                        Divider().opacity(0.5)
-                        SToggle("Show QuickRecorder on Menu Bar", isOn: $showMenubar)
-                            .disabled(!showOnDock)
-                            .onChange(of: showMenubar) { _ in AppDelegate.shared.updateStatusBar() }
-                    }
-                    
-                }.padding(5)
+                        }
+                    SDivider()
+                }
+                SToggle("Show QuickRecorder on Dock", isOn: $showOnDock)
+                    .disabled(!showMenubar)
+                SDivider()
+                SToggle("Show QuickRecorder on Menu Bar", isOn: $showMenubar)
+                    .disabled(!showOnDock)
             }
-            GroupBox(label: Text("Update").font(.headline)) {
-                VStack(spacing: 10) {
-                    UpdaterSettingsView(updater: updaterController.updater)
-                }.padding(5)
-            }
+            SGroupBox(label: "Update") { UpdaterSettingsView(updater: updaterController.updater) }
             VStack(spacing: 8) {
                 CheckForUpdatesView(updater: updaterController.updater)
                 if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
@@ -92,11 +80,13 @@ struct GeneralView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            Spacer().frame(minHeight: 0)
         }
-        .padding()
-        .frame(maxWidth: .infinity)
         .onAppear{ if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }}
+        .onChange(of: showMenubar) { _ in AppDelegate.shared.updateStatusBar() }
+        .onChange(of: showOnDock) { newValue in
+            print(newValue)
+            if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
+        }
     }
 }
 
@@ -113,48 +103,40 @@ struct RecorderView: View {
     @State private var userColor: Color = Color.black
 
     var body: some View {
-        VStack(spacing: 10) {
-            GroupBox(label: Text("Recorder").font(.headline)) {
-                VStack(spacing: 10) {
-                    SSteper("Delay Before Recording", value: $countdown, min: 0, max: 99)
-                    Divider().opacity(0.5)
-                    if #available(macOS 14, *) {
-                        SSteper("Presenter Overlay Delay", value: $poSafeDelay, min: 0, max: 99, tips: "If enabling Presenter Overlay causes recording failure, please increase this value.")
-                        Divider().opacity(0.5)
-                    }
-                    HStack {
-                        Text("Custom Background Color")
-                        Spacer()
-                        MatrixColorSelector("", selection: $userColor, sheetMode: true)
+        SForm(spacing: 10) {
+            SGroupBox(label: "Recorder") {
+                SSteper("Delay Before Recording", value: $countdown, min: 0, max: 99)
+                SDivider()
+                if #available(macOS 14, *) {
+                    SSteper("Presenter Overlay Delay", value: $poSafeDelay, min: 0, max: 99, tips: "If enabling Presenter Overlay causes recording failure, please increase this value.")
+                    SDivider()
+                }
+                SItem(label: "Custom Background Color") {
+                    if #unavailable(macOS 13) {
+                        ColorPicker("", selection: $userColor)
+                    } else {
+                        MatrixColorSelector("", selection: $userColor)
                             .onChange(of: userColor) { userColor in ud.setColor(userColor, forKey: "userColor") }
-                    }.frame(height: 16)
-                }.padding(5)
-            }
-            GroupBox {
-                VStack(spacing: 10) {
-                    SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
-                    Divider().opacity(0.5)
-                    SToggle("Exclude QuickRecorder itself", isOn: $hideSelf)
-                    Divider().opacity(0.5)
-                    if #available (macOS 13, *) {
-                        SToggle("Include MenuBar in Recording", isOn: $includeMenuBar)
-                        Divider().opacity(0.5)
                     }
-                    SToggle("Highlight the Mouse Cursor", isOn: $highlightMouse, tips: "Not available for \"Single Window Capture\"")
-                    Divider().opacity(0.5)
-                    SToggle("Exclude the \"Desktop Files\" layer", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
-                }.padding(5)
+                }
             }
-            GroupBox {
-                VStack(spacing: 10) {
-                    SToggle("Mini size Menu Bar controller", isOn: $miniStatusBar)
-                }.padding(5)
+            SGroupBox {
+                SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
+                SDivider()
+                SToggle("Exclude QuickRecorder itself", isOn: $hideSelf)
+                SDivider()
+                if #available (macOS 13, *) {
+                    SToggle("Include MenuBar in Recording", isOn: $includeMenuBar)
+                    SDivider()
+                }
+                SToggle("Highlight the Mouse Cursor", isOn: $highlightMouse, tips: "Not available for \"Single Window Capture\"")
+                SDivider()
+                SToggle("Exclude the \"Desktop Files\" layer", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
             }
-            Spacer().frame(minHeight: 0)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
+            SGroupBox {
+                SToggle("Mini size Menu Bar controller", isOn: $miniStatusBar)
+            }
+        }.onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
     }
 }
 
@@ -171,74 +153,62 @@ struct OutputView: View {
     @AppStorage("saveDirectory")    private var saveDirectory: String?
 
     var body: some View {
-        VStack(spacing: 30) {
-            GroupBox(label: Text("Audio").font(.headline)) {
-                VStack(spacing: 10) {
-                    SPicker("Quality", selection: $audioQuality) {
-                        if audioFormat == .alac || audioFormat == .flac {
-                            Text("Lossless").tag(audioQuality)
-                        }
-                        Text("Normal - 128Kbps").tag(AudioQuality.normal)
-                        Text("Good - 192Kbps").tag(AudioQuality.good)
-                        Text("High - 256Kbps").tag(AudioQuality.high)
-                        Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
-                    }.disabled(audioFormat == .alac || audioFormat == .flac)
-                    Divider().opacity(0.5)
-                    SPicker("Format", selection: $audioFormat) {
-                        Text("MP3").tag(AudioFormat.mp3)
-                        Text("AAC").tag(AudioFormat.aac)
-                        Text("ALAC (Lossless)").tag(AudioFormat.alac)
-                        Text("FLAC (Lossless)").tag(AudioFormat.flac)
-                        Text("Opus").tag(AudioFormat.opus)
+        SForm {
+            SGroupBox(label: "Audio") {
+                SPicker("Quality", selection: $audioQuality) {
+                    if audioFormat == .alac || audioFormat == .flac {
+                        Text("Lossless").tag(audioQuality)
                     }
-                    Divider().opacity(0.5)
-                    if #available(macOS 13, *) {
-                        SToggle("Record Microphone to Main Track", isOn: $remuxAudio)
-                        Divider().opacity(0.5)
-                    }
-                    SToggle("Enable Acoustic Echo Cancellation", isOn: $enableAEC)
-                }.padding(5)
+                    Text("Normal - 128Kbps").tag(AudioQuality.normal)
+                    Text("Good - 192Kbps").tag(AudioQuality.good)
+                    Text("High - 256Kbps").tag(AudioQuality.high)
+                    Text("Extreme - 320Kbps").tag(AudioQuality.extreme)
+                }.disabled(audioFormat == .alac || audioFormat == .flac)
+                SDivider()
+                SPicker("Format", selection: $audioFormat) {
+                    Text("MP3").tag(AudioFormat.mp3)
+                    Text("AAC").tag(AudioFormat.aac)
+                    Text("ALAC (Lossless)").tag(AudioFormat.alac)
+                    Text("FLAC (Lossless)").tag(AudioFormat.flac)
+                    Text("Opus").tag(AudioFormat.opus)
+                }
+                SDivider()
+                if #available(macOS 13, *) {
+                    SToggle("Record Microphone to Main Track", isOn: $remuxAudio)
+                    SDivider()
+                }
+                SToggle("Enable Acoustic Echo Cancellation", isOn: $enableAEC)
             }
-            GroupBox(label: Text("Video").font(.headline)) {
-                VStack(spacing: 10) {
-                    SPicker("Format", selection: $videoFormat) {
-                        Text("MOV").tag(VideoFormat.mov)
-                        Text("MP4").tag(VideoFormat.mp4)
-                    }.disabled(withAlpha)
-                    Divider().opacity(0.5)
-                    SPicker("Encoder", selection: $encoder) {
-                        Text("H.264 + sRGB").tag(Encoder.h264)
-                        Text("H.265 + P3").tag(Encoder.h265)
-                    }.disabled(withAlpha)
-                    Divider().opacity(0.5)
-                    SToggle("Recording with Alpha Channel", isOn: $withAlpha)
-                        .onChange(of: withAlpha) {alpha in
-                            if alpha {
-                                encoder = Encoder.h265; videoFormat = VideoFormat.mov
-                            } else {
-                                if background == .clear { background = .wallpaper }
-                            }}
-                }.padding(5)
+            SGroupBox(label: "Video") {
+                SPicker("Format", selection: $videoFormat) {
+                    Text("MOV").tag(VideoFormat.mov)
+                    Text("MP4").tag(VideoFormat.mp4)
+                }.disabled(withAlpha)
+                SDivider()
+                SPicker("Encoder", selection: $encoder) {
+                    Text("H.264 + sRGB").tag(Encoder.h264)
+                    Text("H.265 + P3").tag(Encoder.h265)
+                }.disabled(withAlpha)
+                SDivider()
+                SToggle("Recording with Alpha Channel", isOn: $withAlpha)
             }
-            GroupBox {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Output Folder")
-                        Spacer()
-                        Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent))
-                            .font(.footnote)
-                            .foregroundColor(Color.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                        Button("Select...", action: { updateOutputDirectory() })
-                    }.frame(height: 16)
-                }.padding(5)
+            SGroupBox {
+                SItem(label: "Output Folder") {
+                    Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent))
+                        .font(.footnote)
+                        .foregroundColor(Color.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Button("Select...", action: { updateOutputDirectory() })
+                }
             }
-            Spacer().frame(minHeight: 0)
+        }.onChange(of: withAlpha) {alpha in
+            if alpha {
+                encoder = Encoder.h265; videoFormat = VideoFormat.mov
+            } else {
+                if background == .clear { background = .wallpaper }
+            }
         }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .padding(.bottom, -23)
     }
     
     func updateOutputDirectory() { // todo: re-sandbox
@@ -255,86 +225,41 @@ struct OutputView: View {
 
 struct HotkeyView: View {
     var body: some View {
-        VStack(spacing: 10) {
-            GroupBox(label: Text("Hotkey").font(.headline)) {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Stop Recording")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .stop)
-                    }.frame(height: 16)
-                    Divider().opacity(0.5)
-                    HStack {
-                        Text("Pause / Resume")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .pauseResume)
-                    }.frame(height: 16)
-                }.padding(5)
+        SForm(spacing: 10) {
+            SGroupBox(label: "Hotkey") {
+                SItem(label: "Stop Recording") { KeyboardShortcuts.Recorder("", name: .stop) }
+                SDivider()
+                SItem(label: "Pause / Resume") { KeyboardShortcuts.Recorder("", name: .pauseResume) }
             }
-            GroupBox {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Record System Audio")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .startWithAudio)
-                    }.frame(height: 16)
-                    Divider().opacity(0.5)
-                    HStack {
-                        Text("Record Current Screen")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .startWithScreen)
-                    }.frame(height: 16)
-                    Divider().opacity(0.5)
-                    HStack {
-                        Text("Record Topmost Window")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .startWithWindow)
-                    }.frame(height: 16)
-                    Divider().opacity(0.5)
-                    HStack {
-                        Text("Select Area to Record")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .startWithArea)
-                    }.frame(height: 16)
-                }.padding(5)
+            SGroupBox {
+                SItem(label: "Record System Audio") { KeyboardShortcuts.Recorder("", name: .startWithAudio) }
+                SDivider()
+                SItem(label: "Record Current Screen") { KeyboardShortcuts.Recorder("", name: .startWithScreen) }
+                SDivider()
+                SItem(label: "Record Topmost Window") { KeyboardShortcuts.Recorder("", name: .startWithWindow) }
+                SDivider()
+                SItem(label: "Select Area to Record") { KeyboardShortcuts.Recorder("", name: .startWithArea) }
             }
-            GroupBox {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Save Current Frame")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .saveFrame)
-                    }.frame(height: 16)
-                    Divider().opacity(0.5)
-                    HStack {
-                        Text("Toggle Screen Magnifier")
-                        Spacer()
-                        KeyboardShortcuts.Recorder("", name: .screenMagnifier)
-                    }.frame(height: 16)
-                }.padding(5)
+            SGroupBox {
+                SItem(label: "Save Current Frame") { KeyboardShortcuts.Recorder("", name: .saveFrame) }
+                SDivider()
+                SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
             }
-            Spacer().frame(minHeight: 0)
         }
-        .padding()
-        .frame(maxWidth: .infinity)
     }
 }
 
 struct BlocklistView: View {
     var body: some View {
-        VStack(spacing: 30) {
-            GroupBox(label: Text("Blocklist").font(.headline)) {
-                VStack(spacing: 10) {
+        SForm(spacing: 0, noSpacer: true) {
+            SGroupBox(label: "Blocklist") {
                     BundleSelector()
                     Text("These apps will be excluded when recording \"Screen\" or \"Screen Area\"\nBut if the app is launched after the recording starts, it cannot be excluded.")
                         .font(.footnote)
                         .multilineTextAlignment(.center)
                         .foregroundColor(Color.secondary)
-                }.padding(5)
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity)
     }
 }
 

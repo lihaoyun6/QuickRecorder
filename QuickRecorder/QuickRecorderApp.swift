@@ -49,21 +49,11 @@ struct QuickRecorderApp: App {
     }
     
     var body: some Scene {
-        WindowGroup {}
-        .myWindowIsContentResizable()
-        .handlesExternalEvents(matching: [])
-        .commands {
-            CommandGroup(replacing: .newItem) {}
-            CommandGroup(after: .appInfo) {
-                CheckForUpdatesView(updater: updaterController.updater)
+        /*WindowGroup {
+            if #unavailable(macOS 13) {
+                ContentView()
             }
-        }
-        
-        Settings {
-            SettingsView()
-                .fixedSize()
-        }
-        
+        }.myWindowIsContentResizable()*/
         DocumentGroup(newDocument: qmaPackageHandle()) { file in
             if SCContext.stream == nil {
                 if let fileURL = file.fileURL {
@@ -75,12 +65,37 @@ struct QuickRecorderApp: App {
             }
         }
         .myWindowIsContentResizable()
-        //.windowStyle(HiddenTitleBarWindowStyle())
         .commands {
             SidebarCommands()
             CommandGroup(replacing: .saveItem) {}
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .textEditing) {}
+        }
+        
+        Settings {
+            SettingsView()
+                .background(
+                    WindowAccessor(
+                        onWindowOpen: { w in
+                            if let w = w {
+                                w.level = .floating
+                                w.titlebarSeparatorStyle = .none
+                                guard let nsSplitView = findNSSplitVIew(view: w.contentView),
+                                      let controller = nsSplitView.delegate as? NSSplitViewController else { return }
+                                controller.splitViewItems.first?.canCollapse = false
+                                controller.splitViewItems.first?.minimumThickness = 140
+                                controller.splitViewItems.first?.maximumThickness = 140
+                                w.orderFront(nil)
+                            }
+                        })
+                )
+        }
+        .handlesExternalEvents(matching: [])
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView(updater: updaterController.updater)
+            }
         }
     }
 }
@@ -104,6 +119,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isResizing = false
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
+    @AppStorage("showOnDock") private var showOnDock: Bool = true
     //var lastTime = CMTime(value: 0, timescale: 600)
     
     func mousePointerReLocation(event: NSEvent) {
@@ -154,9 +170,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         if SCContext.stream == nil {
             let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
             let w2 = w1.filter({ !$0.title.contains(".qma") })
-            //print(w1.map({$0.title}), w2.map({$0.title}))
             if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
-                let mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+                var mainPanel: NSPanel!
+                if #available(macOS 13, *) {
+                    mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+                } else {
+                    mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 800, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+                }
                 mainPanel.contentView = NSHostingView(rootView: ContentView())
                 mainPanel.title = "QuickRecorder".local
                 mainPanel.isOpaque = false
@@ -173,13 +193,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                     mainPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
                 }
                 mainPanel.orderFront(self)
+                if #unavailable(macOS 13) { NSApp.activate(ignoringOtherApps: true) }
             }
         }
         return false
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
-        print(urls.count)
         for url in urls {
             createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, random: true, only: false)
             closeMainWindow()
@@ -343,15 +363,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        if let menu = NSApplication.shared.mainMenu { menu.items.remove(at: 1) }
-        if #available(macOS 13, *) {
-            if firstRun && (SMAppService.mainApp.status == .enabled) {
-                firstRun = false
-                closeAllWindow()
-            }
-        }
         closeAllWindow()
-        _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
+        if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
     }
     
     func openSettingPanel() {
@@ -364,6 +377,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
         }
     }
+}
+
+func findNSSplitVIew(view: NSView?) -> NSSplitView? {
+    var queue = [NSView]()
+    if let root = view { queue.append(root) }
+    
+    while !queue.isEmpty {
+        let current = queue.removeFirst()
+        if current is NSSplitView { return current as? NSSplitView }
+        for subview in current.subviews { queue.append(subview) }
+    }
+    return nil
 }
 
 func getStatusBarWidth() -> CGFloat {

@@ -228,7 +228,9 @@ struct OptionsView: View {
                         Text("High (auto)").tag(2)
                         Text("Normal (1x)").tag(1)
                         //Text("Low (0.5x)").tag(0)
-                    }.buttonStyle(.borderless)
+                    }
+                    .buttonStyle(.borderless)
+                    .frame(minWidth: isMacOS12 ? 100 : 10)
                     Picker("", selection: $frameRate) {
                         if ![240, 144, 120, 90, 60, 30, 24, 15 ,10].contains(frameRate) {
                             Text("\(frameRate) FPS").tag(frameRate)
@@ -242,7 +244,9 @@ struct OptionsView: View {
                         Text("24 FPS").tag(24)
                         Text("15 FPS").tag(15)
                         Text("10 FPS").tag(10)
-                    }.buttonStyle(.borderless)
+                    }
+                    .buttonStyle(.borderless)
+                    .frame(minWidth: isMacOS12 ? 100 : 10)
                 }.scaledToFit()
                 Divider().frame(height: 50)
                 VStack(alignment: .leading, spacing: 10) {
@@ -254,7 +258,9 @@ struct OptionsView: View {
                         Text("Low").tag(0.3)
                         Text("Medium").tag(0.7)
                         Text("High").tag(1.0)
-                    }.buttonStyle(.borderless)
+                    }
+                    .buttonStyle(.borderless)
+                    .frame(minWidth: isMacOS12 ? 100 : 10)
                     Picker("", selection: $background) {
                         Text("Wallpaper").tag(BackgroundType.wallpaper)
                         if ud.bool(forKey: "withAlpha") { Text("Transparent").tag(BackgroundType.clear) }
@@ -267,7 +273,9 @@ struct OptionsView: View {
                         Text("Blue").tag(BackgroundType.blue)
                         Text("Red").tag(BackgroundType.red)
                         Text("Custom").tag(BackgroundType.custom)
-                    }.buttonStyle(.borderless)
+                    }
+                    .buttonStyle(.borderless)
+                    .frame(minWidth: isMacOS12 ? 100 : 10)
                 }.scaledToFit()
                 Divider().frame(height: 50)
                 VStack(alignment: .leading, spacing: isMacOS12 ? 10 : 2) {
@@ -304,12 +312,12 @@ struct OptionsView: View {
                         Picker("", selection: $micDevice) {
                             Text("Default".local).tag("default").frame(width: 40)
                             ForEach(micList, id: \.self) { device in
-                                Text(device.localizedName).tag(device.localizedName).frame(width: 40)
+                                Text(device.localizedName).tag(device.localizedName)//.frame(width: 40)
                             }
                         }
                         .disabled(!recordMic)
                         .padding(.leading, -7.5)
-                        .frame(width: 99)
+                        .frame(width: 90)
                         .onAppear{
                             let list = micList.map({ $0.localizedName })
                             if !list.contains(micDevice) { micDevice = "default" }

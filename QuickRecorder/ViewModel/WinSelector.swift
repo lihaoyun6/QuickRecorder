@@ -171,6 +171,7 @@ struct WinSelector: View {
                                     self.selected.removeAll()
                                 }
                         }
+                        .fixedSize()
                         .padding()
                     })
                     Spacer()
