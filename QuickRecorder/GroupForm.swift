@@ -7,6 +7,55 @@
 
 import SwiftUI
 
+struct SForm<Content: View>: View {
+    var spacing: CGFloat = 30
+    var noSpacer: Bool = false
+    @ViewBuilder let content: () -> Content
+    
+    var body: some View {
+        VStack(spacing: spacing) {
+            content()
+            if !noSpacer {
+                Spacer().frame(minHeight: 0)
+            }
+        }
+        .padding(.bottom, noSpacer ? 0 : -spacing)
+        .padding()
+        .frame(maxWidth: .infinity)
+        
+    }
+}
+
+struct SGroupBox<Content: View>: View {
+    var label: LocalizedStringKey? = nil
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        GroupBox(label: label != nil ? Text(label!).font(.headline) : nil) {
+            VStack(spacing: 10) { content() }.padding(5)
+        }
+    }
+}
+
+struct SItem<Content: View>: View {
+    var label: LocalizedStringKey? = nil
+    @ViewBuilder let content: () -> Content
+    
+    var body: some View {
+        HStack {
+            if let label = label { Text(label) }
+            Spacer()
+            content()
+        }.frame(height: 16)
+    }
+}
+
+struct SDivider: View {
+    var body: some View {
+        Divider().opacity(0.5)
+    }
+}
+
 struct SInfoButton: View {
     var tips: LocalizedStringKey
     @State var isPresented: Bool = false

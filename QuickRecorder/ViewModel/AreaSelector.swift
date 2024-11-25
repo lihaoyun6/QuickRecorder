@@ -122,7 +122,7 @@ struct AreaSelector: View {
                         }.padding()
                     })
                     Spacer()
-                    OptionsView().padding(.leading, 18)
+                    OptionsView().padding(.horizontal, 10)
                     Spacer()
                     Button(action: {
                         isPopoverShowing = true
@@ -159,7 +159,7 @@ struct AreaSelector: View {
                     }).buttonStyle(.plain)
                     Spacer()
                 }
-            }
+            }.padding(.horizontal, 10)
             Button(action: {
                 for w in NSApplication.shared.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
                 appDelegate.stopGlobalMouseMonitor()

@@ -20,12 +20,7 @@ struct qmaPlayerView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            if #unavailable(macOS 15) {
-                VisualEffectView().ignoresSafeArea()
-                /*Color.clear
-                 .background(.ultraThinMaterial)
-                 .environment(\.controlActiveState, .active)*/
-            }
+            VisualEffectView().ignoresSafeArea()
             VStack(spacing: 3) {
                 Button {} label: {
                     PlayerSlider(percentage: $audioPlayerManager.progress, audioLength: $audioPlayerManager.audioLength){ editing in
@@ -156,11 +151,15 @@ struct qmaPlayerView: View {
                 audioPlayerManager.sysVol = document.info.sysVol
                 audioPlayerManager.micVol = document.info.micVol
         }
-        .background(WindowAccessor(onWindowOpen: { window in
-            guard let w = window else { return }
-            w.setFrame(NSRect(origin: w.frame.origin, size: CGSize(width: 400, height: 100)), display: true)
+        .background(WindowAccessor(onWindowOpen: { w in
+            guard let w = w else { return }
+            w.setContentSize(CGSize(width: 400, height: 100))
             w.isMovableByWindowBackground = true
-            if #unavailable(macOS 15) { w.titlebarAppearsTransparent = true }
+            w.titlebarAppearsTransparent = true
+        }, onWindowActive: { w in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { w?.titlebarAppearsTransparent = true }
+        }, onWindowDeactivate: { w in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { w?.titlebarAppearsTransparent = true }
         }, onWindowClose: { audioPlayerManager.reset() }))
     }
     
@@ -188,47 +187,6 @@ struct VisualEffectView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-    }
-}
-
-struct WindowAccessor: NSViewRepresentable {
-    var nsWindow: NSWindow? = nil
-    var onWindowOpen: (NSWindow?) -> Void
-    var onWindowClose: () -> Void
-    //var onWindowActive: () -> Void
-
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async {
-            if let window = view.window {
-                window.delegate = context.coordinator
-                self.onWindowOpen(window)
-            } else {
-                self.onWindowOpen(nil)
-            }
-        }
-        return view
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onWindowOpen: onWindowOpen, onWindowClose: onWindowClose)
-    }
-
-    class Coordinator: NSObject, NSWindowDelegate {
-        var onWindowOpen: (NSWindow?) -> Void
-        var onWindowClose: () -> Void
-        //var onWindowActive: () -> Void
-
-        init(onWindowOpen: @escaping (NSWindow?) -> Void, onWindowClose: @escaping () -> Void) {
-            self.onWindowOpen = onWindowOpen
-            self.onWindowClose = onWindowClose
-        }
-
-        func windowWillClose(_ notification: Notification) { onWindowClose() }
-        
-        //func windowDidBecomeKey(_ notification: Notification) { onWindowActive()  }
     }
 }
 
@@ -594,7 +552,7 @@ class AudioPlayerManager: ObservableObject {
         stop()
         let format = exportMP3 ? "mp3" : self.fileFormat
         showSavePanel(defaultFileName: "\(packageURL.deletingPathExtension().appendingPathExtension(format).lastPathComponent)", exportMP3: exportMP3) { url, saveAsMP3 in
-            if var url = url { self.saveFile(url, saveAsMP3: saveAsMP3) }
+            if let url = url { self.saveFile(url, saveAsMP3: saveAsMP3) }
         }
     }
     
