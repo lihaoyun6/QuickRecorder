@@ -313,7 +313,13 @@ struct HotkeyView: View {
                     }.frame(height: 16)
                 }.padding(5)
             }
-            Spacer().frame(minHeight: 0)
+            GroupBox {
+                HStack {
+                    Text("Show Recording Options")
+                    Spacer()
+                    KeyboardShortcuts.Recorder("", name: .recordingOptions)
+                }.frame(height: 16)
+            }
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -379,6 +385,7 @@ extension KeyboardShortcuts.Name {
     static let saveFrame = Self("saveFrame")
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
+    static let recordingOptions = Self("recordingOptions", default: .init(.seven, modifiers: [.command, .shift]))
 }
 
 extension AppDelegate {

@@ -151,6 +151,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        sender.setActivationPolicy(.regular)
+        
         if SCContext.stream == nil {
             let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
             let w2 = w1.filter({ !$0.title.contains(".qma") })
@@ -339,6 +341,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 return
             }
         }
+        KeyboardShortcuts.onKeyDown(for: .recordingOptions) { [self] in
+            _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
+        }
         updateStatusBar()
     }
     
@@ -352,6 +357,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         }
         closeAllWindow()
         _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
+    }
+    
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if NSApp.activationPolicy() == .accessory {
+            // MenuBarExtra only
+            // Simply just terminate the app immediately
+            return .terminateNow
+        }
+        
+        // Keep alive to receive hotkey via MenuBarExtra
+        if ud.bool(forKey: "showMenubar") == true {
+            NSApp.setActivationPolicy(.accessory) // Close dock icon
+            closeAllWindow() // Close windows
+            return .terminateCancel
+        }
+        
+        return .terminateNow
     }
     
     func openSettingPanel() {

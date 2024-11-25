@@ -110,6 +110,7 @@
 "Record Topmost Window" = "立即录制当前窗口";
 "Select Area to Record" = "选择屏幕区域以录制";
 "Toggle Screen Magnifier" = "显示/隐藏屏幕放大器";
+"Show Recording Options" = "显示录制选项";
 "Waiting on update…" = "正在更新, 请稍等…";
 "Include MenuBar in Recording" = "在录像中录制菜单栏画面";
 "Excluded Apps" = "App 排除列表";
