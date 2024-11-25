@@ -51,18 +51,41 @@ class SCContext {
     static var availableContent: SCShareableContent?
     static let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status"]
     
-    static func updateAvailableContent(completion: @escaping () -> Void) {
-        SCShareableContent.getExcludingDesktopWindows(false, onScreenWindowsOnly: false) { content, error in
+    static func updateAvailableContentSync() -> SCShareableContent? {
+        let semaphore = DispatchSemaphore(value: 0)
+        var result: SCShareableContent? = nil
+
+        updateAvailableContent { content in
+            result = content
+            semaphore.signal()
+        }
+
+        semaphore.wait()
+        return result
+    }
+    
+    static func updateAvailableContent(completion: @escaping (SCShareableContent?) -> Void) {
+        SCShareableContent.getExcludingDesktopWindows(false, onScreenWindowsOnly: true) { [self] content, error in
             if let error = error {
                 switch error {
-                case SCStreamError.userDeclined: requestPermissions()
-                default: print("Error: failed to fetch available content: ".local, error.localizedDescription)
+                case SCStreamError.userDeclined:
+                    DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+                        self.updateAvailableContent() {_ in}
+                    }
+                default:
+                    print("Error: failed to fetch available content: ".local, error.localizedDescription)
                 }
+                completion(nil) // 在错误情况下返回 nil
                 return
             }
+
             availableContent = content
-            assert(availableContent?.displays.isEmpty != nil, "There needs to be at least one display connected!".local)
-            completion()
+            if let displays = content?.displays, !displays.isEmpty {
+                completion(content) // 返回成功获取的 content
+            } else {
+                print("There needs to be at least one display connected!".local)
+                completion(nil) // 如果没有显示器连接，则返回 nil
+            }
         }
     }
     

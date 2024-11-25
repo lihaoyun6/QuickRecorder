@@ -178,7 +178,7 @@ class AppSelectorViewModel: ObservableObject {
     }
     
     func updateAppList() {
-        SCContext.updateAvailableContent {
+        SCContext.updateAvailableContent { _ in
             guard let screens = SCContext.availableContent?.displays else { return }
             for screen in screens {
                 var apps = [SCRunningApplication]()
@@ -282,42 +282,61 @@ struct OptionsView: View {
                     if #available(macOS 15, *) {
                         Toggle(isOn: $recordHDR) {
                             HStack(spacing:0){
-                                Image(systemName: "sparkles.square.filled.on.square").frame(width: 20)
-                                Text("Record HDR").fixedSize()
+                                Image(systemName: "sparkles.square.filled.on.square")
+                                    .font(.subheadline)
+                                    .frame(width: isMacOS12 ? 20 : 16)
+                                Text("Record HDR")
+                                    .font(.subheadline)
                             }
-                        }.toggleStyle(.checkbox)
+                        }
+                        .fixedSize()
+                        .toggleStyle(.checkbox)
                     }
                     Toggle(isOn: $showMouse) {
                         HStack(spacing: 0){
-                            Image(systemName: "cursorarrow").frame(width: 20)
+                            Image(systemName: "cursorarrow")
+                                .font(isMacOS12 ? .body : .subheadline)
+                                .frame(width: isMacOS12 ? 20 : 16)
                             Text("Record Cursor")
+                                .font(isMacOS12 ? .body : .subheadline)
                         }
-                    }.toggleStyle(.checkbox).fixedSize()
+                    }
+                    .fixedSize()
+                    .toggleStyle(.checkbox)
                     if #available(macOS 13, *) {
                         Toggle(isOn: $recordWinSound) {
                             HStack(spacing: 0){
-                                Image(systemName: "speaker.wave.1.fill").frame(width: 20)
+                                Image(systemName: "speaker.wave.1.fill")
+                                    .font(isMacOS12 ? .body : .subheadline)
+                                    .frame(width: isMacOS12 ? 20 : 16)
                                 Text("App's Audio")
+                                    .font(.subheadline)
                             }
-                        }.toggleStyle(.checkbox).fixedSize()
+                        }
+                        .fixedSize()
+                        .toggleStyle(.checkbox)
                     }
                     HStack(spacing: 0) {
                         Toggle(isOn: $recordMic) {
-                            Image(systemName: "mic.fill").frame(width: 20)
+                            Image(systemName: "mic.fill")
+                                .font(isMacOS12 ? .body : .subheadline)
+                                .frame(width: isMacOS12 ? 20 : 16)
                         }
+                        .fixedSize()
                         .toggleStyle(.checkbox)
                         .onChange(of: recordMic) { _ in
                             Task { await SCContext.performMicCheck() }
                         }
                         Picker("", selection: $micDevice) {
-                            Text("Default".local).tag("default").frame(width: 40)
+                            Text("Default".local).tag("default")
                             ForEach(micList, id: \.self) { device in
-                                Text(device.localizedName).tag(device.localizedName)//.frame(width: 40)
+                                Text(device.localizedName).tag(device.localizedName)
                             }
                         }
                         .disabled(!recordMic)
-                        .padding(.leading, -7.5)
-                        .frame(width: 90)
+                        .scaleEffect(isMacOS12 ? 1 : 0.8)
+                        .padding(.leading, isMacOS12 ? -7 : -16)
+                        .frame(width: 90, height: isMacOS12 ? 20 :12)
                         .onAppear{
                             let list = micList.map({ $0.localizedName })
                             if !list.contains(micDevice) { micDevice = "default" }
@@ -335,8 +354,8 @@ struct OptionsView: View {
                             }).buttonStyle(.plain).fixedSize()
                         }
                     }
-                }.needScale().padding(.trailing, -18)
+                }.padding(.trailing, isMacOS12 ? 0 : -17)
             }
-        }//.padding(.leading, (micDevice != "default" && enableAEC) ? 20 : 0)
+        }
     }
 }

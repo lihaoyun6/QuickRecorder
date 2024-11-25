@@ -51,7 +51,6 @@ struct qmaPlayerView: View {
                                 .foregroundColor(.secondary.opacity(overStop ? 0.1 : 0.00001))
                             Image(systemName: "stop.fill")
                                 .font(.system(size: 20))
-                            //.foregroundColor(overStop ? .primary : .secondary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -73,12 +72,12 @@ struct qmaPlayerView: View {
                                 .foregroundColor(.secondary.opacity(overPlay ? 0.1 : 0.00001))
                             Image(systemName: audioPlayerManager.isPlaying ? "pause.fill" : "play.fill")
                                 .font(.system(size: 30))
-                            //.foregroundColor(overPlay ? .primary : .secondary)
                         }
                     }
                     .buttonStyle(.plain)
                     .help("Play / Pause")
                     .frame(width: 35, height: 35)
+                    .padding(.leading, 2)
                     .disabled(audioPlayerManager.exporting)
                     .onHover { hovering in overPlay = hovering }
                     
@@ -89,8 +88,11 @@ struct qmaPlayerView: View {
                             Rectangle()
                                 .cornerRadius(6)
                                 .foregroundColor(.secondary.opacity(overSave ? 0.1 : 0.00001))
-                            Image(systemName: "archivebox.fill")
-                                .font(.system(size: 17.5))
+                            Image("save")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 16.5)
+                                .foregroundColor(.primary)
                         }
                     }
                     .buttonStyle(.plain)
@@ -115,7 +117,7 @@ struct qmaPlayerView: View {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.system(size: 18))
                                     .foregroundColor(.secondary)
-                                    .rotationEffect(Angle(degrees: 90))
+                                    .offset(y: -2)
                             }
                         }
                     }
@@ -144,7 +146,7 @@ struct qmaPlayerView: View {
                         }
                     }
                 }.buttonStyle(.plain)
-            }.padding().padding(.top, isMacOS15 ? -4 : -14)
+            }.padding().padding(.top, -14)
         }
         .onAppear {
             audioPlayerManager.loadAudioFiles(format: document.info.format, package: fileURL, encoder: document.info.encoder, saveMP3: document.info.exportMP3)

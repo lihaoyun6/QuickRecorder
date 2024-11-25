@@ -19,7 +19,7 @@ import Sparkle
 var isMacOS12 = true
 var isMacOS14 = false
 var isMacOS15 = false
-var firstRun = true
+var scPerm = false
 let ud = UserDefaults.standard
 //var statusMenu: NSMenu = NSMenu()
 var statusBarItem: NSStatusItem!
@@ -258,22 +258,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }
         
-        SCContext.updateAvailableContent{
-            print("available content has been updated")
-            let os = ProcessInfo.processInfo.operatingSystemVersion
-            if "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)" == "12.7.4" {
-                DispatchQueue.main.async {
-                    _ = AppDelegate.shared.createAlert(
-                        title: "Compatibility Warning".local,
-                        message: "You are using macOS 12.7.4\nOutput files will be randomly corrupted on this version of macOS!\n\nPlease upgrade to 12.7.5 to solve it.".local,
-                        button1: "OK".local).runModal()
-                }
-            }
-        }
+        scPerm = SCContext.updateAvailableContentSync() != nil
         
-        if #available(macOS 13, *) { isMacOS12 = false }
-        if #available(macOS 14, *) { isMacOS14 = true }
-        if #available(macOS 15, *) { isMacOS15 = true }
+        let os = ProcessInfo.processInfo.operatingSystemVersion
+        isMacOS12 = os.majorVersion == 12
+        isMacOS14 = os.majorVersion == 14
+        isMacOS15 = os.majorVersion == 15
         
         //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         

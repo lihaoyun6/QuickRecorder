@@ -154,7 +154,7 @@ struct ContentView: View {
                     Divider().frame(height: 70)
                     Button(action: {
                         appDelegate.closeMainWindow()
-                        SCContext.updateAvailableContent{
+                        SCContext.updateAvailableContent { _ in
                             DispatchQueue.main.async {
                                 appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
                                 var currentDisplay = SCContext.getSCDisplayWithMouse()
@@ -427,7 +427,7 @@ extension AppDelegate {
 
 extension View {
     func needScale() -> some View {
-        if #available(macOS 13, *) {
+        if #available(macOS 14, *) {
             return self.scaleEffect(0.8).padding(.leading, -4)
         } else {
             return self
