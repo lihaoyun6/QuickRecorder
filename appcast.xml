@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.4</title>
+            <pubDate>Mon, 25 Nov 2024 16:06:59 +0800</pubDate>
+            <sparkle:version>154</sparkle:version>
+            <sparkle:shortVersionString>1.5.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了与 macOS 12 的兼容性以及一些 UI 问题.</li>
+                <li>允许用户从程序坞和菜单栏中同时隐藏 QuickRecorder, 并使用快捷键呼出面板.</li>
+                <li>当将 QuickRecorder 从程序坞隐藏后, App 启动时将不会自动弹出主面板.</li>
+                </ul><ul>
+                <li>Fixed compatibility with macOS 12 and fixed some UI issues.</li>
+                <li>Allows users to hide QuickRecorder from both Dock and Menu Bar.</li>
+                <li>If QuickRecorder isn't on the Dock, the main panel will not open after launching.</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.4/QuickRecorder_v1.5.4.dmg" length="4256259" type="application/octet-stream" sparkle:edSignature="VPkGyrw60YhQsmeNHXV6aXfGdkM1yZ/xxkgwQHdM+hwtsxH66w6gmrYSXx9lIwneoq4Te2u3ql+YZCezdVBFDQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.4/Update154-153.delta" sparkle:deltaFrom="153" length="641902" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="hBcnfVhB8/4sf9OaYxMMjVg+5a4mJEM0/Ki1ufh4QTUYPxeOE7M4DDHz++RDWgPZUTbHa9fPimq+Mb6qDeC8Ag=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.4/Update154-152.delta" sparkle:deltaFrom="152" length="651322" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="QNsJB+mDhpR6ZwJQ1vS8Le/Ut9tvfLaneeZmiOw4KXVx6glHN2D/BDQjSj6s18JX7REMJKD9nESH5L33rKWNDg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.4/Update154-150.delta" sparkle:deltaFrom="150" length="690026" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="fvvnluJBap8l3dgpnFChPWOl3+KQfZNkbTI/hN3mbxkgjve39LkoXIgWGZ/a9R/3fBZ6b3+AmPtzkswEm8hVBA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.3</title>
             <pubDate>Fri, 01 Nov 2024 14:46:16 +0800</pubDate>
             <sparkle:version>153</sparkle:version>
