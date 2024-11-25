@@ -245,6 +245,9 @@ struct HotkeyView: View {
                 SDivider()
                 SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
             }
+            SGroupBox {
+                SItem(label: "Show Recording Options") { KeyboardShortcuts.Recorder("", name: .recordingOptions) }
+            }
         }
     }
 }
@@ -304,6 +307,7 @@ extension KeyboardShortcuts.Name {
     static let saveFrame = Self("saveFrame")
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
+    static let recordingOptions = Self("recordingOptions", default: .init(.seven, modifiers: [.command, .shift]))
 }
 
 extension AppDelegate {
