@@ -14,7 +14,7 @@
                 <li>修复了退出视频修剪器后声音仍然在后台继续播放的bug.</li>
                 </ul><ul>
                 <li>Fixed: Sound continued to play in the background after exiting the video trimmer.</li>
-                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="300"/>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
             ]]></description>
             <sparkle:deltas>
                 <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.3/Update153-152.delta" sparkle:deltaFrom="152" length="310970" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="1u/bG9nxkKdXrO6+bqDc1FMaWiQv5aGeKdGAkh4GKTfUlV6E8+8BdqXHlEAcpz8B+fYXetivknA4Xr580CIoCA=="/>
@@ -36,7 +36,7 @@
                 </ul><ul>
                 <li>Fixed: Audio is accelerated when recording from AirPods microphone.</li>
                 <li>By enabling "Record Microphone to Main Track", a single track copy of the audio file will be generated when recording "Audio Only + Mic".</li>
-                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="250"/>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
             ]]></description>
             <sparkle:deltas>
                 <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.2/Update152-150.delta" sparkle:deltaFrom="150" length="389878" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="ObgPddqgBx7/CuyZq0XiFWWiuILNGe/Qta+E/uNoLi0ibWdDCdHnAeraS6dW/iZF1SbkA7WLBb9UoVd5LX/ODg=="/>
@@ -60,7 +60,7 @@
                 <li>Redesigned the preferences view.</li>
                 <li>Fixed: Color picker not working properly.</li>
                 <li>Fixed: Menu bar icons not auto greyed out on inactive screens.</li>
-                </ul><img src="https://github.com/lihaoyun6/AirBattery/raw/main/img/donate.png" width="250"/>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
             ]]></description>
             <sparkle:deltas>
                 <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.0/Update150-149.delta" sparkle:deltaFrom="149" length="546370" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="zZJw2JXzvhqXsdP+ibFF2Fk30R7Po8yglJcqzwlcapNlVt5M2sH2cJ7BSSrOLj507gmBc5R2hnEfL9KH6OISCA=="/>

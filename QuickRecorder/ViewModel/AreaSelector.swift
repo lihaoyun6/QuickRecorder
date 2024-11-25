@@ -35,7 +35,7 @@ struct resizeView: View {
     var screen: SCDisplay!
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 4) {
                 Text("Area Size:")
                 TextField("", value: $areaWidth, formatter: NumberFormatter())
@@ -64,7 +64,6 @@ struct resizeView: View {
                 Text("Output Size:")
                 let scale = Int(screen.nsScreen!.backingScaleFactor)
                 Text(" \(highRes == 2 ? areaWidth * scale : areaWidth) x \(highRes == 2 ? areaHeight * scale : areaHeight)")
-                Spacer()
             }
         }.onAppear{ focusedField = .width }
     }

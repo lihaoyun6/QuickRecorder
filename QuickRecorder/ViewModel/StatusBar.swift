@@ -7,25 +7,22 @@
 
 import SwiftUI
 
-struct StatusBarItemMini: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            
-        }
-    }
+class PopoverState: ObservableObject {
+    static let shared = PopoverState()
+    @Published var isShowing: Bool = false
 }
 
 struct StatusBarItem: View {
     @State private var deviceWindowIsShowing = true
-    @State private var isPopoverShowing = false
     @State private var isMainMenuShowing = false
     @State private var isHovering = false
     @State private var recordingLength = "00:00"
     @State private var isPassed = SCContext.isPaused
+    @StateObject private var popoverState = PopoverState.shared
     //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
     @AppStorage("highlightMouse") private var highlightMouse: Bool = false
-    var appDelegate = AppDelegate.shared
+    private var appDelegate = AppDelegate.shared
     
     var body: some View {
         HStack(spacing: 0) {
@@ -76,7 +73,7 @@ struct StatusBarItem: View {
                             if SCContext.streamType != .systemaudio {
                                 if SCContext.streamType != .idevice {
                                     Button(action:{
-                                        isPopoverShowing = true
+                                        popoverState.isShowing = true
                                     }, label: {
                                         Image(systemName: "camera.circle.fill")
                                             .font(.system(size: 16))
@@ -84,7 +81,9 @@ struct StatusBarItem: View {
                                             .frame(width: 16, alignment: .center)
                                     })
                                     .buttonStyle(.plain)
-                                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView(closePopover: { isPopoverShowing = false })}
+                                    .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
+                                        CameraPopoverView(closePopover: { popoverState.isShowing = false })
+                                    }
                                 } else {
                                     Button(action:{
                                         DispatchQueue.main.async {
@@ -163,7 +162,7 @@ struct StatusBarItem: View {
                     if SCContext.streamType != .systemaudio {
                         if SCContext.streamType != .idevice {
                             Button(action:{
-                                isPopoverShowing = true
+                                popoverState.isShowing = true
                             }, label: {
                                 ZStack {
                                     Rectangle()
@@ -175,7 +174,9 @@ struct StatusBarItem: View {
                                 }.frame(width: 36).padding([.leading,.trailing], 4)
                             })
                             .buttonStyle(.plain)
-                            .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { CameraPopoverView(closePopover: { isPopoverShowing = false })}
+                            .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
+                                CameraPopoverView(closePopover: { popoverState.isShowing = false })
+                            }
                         } else {
                             Button(action:{
                                 DispatchQueue.main.async {
@@ -198,7 +199,7 @@ struct StatusBarItem: View {
                 }
             } else if ud.bool(forKey: "showMenubar") {
                 Button(action: {
-                    isPopoverShowing = true
+                    popoverState.isShowing = true
                 }, label: {
                     ZStack {
                         Color.white.opacity(0.0001)
@@ -208,12 +209,16 @@ struct StatusBarItem: View {
                     }
                 })
                 .buttonStyle(.plain)
-                .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
-                    ContentView(fromStatusBar: true)
-                        .onAppear{
-                            appDelegate.closeAllWindow()
-                            if isMacOS12 { NSApplication.shared.activate(ignoringOtherApps: true) }
-                        }
+                .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
+                    if #available(macOS 13, *) {
+                        ContentViewNew().onAppear{ appDelegate.closeAllWindow() }
+                    } else {
+                        ContentView(fromStatusBar: true)
+                            .onAppear{
+                                appDelegate.closeAllWindow()
+                                if isMacOS12 { NSApplication.shared.activate(ignoringOtherApps: true) }
+                            }
+                    }
                 }
             }
         }

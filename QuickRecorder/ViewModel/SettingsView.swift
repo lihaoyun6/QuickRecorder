@@ -66,10 +66,10 @@ struct GeneralView: View {
                     SDivider()
                 }
                 SToggle("Show QuickRecorder on Dock", isOn: $showOnDock)
-                    .disabled(!showMenubar)
+                    //.disabled(!showMenubar)
                 SDivider()
                 SToggle("Show QuickRecorder on Menu Bar", isOn: $showMenubar)
-                    .disabled(!showOnDock)
+                    //.disabled(!showOnDock)
             }
             SGroupBox(label: "Update") { UpdaterSettingsView(updater: updaterController.updater) }
             VStack(spacing: 8) {
@@ -84,7 +84,6 @@ struct GeneralView: View {
         .onAppear{ if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }}
         .onChange(of: showMenubar) { _ in AppDelegate.shared.updateStatusBar() }
         .onChange(of: showOnDock) { newValue in
-            print(newValue)
             if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
         }
     }
@@ -227,6 +226,9 @@ struct HotkeyView: View {
     var body: some View {
         SForm(spacing: 10) {
             SGroupBox(label: "Hotkey") {
+                SItem(label: "Open Main Panel") { KeyboardShortcuts.Recorder("", name: .showPanel) }
+            }
+            SGroupBox {
                 SItem(label: "Stop Recording") { KeyboardShortcuts.Recorder("", name: .stop) }
                 SDivider()
                 SItem(label: "Pause / Resume") { KeyboardShortcuts.Recorder("", name: .pauseResume) }
@@ -304,6 +306,7 @@ extension KeyboardShortcuts.Name {
     static let saveFrame = Self("saveFrame")
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
+    static let showPanel = Self("showPanel")
 }
 
 extension AppDelegate {

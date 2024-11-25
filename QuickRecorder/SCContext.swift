@@ -238,7 +238,7 @@ class SCContext {
             let alert = AppDelegate.shared.createAlert(title: "Permission Required",
                                                        message: "QuickRecorder needs permission to record your microphone.",
                                                        button1: "Open Settings",
-                                                       button2: "Quit")
+                                                       button2: "Cancel")
             if alert.runModal() == .alertFirstButtonReturn {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!)
             }
@@ -250,7 +250,7 @@ class SCContext {
             let alert = AppDelegate.shared.createAlert(title: "Permission Required",
                                                        message: "QuickRecorder needs screen recording permissions, even if you only intend on recording audio.",
                                                        button1: "Open Settings",
-                                                       button2: "Quit")
+                                                       button2: "Cancel")
             if alert.runModal() == .alertFirstButtonReturn {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
             }

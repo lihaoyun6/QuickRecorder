@@ -23,7 +23,7 @@
 "QuickRecorder needs permission to record your microphone." = "QuickRecorder 需要获取麦克风权限来录制所需的声音";
 "Please select a folder to save output files" = "请选择录音/录屏文件的保存位置";
 "Open Settings" = "打开系统设置";
-"Quit" = "退出";
+"Quit" = "退出程序";
 "Cancel" = "取消";
 "Please select the App(s) to record" = "请选择需要录制的应用程序, 支持多选";
 "Please select the window(s) to record" = "请选择需要录制的窗口, 支持多选";
@@ -184,6 +184,7 @@
 "Select..." = "选择...";
 "Go Back" = "返回";
 "If enabling Presenter Overlay causes recording failure, please increase this value." = "如果启用演讲者前置功能后无法保存录像, 请尝试增大此值";
+"Open Main Panel" = "打开主面板";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

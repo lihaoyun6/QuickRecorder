@@ -13,6 +13,7 @@
 		181724052BE3BEA600F5F539 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 181724042BE3BEA600F5F539 /* Sparkle */; };
 		181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181724072BE3BF7300F5F539 /* Sparkle.swift */; };
 		1821F2972CF40752004A2EC0 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1821F2962CF40752004A2EC0 /* WindowAccessor.swift */; };
+		1821F2E82CF4B226004A2EC0 /* ContentViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */; };
 		184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */ = {isa = PBXBuildFile; productRef = 184506CD2C69213400AFDA45 /* MatrixColorSelector */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
 		184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */; };
@@ -47,6 +48,7 @@
 		180B54602CCF45E800A5D5FD /* GroupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupForm.swift; sourceTree = "<group>"; };
 		181724072BE3BF7300F5F539 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
 		1821F2962CF40752004A2EC0 /* WindowAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowAccessor.swift; sourceTree = "<group>"; };
+		1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewNew.swift; sourceTree = "<group>"; };
 		184CAEC62BDCCC2300D61D57 /* AVContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVContext.swift; sourceTree = "<group>"; };
 		184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockSelector.swift; sourceTree = "<group>"; };
 		1862BF902BD5494F003ED522 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = "zh-Hans"; path = "zh-Hans.lproj/Credits.rtf"; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 			children = (
 				18D3BDFE2BCE5E4B006CFFC0 /* StatusBar.swift */,
 				18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */,
+				1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */,
 				18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */,
 				18D3BE002BCEB1BF006CFFC0 /* AppSelector.swift */,
 				18FEBDAB2BD01E82003F09BC /* WinSelector.swift */,
@@ -269,6 +272,7 @@
 				184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */,
 				184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */,
 				18D3BDFF2BCE5E4B006CFFC0 /* StatusBar.swift in Sources */,
+				1821F2E82CF4B226004A2EC0 /* ContentViewNew.swift in Sources */,
 				18D3BE042BCEC847006CFFC0 /* SCContext.swift in Sources */,
 				18775C202BE21F38008333EF /* iDeviceSelector.swift in Sources */,
 				18D3BDED2BCE5DC1006CFFC0 /* ContentView.swift in Sources */,

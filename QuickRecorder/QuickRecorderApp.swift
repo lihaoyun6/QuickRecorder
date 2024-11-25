@@ -120,7 +120,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
     @AppStorage("showOnDock") private var showOnDock: Bool = true
-    //var lastTime = CMTime(value: 0, timescale: 600)
+    @AppStorage("showMenubar") private var showMenubar: Bool = false
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -164,39 +164,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     
     func applicationWillTerminate(_ aNotification: Notification) {
         if SCContext.stream != nil { SCContext.stopRecording() }
-    }
-
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        if SCContext.stream == nil {
-            let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
-            let w2 = w1.filter({ !$0.title.contains(".qma") })
-            if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
-                var mainPanel: NSPanel!
-                if #available(macOS 13, *) {
-                    mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 927, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
-                } else {
-                    mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 800, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
-                }
-                mainPanel.contentView = NSHostingView(rootView: ContentView())
-                mainPanel.title = "QuickRecorder".local
-                mainPanel.isOpaque = false
-                mainPanel.level = .floating
-                mainPanel.isRestorable = false
-                mainPanel.backgroundColor = .clear
-                mainPanel.isReleasedWhenClosed = false
-                mainPanel.isMovableByWindowBackground = true
-                mainPanel.collectionBehavior = [.canJoinAllSpaces]
-                mainPanel.center()
-                if let screen = mainPanel.screen {
-                    let wX = (screen.frame.width - mainPanel.frame.width) / 2 + screen.frame.minX
-                    let wY = (screen.frame.height - mainPanel.frame.height) / 2 + screen.frame.minY
-                    mainPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
-                }
-                mainPanel.orderFront(self)
-                if #unavailable(macOS 13) { NSApp.activate(ignoringOtherApps: true) }
-            }
-        }
-        return false
     }
     
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -251,7 +218,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         )
         
         if ud.integer(forKey: "highRes") == 0 { ud.setValue(2, forKey: "highRes") }
-        if !ud.bool(forKey: "showOnDock") && !ud.bool(forKey: "showMenubar") { ud.setValue(true, forKey: "showOnDock") }
         if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -320,6 +286,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         controlPanel.titlebarAppearsTransparent = true
         controlPanel.isMovableByWindowBackground = true
         
+        KeyboardShortcuts.onKeyDown(for: .showPanel) { _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
         KeyboardShortcuts.onKeyDown(for: .saveFrame) { if SCContext.stream != nil { SCContext.saveFrame = true }}
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { if SCContext.stream != nil { SCContext.isMagnifierEnabled.toggle() }}
         KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
@@ -349,12 +316,44 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 return
             }
         }
+        
         updateStatusBar()
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         closeAllWindow()
         if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
+    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if SCContext.stream == nil {
+            let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
+            let w2 = w1.filter({ !$0.title.contains(".qma") })
+            if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
+                let offset = (!showOnDock && !showMenubar) ? 128 : 0
+                let width = isMacOS12 ? 800 : 927
+                let mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+                mainPanel.contentView = NSHostingView(rootView: ContentView())
+                mainPanel.title = "QuickRecorder".local
+                mainPanel.isOpaque = false
+                mainPanel.level = .floating
+                mainPanel.isRestorable = false
+                mainPanel.backgroundColor = .clear
+                mainPanel.isReleasedWhenClosed = false
+                mainPanel.isMovableByWindowBackground = true
+                mainPanel.collectionBehavior = [.canJoinAllSpaces]
+                mainPanel.center()
+                if let screen = mainPanel.screen {
+                    let wX = (screen.frame.width - mainPanel.frame.width) / 2 + screen.frame.minX
+                    let wY = (screen.frame.height - mainPanel.frame.height) / 2 + screen.frame.minY
+                    mainPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
+                }
+                mainPanel.orderFront(self)
+                if #unavailable(macOS 13) { NSApp.activate(ignoringOtherApps: true) }
+                PopoverState.shared.isShowing = false
+            }
+        }
+        return false
     }
     
     func openSettingPanel() {

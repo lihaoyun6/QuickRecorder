@@ -15,13 +15,14 @@ struct ContentView: View {
     @State private var xmarkGlowing = false
     @State private var infoGlowing = false
     @State private var micGlowing = false
-    //@State private var showSettings = false
     @State private var isPopoverShowing = false
     @State private var micList = SCContext.getMicrophone()
     @AppStorage("enableAEC") private var enableAEC: Bool = false
     @AppStorage("recordMic") private var recordMic: Bool = false
     @AppStorage("micDevice") private var micDevice: String = "default"
-    //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("showOnDock") private var showOnDock: Bool = true
+    @AppStorage("showMenubar") private var showMenubar: Bool = false
+
     var appDelegate = AppDelegate.shared
     
     var body: some View {
@@ -34,7 +35,7 @@ struct ContentView: View {
                         .cornerRadius(14)
                 }
                 HStack {
-                    Spacer()
+                    if !fromStatusBar { Spacer() }
                     if #available(macOS 13, *) {
                         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
                             Button(action: {
@@ -45,8 +46,7 @@ struct ContentView: View {
                                     }
                                 }
                             }, label: {
-                                SelectorView(title: "System Audio".local, symbol: "waveform")
-                                    .cornerRadius(8)
+                                SelectorView(title: "System Audio".local, symbol: "waveform").cornerRadius(8)
                             }).buttonStyle(.plain)
                             Button {} label: {
                                 HStack(spacing: -2) {
@@ -148,8 +148,7 @@ struct ContentView: View {
                         appDelegate.closeMainWindow()
                         appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                     }, label: {
-                        SelectorView(title: "Screen".local, symbol: "tv.inset.filled")
-                            .cornerRadius(8)
+                        SelectorView(title: "Screen".local, symbol: "tv.inset.filled").cornerRadius(8)
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
@@ -169,10 +168,8 @@ struct ContentView: View {
                             }
                         }
                     }, label: {
-                        SelectorView(title: "Screen Area".local, symbol: "viewfinder")
-                            .cornerRadius(8)
-                    })
-                    .buttonStyle(.plain)
+                        SelectorView(title: "Screen Area".local, symbol: "viewfinder").cornerRadius(8)
+                    }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         appDelegate.closeMainWindow()
@@ -186,107 +183,88 @@ struct ContentView: View {
                         appDelegate.closeMainWindow()
                         appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                     }, label: {
-                        SelectorView(title: "Window".local, symbol: "macwindow")
-                            .cornerRadius(8)
+                        SelectorView(title: "Window".local, symbol: "macwindow").cornerRadius(8)
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
                         isPopoverShowing = true
                     }, label: {
-                        SelectorView(title: "Mobile Device".local, symbol: "apps.ipad")
-                            .cornerRadius(8)
+                        SelectorView(title: "Mobile Device".local, symbol: "apps.ipad").cornerRadius(8)
                     }).buttonStyle(.plain)
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) { iDevicePopoverView(closePopover: { isPopoverShowing = false })}
-                    
-                    /*Divider().frame(height: 70)
-                    Button(action: {
-                        
-                    }, label: {
-                        SelectorView(title: "Tools".local, symbol: "wrench.and.screwdriver")
-                            .cornerRadius(8)
-                    }).buttonStyle(.plain)*/
+                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
+                            iDevicePopoverView(closePopover: { isPopoverShowing = false })
+                        }
                     Divider().frame(height: 70)
                     Button(action: {
                         appDelegate.closeMainWindow()
                         appDelegate.openSettingPanel()
-                        //if fromStatusBar { appDelegate.openSettingPanel() } else { showSettings = true }
                     }, label: {
-                        SelectorView(title: "Preferences".local, symbol: "gearshape")
-                            .cornerRadius(8)
-                    })
-                    .buttonStyle(.plain)
-                    //.sheet(isPresented: $showSettings) { SettingsView() }
-                    Spacer()
-                }.padding([.top, .bottom], 10).padding([.leading, .trailing], 19.5)
+                        SelectorView(title: "Preferences".local, symbol: "gearshape").cornerRadius(8)
+                    }).buttonStyle(.plain)
+                    if fromStatusBar || (!showOnDock && !showMenubar) {
+                        Divider().frame(height: 70)
+                        Button(action: {
+                            NSApp.terminate(self)
+                        }, label: {
+                            SelectorView(title: "Quit".local, symbol: "xmark.circle")
+                                .cornerRadius(8)
+                                .foregroundStyle(.darkMyRed)
+                        }).buttonStyle(.plain)
+                    }
+                    if !fromStatusBar { Spacer() }
+                }.padding(.vertical, 10).padding(.horizontal, fromStatusBar ? 10 : 20)
             }
-            if fromStatusBar {
-                Button(action: {
-                    NSApp.terminate(self)
-                }, label: {
-                    Text("Quit")
-                        .font(.system(size: 8, weight: .bold))
-                        .opacity(xmarkGlowing ? 1.0 : 0.4)
-                        .foregroundStyle(.secondary)
-                        .onHover{ hovering in xmarkGlowing = hovering }
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .stroke(.secondary.opacity(xmarkGlowing ? 1.0 : 0.4), lineWidth: 1)
-                                .padding(-1).padding([.leading, .trailing], -0.7)
-                        )
-                })
-                .buttonStyle(.plain)
-                .padding([.leading, .top], 6.5)
-            } else {
+            if !fromStatusBar {
                 Button(action: {
                     appDelegate.closeMainWindow()
                 }, label: {
                     Image(systemName: "x.circle")
-                        .font(.system(size: 12, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .opacity(xmarkGlowing ? 1.0 : 0.4)
                         .foregroundStyle(.secondary)
                         .onHover{ hovering in xmarkGlowing = hovering }
                 })
                 .buttonStyle(.plain)
-                .padding([.leading, .top], 6.5)
+                .padding([.horizontal, .top], 7)
             }
         }
     }
+}
+
+struct SelectorView: View {
+    var title = "No Title".local
+    var symbol = "app"
+    var overlayer = ""
+    @State private var backgroundOpacity = 0.0001
     
-    struct SelectorView: View {
-        var title = "No Title".local
-        var symbol = "app"
-        var overlayer = ""
-        @State private var backgroundOpacity = 0.0001
-        
-        var body: some View {
-            VStack(spacing: 6) {
-                Text(title)
-                    .opacity(0.95)
-                    .font(.system(size: 12))
-                    .offset(y: title == "System Audio".local ? -3.5 : 0)
-                ZStack {
-                    if title == "System Audio".local {
-                        Image(systemName: symbol)
-                            .opacity(0.95)
-                            .offset(y: -9.5)
-                            .font(.system(size: 26, weight: .bold))
-                    } else {
-                        Image(systemName: symbol)
-                            .opacity(0.95)
-                            .font(.system(size: 36))
-                    }
-                    Text(overlayer)
-                        .fontWeight(.bold)
+    var body: some View {
+        VStack(spacing: 6) {
+            Text(title)
+                .opacity(0.95)
+                .font(.system(size: 12))
+                .offset(y: title == "System Audio".local ? -3.5 : 0)
+            ZStack {
+                if title == "System Audio".local {
+                    Image(systemName: symbol)
                         .opacity(0.95)
-                        .font(.system(size: 11))
+                        .offset(y: -9.5)
+                        .font(.system(size: 26, weight: .bold))
+                } else {
+                    Image(systemName: symbol)
+                        .opacity(0.95)
+                        .font(.system(size: 36))
                 }
+                Text(overlayer)
+                    .fontWeight(.bold)
+                    .opacity(0.95)
+                    .font(.system(size: 11))
             }
-            .frame(width: 110, height: 80)
-            .onHover{ hovering in
-                backgroundOpacity = hovering ? 0.2 : 0.0001
-            }
-            .background( .primary.opacity(backgroundOpacity) )
         }
+        .frame(width: 110, height: 80)
+        .onHover{ hovering in
+            backgroundOpacity = hovering ? 0.2 : 0.0001
+        }
+        .background( .primary.opacity(backgroundOpacity) )
     }
 }
 
