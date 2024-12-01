@@ -63,6 +63,19 @@ struct StatusBarItem: View {
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)
                                     }).buttonStyle(.plain)
+                                } else {
+                                    Button(action:{
+                                        DispatchQueue.main.async {
+                                            if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
+                                            deviceWindowIsShowing = deviceWindow.isVisible
+                                        }
+                                    }, label: {
+                                        Image(systemName: "eye.circle.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundStyle(.white)
+                                            .frame(width: 16, alignment: .center)
+                                            .opacity(deviceWindowIsShowing ? 1 : 0.7)
+                                    }).buttonStyle(.plain)
                                 }
                             } else {
                                 Text(recordingLength)
@@ -84,20 +97,6 @@ struct StatusBarItem: View {
                                     .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
                                         CameraPopoverView(closePopover: { popoverState.isShowing = false })
                                     }
-                                } else {
-                                    Button(action:{
-                                        DispatchQueue.main.async {
-                                            if deviceWindow.isVisible { deviceWindow.close() } else { deviceWindow.orderFront(nil) }
-                                            deviceWindowIsShowing = deviceWindow.isVisible
-                                        }
-                                    }, label: {
-                                        Image(systemName: "eye.circle.fill")
-                                            .font(.system(size: 16))
-                                            .foregroundStyle(.white)
-                                            .frame(width: 16, alignment: .center)
-                                            .opacity(deviceWindowIsShowing ? 1 : 0.7)
-                                    })
-                                    .buttonStyle(.plain)
                                 }
                             }
                         } else {

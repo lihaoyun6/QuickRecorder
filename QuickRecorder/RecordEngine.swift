@@ -120,14 +120,15 @@ extension AppDelegate {
             }
         }
         if SCContext.streamType == .systemaudio { prepareAudioRecording() }
-        Task { await record(audioOnly: SCContext.streamType == .systemaudio, filter: SCContext.filter!, fastStart: fastStart) }
+        Task { await record(filter: SCContext.filter!, fastStart: fastStart) }
     }
 
-    func record(audioOnly: Bool, filter: SCContentFilter, fastStart: Bool = true) async {
+    func record(filter: SCContentFilter, fastStart: Bool = true) async {
         SCContext.timeOffset = CMTimeMake(value: 0, timescale: 0)
         SCContext.isPaused = false
         SCContext.isResume = false
         
+        let audioOnly = SCContext.streamType == .systemaudio
         let recordHDR = ud.bool(forKey: "recordHDR")
         let encoderIsH265 = (ud.string(forKey: "encoder") == Encoder.h265.rawValue) || recordHDR
         
@@ -254,15 +255,12 @@ extension AppDelegate {
             try? FileManager.default.createDirectory(at: URL(fileURLWithPath: SCContext.filePath), withIntermediateDirectories: true, attributes: nil)
             try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
             SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath1), settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
-            if let device = SCContext.getCurrentMic() {
-                var settings = SCContext.updateAudioSettings(rate: SCContext.getSampleRate(for: device) ?? 48000)
-                settings[AVNumberOfChannelsKey] = 1
-                SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
-            } else {
-                var settings = SCContext.updateAudioSettings(rate: SCContext.getDefaultSampleRate() ?? 48000)
-                settings[AVNumberOfChannelsKey] = 1
-                SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
-            }
+            
+            let channels = SCContext.getChannelCount() ?? 1
+            let sampleRate = SCContext.getSampleRate() ?? 48000
+            var settings = SCContext.updateAudioSettings(rate: sampleRate)
+            settings[AVNumberOfChannelsKey] = channels
+            SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
         } else {
             SCContext.filePath = "\(path).\(fileEnding)"
             SCContext.filePath1 = SCContext.filePath
@@ -352,11 +350,12 @@ extension AppDelegate {
         }
 
         if ud.bool(forKey: "recordMic") {
-            if let device = SCContext.getCurrentMic() {
-                SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.updateAudioSettings(rate: SCContext.getSampleRate(for: device) ?? 48000))
-            } else {
-                SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: SCContext.updateAudioSettings(rate: SCContext.getDefaultSampleRate() ?? 48000))
-            }
+            let channels = SCContext.getChannelCount() ?? 1
+            let sampleRate = SCContext.getSampleRate() ?? 48000
+            var settings = SCContext.updateAudioSettings(rate: sampleRate)
+            settings[AVNumberOfChannelsKey] = channels
+            
+            SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
             if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
             startMicRecording()
@@ -518,20 +517,11 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         captureSession = AVCaptureSession()
 
         // Get the default audio device (microphone)
-        guard let audioDevice = SCContext.getMicrophone().first(where: { $0.localizedName == ud.string(forKey: "micDevice") }) else {
+        guard let audioDevice = SCContext.getCurrentMic() else {
             print("Unable to access microphone")
             return
         }
         
-        let channels = audioDevice.formats.first?.formatDescription.audioChannelLayout?.numberOfChannels ?? 0
-        if channels < 1 { return }
-        if channels != 1 {
-            let sampleRate = SCContext.getSampleRate(for: audioDevice) ?? 48000
-            var settings = SCContext.updateAudioSettings(rate: sampleRate)
-            settings[AVNumberOfChannelsKey] = channels
-            SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
-        }
-        //print(audioDevice.localizedName)
         // Create audio input
         do {
             audioInput = try AVCaptureDeviceInput(device: audioDevice)

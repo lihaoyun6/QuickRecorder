@@ -452,7 +452,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 154;
+				CURRENT_PROJECT_VERSION = 155;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -470,7 +470,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.5.4;
+				MARKETING_VERSION = 1.5.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -486,7 +486,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 154;
+				CURRENT_PROJECT_VERSION = 155;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -504,7 +504,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.5.4;
+				MARKETING_VERSION = 1.5.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
