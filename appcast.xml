@@ -3,6 +3,28 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.5</title>
+            <pubDate>Sun, 01 Dec 2024 14:24:36 +0800</pubDate>
+            <sparkle:version>155</sparkle:version>
+            <sparkle:shortVersionString>1.5.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了无法从多通道音频输入设备录制声音的问题.</li>
+                <li>修复了录制移动设备画面时迷你控制器显示不正常的问题.</li>
+                </ul><ul>
+                <li>Fixed crash when recording from multi-channel audio input devices.</li>
+                <li>Fixed the appearance of the mini recording controller.</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="280"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.5/QuickRecorder_v1.5.5.dmg" length="4257710" type="application/octet-stream" sparkle:edSignature="CYAYEhCpy02+yLGrktekCXofCynJyknKsyT/BeLfT/cDzQFTB9LwGIy+3EtjvZGzAtUCDUiOTVZ1/5X8rI/rAA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.5/Update155-154.delta" sparkle:deltaFrom="154" length="311322" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="5U7ADes6MmP43v+9CS0bNRM/qrU2V47xpjgdlrWj9ukjCrm/RoYt89IcvfrQxlVme+nc8uouLokDa2/UYopbAg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.5/Update155-153.delta" sparkle:deltaFrom="153" length="662954" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="MfC1eHQSSThZFqvV8Vu4iHu6pYsVpxRyalJhwfBze/86Vuq4FjEo0Rmw1qb/7r468FNsmGpNDXc5/71aYFETDg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.5/Update155-152.delta" sparkle:deltaFrom="152" length="673122" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="qEnaLOoVRbo5cXiobPApi7XEF4ekXaeLd7Bm8mKa0nlVOHP9o+3DMDKwPLVSGYYk1wWJVwEG7xdULrxDh64PAg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.4</title>
             <pubDate>Mon, 25 Nov 2024 16:06:59 +0800</pubDate>
             <sparkle:version>154</sparkle:version>
