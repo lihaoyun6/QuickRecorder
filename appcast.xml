@@ -3,6 +3,35 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.7</title>
+            <pubDate>Wed, 11 Dec 2024 16:04:18 +0800</pubDate>
+            <sparkle:version>157</sparkle:version>
+            <sparkle:shortVersionString>1.5.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li><b>由于 v1.5.6 更新中包含一个错误, 故此更新被撤回重发!</b></li>
+                <li>添加了 <b>zh-Hant</b> 本地化翻译</li>
+                <li>修复了某些时候录像文件大小为 0KB 的问题</li>
+                <li>支持在录制过程中阻止 Mac 进入睡眠 (可在设置中关闭)</li>
+                <li>支持录制结束后在屏幕角落显示预览气泡 (可在设置中关闭)</li>
+                </ul><ul>
+                <li><b>Update v1.5.6 contained a bug so it's being withdrawn!</b></li>
+                <li>Fixed the recording failure issue since v1.5.5 (file size is 0KB)</li>
+                <li>Added: <b>zh-Hant</b> localization</li>
+                <li>Added: Prevent Mac from sleeping during recording (can be disabled in settings)</li>
+                <li>Added: Show preview in corner after recording (can be disabled in settings)</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/QuickRecorder_v1.5.7.dmg" length="4418256" type="application/octet-stream" sparkle:edSignature="xWsrbjmh2n5VswUt7rZP4YtLqb4fsxsJ8bJJydcI7gcJ8IWkyQcyzdcSaqRX0MFGgbkZ2pYX+XW/vwFDkBaACw=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/Update157-156.delta" sparkle:deltaFrom="156" length="247042" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="U3/TgBsKKazcGZ/IyC0D9ZOeV2GdiLHrOqGiTr1Mdfic3/H2dq611IkIwkEq0a7pcfGOnsPm6tuxrpBh0LLCBA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/Update157-155.delta" sparkle:deltaFrom="155" length="657998" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="s2j++wQ8XsUUDoaRmZYYXor/axWTjw+lnmHCjt5fcyapICxanG3RKrhKBMSic1QulgaW5PsJR7sbZlpnLxESAw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/Update157-154.delta" sparkle:deltaFrom="154" length="677446" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="hMEXdnREWuh3B76nUrFrm6xZfPh3vg5YUVNswsInWnrjIttyEOvTgAqOIgTui14E6fLPAWdLvWGJKaZjXEYoCQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/Update157-153.delta" sparkle:deltaFrom="153" length="827310" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="N4kwk8RvS2yDWHdmEIEKZRBw/nHiTh5Ot2ZbpQ8SHpLQAi/k8jGmrCVhZMcMLKFn8Jra08b9mvsr9wyc/PNOAA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.5</title>
             <pubDate>Sun, 01 Dec 2024 14:24:36 +0800</pubDate>
             <sparkle:version>155</sparkle:version>
