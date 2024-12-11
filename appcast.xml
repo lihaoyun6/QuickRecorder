@@ -19,8 +19,8 @@
                 <li><b>Update v1.5.6 contained a bug so it's being withdrawn!</b></li>
                 <li>Fixed the recording failure issue since v1.5.5 (file size is 0KB)</li>
                 <li>Added: <b>zh-Hant</b> localization</li>
-                <li>Added: Prevent Mac from sleeping during recording (can be disabled in settings)</li>
-                <li>Added: Show preview in corner after recording (can be disabled in settings)</li>
+                <li>Added: Prevent Mac from sleeping during recording (can be disabled)</li>
+                <li>Added: Show preview in corner after recording (can be disabled)</li>
                 </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
             ]]></description>
             <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.7/QuickRecorder_v1.5.7.dmg" length="4418256" type="application/octet-stream" sparkle:edSignature="xWsrbjmh2n5VswUt7rZP4YtLqb4fsxsJ8bJJydcI7gcJ8IWkyQcyzdcSaqRX0MFGgbkZ2pYX+XW/vwFDkBaACw=="/>
