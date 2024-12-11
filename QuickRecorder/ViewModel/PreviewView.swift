@@ -87,9 +87,7 @@ struct PreviewView: View {
             Button(action: {
                 if fd.fileExists(atPath: filePath) {
                     let url = URL(fileURLWithPath: filePath)
-                    let pasteboard = NSPasteboard.general
-                    pasteboard.clearContents()
-                    pasteboard.writeObjects([url as NSURL])
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
                 }
                 closeWindow()
             }, label: { Text("Show in Finder") })
