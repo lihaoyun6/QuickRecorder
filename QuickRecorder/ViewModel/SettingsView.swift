@@ -35,7 +35,7 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }.frame(width: 600, height: 430)
+        }.frame(width: 600, height: 475)
     }
 }
 
@@ -98,6 +98,8 @@ struct RecorderView: View {
     @AppStorage("trimAfterRecord")  private var trimAfterRecord: Bool = false
     @AppStorage("miniStatusBar")    private var miniStatusBar: Bool = false
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
+    @AppStorage("preventSleep")     private var preventSleep: Bool = true
+    @AppStorage("showPreview")      private var showPreview: Bool = true
     
     @State private var userColor: Color = Color.black
 
@@ -120,8 +122,15 @@ struct RecorderView: View {
                 }
             }
             SGroupBox {
-                SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
+                SToggle("Mini size Menu Bar controller", isOn: $miniStatusBar)
                 SDivider()
+                SToggle("Prevent Mac from sleeping while recording", isOn: $preventSleep)
+                SDivider()
+                SToggle("Show floating preview after recording", isOn: $showPreview)
+                SDivider()
+                SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
+            }
+            SGroupBox {
                 SToggle("Exclude QuickRecorder itself", isOn: $hideSelf)
                 SDivider()
                 if #available (macOS 13, *) {
@@ -131,9 +140,6 @@ struct RecorderView: View {
                 SToggle("Highlight the Mouse Cursor", isOn: $highlightMouse, tips: "Not available for \"Single Window Capture\"")
                 SDivider()
                 SToggle("Exclude the \"Desktop Files\" layer", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
-            }
-            SGroupBox {
-                SToggle("Mini size Menu Bar controller", isOn: $miniStatusBar)
             }
         }.onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
     }
@@ -191,7 +197,7 @@ struct OutputView: View {
                 SDivider()
                 SToggle("Recording with Alpha Channel", isOn: $withAlpha)
             }
-            SGroupBox {
+            SGroupBox(label: "Save") {
                 SItem(label: "Output Folder") {
                     Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent))
                         .font(.footnote)

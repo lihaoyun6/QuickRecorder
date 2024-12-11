@@ -12,18 +12,18 @@ import ScreenCaptureKit
 class selectScreen: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         SCContext.updateAvailableContent { _ in
             DispatchQueue.main.async {
-                AppDelegate.shared.closeAllWindow()
+                closeAllWindow()
                 if var index = self.evaluatedArguments!["index"] as? Int {
                     guard let screens = SCContext.availableContent?.displays else { return }
                     index -= 1
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     if index >= screens.count || index < 0 {
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "Invalid screen number!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "Invalid screen number!".local, button1: "OK".local).runModal()
                         return
                     } else {
                         let screen = screens[index]
@@ -32,7 +32,7 @@ class selectScreen: NSScriptCommand {
                         }
                     }
                 } else {
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     AppDelegate.shared.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                 }
             }
@@ -44,12 +44,12 @@ class selectScreen: NSScriptCommand {
 class selectArea: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         SCContext.updateAvailableContent { _ in
             DispatchQueue.main.async {
-                AppDelegate.shared.closeAllWindow()
+                closeAllWindow()
                 DispatchQueue.main.async {
                     AppDelegate.shared.showAreaSelector(size: NSSize(width: 600, height: 450))
                     var currentDisplay = SCContext.getSCDisplayWithMouse()
@@ -57,7 +57,7 @@ class selectArea: NSScriptCommand {
                         let display = SCContext.getSCDisplayWithMouse()
                         if display != currentDisplay {
                             currentDisplay = display
-                            AppDelegate.shared.closeAllWindow()
+                            closeAllWindow()
                             AppDelegate.shared.showAreaSelector(size: NSSize(width: 600, height: 450))
                         }
                     }
@@ -71,18 +71,18 @@ class selectArea: NSScriptCommand {
 class selectApps: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         SCContext.updateAvailableContent { _ in
             DispatchQueue.main.async {
-                AppDelegate.shared.closeAllWindow()
+                closeAllWindow()
                 if let name = self.evaluatedArguments!["name"] as? String {
                     guard let app = SCContext.availableContent?.applications.first(where: { $0.applicationName == name }) else {
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "No such application!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "No such application!".local, button1: "OK".local).runModal()
                         return
                     }
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     guard let screens = SCContext.availableContent?.displays else { return }
                     guard let windows = SCContext.availableContent?.windows.filter({
                         guard let title = $0.title else { return false }
@@ -98,19 +98,19 @@ class selectApps: NSScriptCommand {
                         }
                     }
                     if s.isEmpty {
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "This application has no windows!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "This application has no windows!".local, button1: "OK".local).runModal()
                         return
                     }
                     if s.count != 1 {
                         AppDelegate.shared.createNewWindow(view: AppSelector(), title: "App Selector".local)
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "This app exists in multiple screens, please select it manually!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "This app exists in multiple screens, please select it manually!".local, button1: "OK".local).runModal()
                     } else {
                         AppDelegate.shared.createCountdownPanel(screen: s.first!) {
                             AppDelegate.shared.prepRecord(type: "application", screens: s.first!, windows: nil, applications: [app])
                         }
                     }
                 } else {
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     AppDelegate.shared.createNewWindow(view: AppSelector(), title: "App Selector".local)
                 }
             }
@@ -122,12 +122,12 @@ class selectApps: NSScriptCommand {
 class selectWindows: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         SCContext.updateAvailableContent { _ in
             DispatchQueue.main.async {
-                AppDelegate.shared.closeAllWindow()
+                closeAllWindow()
                 if let title = self.evaluatedArguments!["title"] as? String {
                     var windows = [SCWindow]()
                     guard let w = SCContext.availableContent?.windows.filter({ $0.title == title }) else { return }
@@ -136,14 +136,14 @@ class selectWindows: NSScriptCommand {
                         guard let w = SCContext.availableContent?.windows.filter({ $0.title == title && $0.owningApplication?.applicationName == app }) else { return }
                         windows = w
                     }
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     if windows.isEmpty {
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "No such window!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "No such window!".local, button1: "OK".local).runModal()
                         return
                     }
                     if windows.count > 1 {
                         AppDelegate.shared.createNewWindow(view: WinSelector(), title: "Window Selector".local)
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "Duplicate window exists, please select it manually!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "Duplicate window exists, please select it manually!".local, button1: "OK".local).runModal()
                         return
                     }
                     let window = windows.first!
@@ -153,7 +153,7 @@ class selectWindows: NSScriptCommand {
                         if NSIntersectsRect(screen.frame, window.frame) { if !s.contains(screen) { s.append(screen) }}
                     }
                     if s.isEmpty {
-                        AppDelegate.shared.createAlert(title: "Error".local, message: "Unable to find the screen this window belongs to!".local, button1: "OK".local).runModal()
+                        createAlert(title: "Error".local, message: "Unable to find the screen this window belongs to!".local, button1: "OK".local).runModal()
                         return
                     }
                     if let display = SCContext.getSCDisplayWithMouse() {
@@ -168,7 +168,7 @@ class selectWindows: NSScriptCommand {
                         }
                     }
                 } else {
-                    AppDelegate.shared.closeAllWindow()
+                    closeAllWindow()
                     AppDelegate.shared.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                 }
             }
@@ -180,7 +180,7 @@ class selectWindows: NSScriptCommand {
 class recordAudio: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         SCContext.updateAvailableContent { _ in
@@ -189,7 +189,7 @@ class recordAudio: NSScriptCommand {
                 if let mic = self.evaluatedArguments!["mic"] as? Bool {
                     UserDefaults.standard.set(mic, forKey: "recordMic")
                 }
-                AppDelegate.shared.closeAllWindow()
+                closeAllWindow()
                 AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                 UserDefaults.standard.set(m, forKey: "recordMic")
             }
@@ -201,7 +201,7 @@ class recordAudio: NSScriptCommand {
 class setPreferences: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         if SCContext.stream != nil {
-            AppDelegate.shared.createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
+            createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
         if let hires = self.evaluatedArguments!["hires"] as? Bool { UserDefaults.standard.set(hires, forKey: "highRes") }

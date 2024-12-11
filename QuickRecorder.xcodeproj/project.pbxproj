@@ -7,12 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1809EDEE2CA1116A00D8BDD7 /* Scriptable.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 1809EDED2CA1116A00D8BDD7 /* Scriptable.sdef */; };
-		1809EDF02CA112D200D8BDD7 /* AppleScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1809EDEF2CA112D200D8BDD7 /* AppleScript.swift */; };
-		180B54612CCF45E800A5D5FD /* GroupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180B54602CCF45E800A5D5FD /* GroupForm.swift */; };
 		181724052BE3BEA600F5F539 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 181724042BE3BEA600F5F539 /* Sparkle */; };
-		181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 181724072BE3BF7300F5F539 /* Sparkle.swift */; };
-		1821F2972CF40752004A2EC0 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1821F2962CF40752004A2EC0 /* WindowAccessor.swift */; };
 		1821F2E82CF4B226004A2EC0 /* ContentViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */; };
 		184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */ = {isa = PBXBuildFile; productRef = 184506CD2C69213400AFDA45 /* MatrixColorSelector */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
@@ -23,6 +18,14 @@
 		189BD5E62BDE34B80056D06C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 189BD5E82BDE34B80056D06C /* InfoPlist.strings */; };
 		189BD5ED2BDE971B0056D06C /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189BD5EC2BDE971B0056D06C /* VideoEditor.swift */; };
 		189BD5F52BDF8A800056D06C /* CameraOverlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189BD5F42BDF8A800056D06C /* CameraOverlayer.swift */; };
+		18A551F62D0749C3008FC5F6 /* AppleScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551EE2D0749C3008FC5F6 /* AppleScript.swift */; };
+		18A551F72D0749C3008FC5F6 /* GroupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551EF2D0749C3008FC5F6 /* GroupForm.swift */; };
+		18A551F82D0749C3008FC5F6 /* SleepPreventer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */; };
+		18A551F92D0749C3008FC5F6 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F22D0749C3008FC5F6 /* Sparkle.swift */; };
+		18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */; };
+		18A551FB2D0749C3008FC5F6 /* WindowHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */; };
+		18A551FC2D0749C3008FC5F6 /* Scriptable.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 18A551F02D0749C3008FC5F6 /* Scriptable.sdef */; };
+		18CEED922D08312C00FBC4BF /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CEED912D08312C00FBC4BF /* PreviewView.swift */; };
 		18D3BDEB2BCE5DC1006CFFC0 /* QuickRecorderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */; };
 		18D3BDED2BCE5DC1006CFFC0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */; };
 		18D3BDEF2BCE5DC2006CFFC0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18D3BDEE2BCE5DC2006CFFC0 /* Assets.xcassets */; };
@@ -43,11 +46,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1809EDED2CA1116A00D8BDD7 /* Scriptable.sdef */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Scriptable.sdef; sourceTree = "<group>"; };
-		1809EDEF2CA112D200D8BDD7 /* AppleScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleScript.swift; sourceTree = "<group>"; };
-		180B54602CCF45E800A5D5FD /* GroupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupForm.swift; sourceTree = "<group>"; };
-		181724072BE3BF7300F5F539 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
-		1821F2962CF40752004A2EC0 /* WindowAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowAccessor.swift; sourceTree = "<group>"; };
 		1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewNew.swift; sourceTree = "<group>"; };
 		184CAEC62BDCCC2300D61D57 /* AVContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVContext.swift; sourceTree = "<group>"; };
 		184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockSelector.swift; sourceTree = "<group>"; };
@@ -59,9 +57,17 @@
 		189BD5EC2BDE971B0056D06C /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 		189BD5F42BDF8A800056D06C /* CameraOverlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayer.swift; sourceTree = "<group>"; };
 		189BD5F62BDFDF200056D06C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		18A551EE2D0749C3008FC5F6 /* AppleScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleScript.swift; sourceTree = "<group>"; };
+		18A551EF2D0749C3008FC5F6 /* GroupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupForm.swift; sourceTree = "<group>"; };
+		18A551F02D0749C3008FC5F6 /* Scriptable.sdef */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Scriptable.sdef; sourceTree = "<group>"; };
+		18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepPreventer.swift; sourceTree = "<group>"; };
+		18A551F22D0749C3008FC5F6 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
+		18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowAccessor.swift; sourceTree = "<group>"; };
+		18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowHighlighter.swift; sourceTree = "<group>"; };
 		18A735972BFBA12F002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = it; path = it.lproj/Credits.rtf; sourceTree = "<group>"; };
 		18A735982BFBA132002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		18A735992BFBA138002314AF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		18CEED912D08312C00FBC4BF /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecorderApp.swift; sourceTree = "<group>"; };
 		18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -103,6 +109,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		18A551F52D0749C3008FC5F6 /* Supports */ = {
+			isa = PBXGroup;
+			children = (
+				18A551EE2D0749C3008FC5F6 /* AppleScript.swift */,
+				18A551EF2D0749C3008FC5F6 /* GroupForm.swift */,
+				18A551F02D0749C3008FC5F6 /* Scriptable.sdef */,
+				18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */,
+				18A551F22D0749C3008FC5F6 /* Sparkle.swift */,
+				18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */,
+				18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */,
+			);
+			path = Supports;
+			sourceTree = "<group>";
+		};
 		18D3BDDE2BCE5DC1006CFFC0 = {
 			isa = PBXGroup;
 			children = (
@@ -129,11 +149,7 @@
 				18FEBDA92BCF8200003F09BC /* RecordEngine.swift */,
 				18D3BE032BCEC847006CFFC0 /* SCContext.swift */,
 				184CAEC62BDCCC2300D61D57 /* AVContext.swift */,
-				1809EDED2CA1116A00D8BDD7 /* Scriptable.sdef */,
-				180B54602CCF45E800A5D5FD /* GroupForm.swift */,
-				1821F2962CF40752004A2EC0 /* WindowAccessor.swift */,
-				1809EDEF2CA112D200D8BDD7 /* AppleScript.swift */,
-				181724072BE3BF7300F5F539 /* Sparkle.swift */,
+				18A551F52D0749C3008FC5F6 /* Supports */,
 				18D3BE022BCEB1D4006CFFC0 /* ViewModel */,
 				18D3BDFD2BCE5DF5006CFFC0 /* Localizable.strings */,
 				1862BF8F2BD5494E003ED522 /* Credits.rtf */,
@@ -170,6 +186,7 @@
 				189BD5F42BDF8A800056D06C /* CameraOverlayer.swift */,
 				189BD5EC2BDE971B0056D06C /* VideoEditor.swift */,
 				18E6F1192C2E74DF00249DB1 /* QmaPlayer.swift */,
+				18CEED912D08312C00FBC4BF /* PreviewView.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -248,7 +265,7 @@
 			files = (
 				18D3BDF22BCE5DC2006CFFC0 /* Preview Assets.xcassets in Resources */,
 				18D3BDFB2BCE5DF5006CFFC0 /* Localizable.strings in Resources */,
-				1809EDEE2CA1116A00D8BDD7 /* Scriptable.sdef in Resources */,
+				18A551FC2D0749C3008FC5F6 /* Scriptable.sdef in Resources */,
 				18D3BDEF2BCE5DC2006CFFC0 /* Assets.xcassets in Resources */,
 				1862BF8D2BD5494E003ED522 /* Credits.rtf in Resources */,
 				189BD5E62BDE34B80056D06C /* InfoPlist.strings in Resources */,
@@ -262,7 +279,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1821F2972CF40752004A2EC0 /* WindowAccessor.swift in Sources */,
 				18FEBDAE2BD10ED1003F09BC /* ScreenSelector.swift in Sources */,
 				189BD5ED2BDE971B0056D06C /* VideoEditor.swift in Sources */,
 				189BD5F52BDF8A800056D06C /* CameraOverlayer.swift in Sources */,
@@ -273,6 +289,13 @@
 				184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */,
 				18D3BDFF2BCE5E4B006CFFC0 /* StatusBar.swift in Sources */,
 				1821F2E82CF4B226004A2EC0 /* ContentViewNew.swift in Sources */,
+				18A551F62D0749C3008FC5F6 /* AppleScript.swift in Sources */,
+				18A551F72D0749C3008FC5F6 /* GroupForm.swift in Sources */,
+				18A551F82D0749C3008FC5F6 /* SleepPreventer.swift in Sources */,
+				18CEED922D08312C00FBC4BF /* PreviewView.swift in Sources */,
+				18A551F92D0749C3008FC5F6 /* Sparkle.swift in Sources */,
+				18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */,
+				18A551FB2D0749C3008FC5F6 /* WindowHighlighter.swift in Sources */,
 				18D3BE042BCEC847006CFFC0 /* SCContext.swift in Sources */,
 				18775C202BE21F38008333EF /* iDeviceSelector.swift in Sources */,
 				18D3BDED2BCE5DC1006CFFC0 /* ContentView.swift in Sources */,
@@ -280,11 +303,8 @@
 				18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */,
 				18FEBDB02BD2C0D1003F09BC /* SettingsView.swift in Sources */,
 				18E6F11A2C2E74DF00249DB1 /* QmaPlayer.swift in Sources */,
-				180B54612CCF45E800A5D5FD /* GroupForm.swift in Sources */,
 				18D3BDEB2BCE5DC1006CFFC0 /* QuickRecorderApp.swift in Sources */,
-				181724082BE3BF7300F5F539 /* Sparkle.swift in Sources */,
 				18FEBDAC2BD01E82003F09BC /* WinSelector.swift in Sources */,
-				1809EDF02CA112D200D8BDD7 /* AppleScript.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,7 +472,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 155;
+				CURRENT_PROJECT_VERSION = 156;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -470,7 +490,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.5.5;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -486,7 +506,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 155;
+				CURRENT_PROJECT_VERSION = 156;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -504,7 +524,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.5.5;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

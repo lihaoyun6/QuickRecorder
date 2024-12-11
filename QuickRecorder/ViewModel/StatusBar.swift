@@ -210,11 +210,11 @@ struct StatusBarItem: View {
                 .buttonStyle(.plain)
                 .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
                     if #available(macOS 13, *) {
-                        ContentViewNew().onAppear{ appDelegate.closeAllWindow() }
+                        ContentViewNew().onAppear{ closeAllWindow() }
                     } else {
                         ContentView(fromStatusBar: true)
                             .onAppear{
-                                appDelegate.closeAllWindow()
+                                closeAllWindow()
                                 if isMacOS12 { NSApplication.shared.activate(ignoringOtherApps: true) }
                             }
                     }

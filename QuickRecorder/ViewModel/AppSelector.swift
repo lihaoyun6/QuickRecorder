@@ -90,7 +90,7 @@ struct AppSelector: View {
                     }
                 }
                 .frame(height: 445)
-                .padding([.leading, .trailing], 10)
+                .padding(.horizontal, 10)
                 .onChange(of: selectedTab) { _ in selected.removeAll() }
                 .onReceive(viewModel.$isReady) { isReady in
                     if isReady {
@@ -154,14 +154,14 @@ struct AppSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected.count < 1)
-                }.padding([.leading, .trailing], 40)
+                }.padding(.horizontal, 40)
                 Spacer()
             }.padding(.top, -5)
         }.frame(width: 780, height:555)
     }
     
     func startRecording() {
-        appDelegate.closeAllWindow()
+        closeAllWindow()
         appDelegate.createCountdownPanel(screen: display) {
             SCContext.autoStop = autoStop
             appDelegate.prepRecord(type: "application", screens: display, windows: nil, applications: selected)
@@ -344,7 +344,7 @@ struct OptionsView: View {
                         Spacer().frame(width: 5)
                         if micDevice != "default" && enableAEC{
                             Button("⚠️", action: {
-                                let alert = AppDelegate.shared.createAlert(
+                                let alert = createAlert(
                                     title: "Compatibility Warning".local,
                                     message: "The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC.".local,
                                     button1: "OK".local, button2: "System Preferences".local)

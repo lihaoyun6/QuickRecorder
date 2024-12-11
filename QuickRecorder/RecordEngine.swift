@@ -23,9 +23,8 @@ extension AppDelegate {
             default: return // if we don't even know what to record I don't think we should even try
         }
         var isDirectory: ObjCBool = false
-        let fileManager = FileManager.default
         let outputPath = ud.string(forKey: "saveDirectory")!
-        if fileManager.fileExists(atPath: outputPath, isDirectory: &isDirectory) {
+        if fd.fileExists(atPath: outputPath, isDirectory: &isDirectory) {
             if !isDirectory.boolValue {
                 SCContext.streamType = nil
                 _ = createAlert(title: "Failed to Record".local, message: "The output path is a file instead of a folder!".local, button1: "OK").runModal()
@@ -33,7 +32,7 @@ extension AppDelegate {
             }
         } else {
             do {
-                try fileManager.createDirectory(atPath: outputPath, withIntermediateDirectories: true, attributes: nil)
+                try fd.createDirectory(atPath: outputPath, withIntermediateDirectories: true, attributes: nil)
             } catch {
                 SCContext.streamType = nil
                 _ = createAlert(title: "Failed to Record".local, message: "Unable to create output folder!".local, button1: "OK").runModal()
@@ -232,6 +231,9 @@ extension AppDelegate {
         }
         if !audioOnly { registerGlobalMouseMonitor() }
         DispatchQueue.main.async { [self] in updateStatusBar() }
+        if ud.bool(forKey: "preventSleep") {
+            SleepPreventer.shared.preventSleep(reason: "Screen recording in progress")
+        }
     }
 
     func prepareAudioRecording() {
@@ -252,14 +254,14 @@ extension AppDelegate {
             SCContext.filePath2 = "\(path).qma/mic.\(fileEnding)"
             let infoJsonURL = URL(fileURLWithPath: "\(path).qma/info.json")
             let jsonString = "{\"format\": \"\(fileEnding)\", \"encoder\": \"\(encorder)\", \"exportMP3\": \(ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue), \"sysVol\": 1.0, \"micVol\": 1.0}"
-            try? FileManager.default.createDirectory(at: URL(fileURLWithPath: SCContext.filePath), withIntermediateDirectories: true, attributes: nil)
+            try? fd.createDirectory(at: URL(fileURLWithPath: SCContext.filePath), withIntermediateDirectories: true, attributes: nil)
             try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
             SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath1), settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
             
-            let channels = SCContext.getChannelCount() ?? 1
+            //let channels = SCContext.getChannelCount() ?? 2
             let sampleRate = SCContext.getSampleRate() ?? 48000
-            var settings = SCContext.updateAudioSettings(rate: sampleRate)
-            settings[AVNumberOfChannelsKey] = channels
+            let settings = SCContext.updateAudioSettings(rate: sampleRate)
+            //settings[AVNumberOfChannelsKey] = channels
             SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
         } else {
             SCContext.filePath = "\(path).\(fileEnding)"
@@ -272,6 +274,10 @@ extension AppDelegate {
 extension NSScreen {
     var displayID: CGDirectDisplayID? {
         return deviceDescription[NSDeviceDescriptionKey(rawValue: "NSScreenNumber")] as? CGDirectDisplayID
+    }
+    var isMainScreen: Bool {
+        guard let id = self.displayID else { return false }
+        return (CGDisplayIsMain(id) == 1)
     }
 }
 
@@ -350,10 +356,10 @@ extension AppDelegate {
         }
 
         if ud.bool(forKey: "recordMic") {
-            let channels = SCContext.getChannelCount() ?? 1
+            //let channels = SCContext.getChannelCount() ?? 2
             let sampleRate = SCContext.getSampleRate() ?? 48000
-            var settings = SCContext.updateAudioSettings(rate: sampleRate)
-            settings[AVNumberOfChannelsKey] = channels
+            let settings = SCContext.updateAudioSettings(rate: sampleRate)
+            //settings[AVNumberOfChannelsKey] = 2
             
             SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
@@ -371,10 +377,10 @@ extension AppDelegate {
                 if #available(macOS 14, *) { input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min }
             }
             let inputFormat = input.inputFormat(forBus: 0)
-            let monoFormat = AVAudioFormat(commonFormat: inputFormat.commonFormat,
+            /*let monoFormat = AVAudioFormat(commonFormat: inputFormat.commonFormat,
                                            sampleRate: inputFormat.sampleRate,
-                                           channels: 1, interleaved: inputFormat.isInterleaved) ?? inputFormat
-            input.installTap(onBus: 0, bufferSize: 1024, format: monoFormat) {buffer, time in
+                                           channels: 1, interleaved: inputFormat.isInterleaved) ?? inputFormat*/
+            input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { buffer, time in
                 if SCContext.isPaused || SCContext.startTime == nil { return }
                 if SCContext.streamType == .systemaudio {
                     do { try SCContext.audioFile2?.write(from: buffer) }
@@ -475,6 +481,7 @@ extension AppDelegate {
                     }
                 }
                 if isPresenterON && !isCameraReady { break }
+                if SCContext.firstFrame == nil { SCContext.firstFrame = SampleBuffer }
                 SCContext.vwInput.append(SampleBuffer)
             }
             break

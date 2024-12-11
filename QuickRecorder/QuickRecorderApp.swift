@@ -20,6 +20,7 @@ var isMacOS12 = true
 var isMacOS14 = false
 var isMacOS15 = false
 var scPerm = false
+let fd = FileManager.default
 let ud = UserDefaults.standard
 //var statusMenu: NSMenu = NSMenu()
 var statusBarItem: NSStatusItem!
@@ -60,7 +61,7 @@ struct QuickRecorderApp: App {
                     qmaPlayerView(document: file.$document, fileURL: fileURL)
                         .frame(minWidth: 400, minHeight: 100, maxHeight: 100)
                         .focusable(false)
-                    //.onAppear{ AppDelegate.shared.closeAllWindow(except: ".qma") }
+                    //.onAppear{ closeAllWindow(except: ".qma") }
                 }
             }
         }
@@ -78,7 +79,7 @@ struct QuickRecorderApp: App {
                     WindowAccessor(
                         onWindowOpen: { w in
                             if let w = w {
-                                w.level = .floating
+                                //w.level = .floating
                                 w.titlebarSeparatorStyle = .none
                                 guard let nsSplitView = findNSSplitVIew(view: w.contentView),
                                       let controller = nsSplitView.delegate as? NSSplitViewController else { return }
@@ -177,7 +178,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         let process = NSWorkspace.shared.runningApplications.filter({ $0.bundleIdentifier == "com.lihaoyun6.QuickRecorder" })
         if process.count > 1 {
             DispatchQueue.main.async {
-                let button = self.createAlert(title: "QuickRecorder is Running".local, message: "Please do not run multiple instances!".local, button1: "Quit".local).runModal()
+                let button = createAlert(title: "QuickRecorder is Running".local, message: "Please do not run multiple instances!".local, button1: "Quit".local).runModal()
                 if button == .alertFirstButtonReturn { NSApp.terminate(self) }
             }
         }
@@ -213,6 +214,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "showMenubar": false,
                 "enableAEC": false,
                 "recordHDR": false,
+                "showPreview": true,
                 "savedArea": [String: [String: CGFloat]]()
             ]
         )
@@ -368,6 +370,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
 }
 
+func closeMainWindow() {
+    for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
+        w.close()
+    }
+}
+
+func closeAllWindow(except: String = "") {
+    for w in NSApp.windows.filter({
+        $0.title != "Item-0" && $0.title != ""
+        && !$0.title.lowercased().contains(".qma")
+        && !$0.title.contains(except) }) { w.close() }
+}
+
 func findNSSplitVIew(view: NSView?) -> NSSplitView? {
     var queue = [NSView]()
     if let root = view { queue.append(root) }
@@ -419,6 +434,43 @@ func process(path: String, arguments: [String]) -> String? {
     }
     
     return output.trimmingCharacters(in: .newlines)
+}
+
+func tips(_ message: String, title: String? = nil, id: String, switchButton: Bool = false, width: Int? = nil, action: (() -> Void)? = nil) {
+    let never = (ud.object(forKey: "neverRemindMe") as? [String]) ?? []
+    if !never.contains(id) {
+        if switchButton {
+            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: "OK", button2: "Don't remind me again", width: width).runModal()
+            if alert == .alertSecondButtonReturn { ud.setValue(never + [id], forKey: "neverRemindMe") }
+            if alert == .alertFirstButtonReturn { action?() }
+        } else {
+            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: "Don't remind me again", button2: "OK", width: width).runModal()
+            if alert == .alertFirstButtonReturn { ud.setValue(never + [id], forKey: "neverRemindMe") }
+            if alert == .alertSecondButtonReturn { action?() }
+        }
+    }
+}
+
+func createAlert(level: NSAlert.Style = .warning, title: String, message: String, button1: String, button2: String = "", width: Int? = nil) -> NSAlert {
+    let alert = NSAlert()
+    alert.messageText = title.local
+    alert.informativeText = message.local
+    alert.addButton(withTitle: button1.local)
+    if button2 != "" { alert.addButton(withTitle: button2.local) }
+    alert.alertStyle = level
+    if let width = width {
+        alert.accessoryView = NSView(frame: NSMakeRect(0, 0, Double(width), 0))
+    }
+    return alert
+}
+
+extension Bundle {
+    var appName: String {
+        let appName = self.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+                     ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+                     ?? "Unknown App Name"
+        return appName
+    }
 }
 
 extension String {

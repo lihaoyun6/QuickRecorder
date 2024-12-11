@@ -43,10 +43,10 @@ struct iDevicePopoverView: View {
                             .font(.system(size: 12))
                     }.padding(.leading, 9)
                     Text("No Devices Found!")
-                        .padding([.top, .bottom], 8).padding(.trailing, 10)
+                        .padding(.vertical, 8).padding(.trailing, 10)
                 }
                 .frame(maxWidth: .infinity)
-                Divider().padding([.top, .bottom], 5)
+                Divider().padding(.vertical, 5)
                 Text("Connect your device via USB")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
@@ -55,7 +55,7 @@ struct iDevicePopoverView: View {
                 ForEach(devices.indices, id: \.self) { index in
                     Button(action: {
                         closePopover()
-                        appDelegate.closeAllWindow()
+                        closeAllWindow()
                         DispatchQueue.global().async {
                             AVOutputClass.shared.startRecording(with: devices[index], mute: mute, preset: preset)
                         }
@@ -71,7 +71,7 @@ struct iDevicePopoverView: View {
                                     .offset(x: -0.5, y:  -0.5)
                             }.padding(.leading, 9)
                             Text(devices[index].localizedName)
-                                .padding([.top, .bottom], 8).padding(.trailing, 10)
+                                .padding(.vertical, 8).padding(.trailing, 10)
                             Spacer()
                         }
                         .frame(maxWidth: .infinity)
@@ -102,7 +102,7 @@ struct iDevicePopoverView: View {
                     .buttonStyle(.borderless)
                     .scaleEffect(0.7)
                     .offset(y: -0.5)
-                }.padding([.top, .bottom], 4).padding(.leading, 10)
+                }.padding(.vertical, 4).padding(.leading, 10)
                 Text("If you are on a call, enable \"Mute\"")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)

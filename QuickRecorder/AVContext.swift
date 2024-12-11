@@ -86,7 +86,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             if let audioConnection = output.connection(with: .audio) {
                 SCContext.captureSession.removeConnection(audioConnection)
                 /*DispatchQueue.main.async {
-                    let alert = AppDelegate.shared.createAlert(title: "No Audio Connection",
+                    let alert = createAlert(title: "No Audio Connection",
                                                                message: "Unable to get audio stream on this device, only screen content will be recorded!",
                                                                button1: "OK")
                     alert.runModal()
@@ -109,7 +109,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         
         SCContext.previewSession.startRunning()
         DispatchQueue.main.async {
-            AppDelegate.shared.closeAllWindow(except: "Area Overlayer".local)
+            closeAllWindow(except: "Area Overlayer".local)
             AppDelegate.shared.updateStatusBar()
             AppDelegate.shared.startDeviceOverlayer(size: NSSize(width: 300, height: 500))
         }

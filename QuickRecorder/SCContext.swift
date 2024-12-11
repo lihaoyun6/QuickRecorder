@@ -11,8 +11,10 @@ import Foundation
 import ScreenCaptureKit
 import UserNotifications
 import SwiftLAME
+import SwiftUI
 
 class SCContext {
+    static var firstFrame: CMSampleBuffer?
     static var autoStop = 0
     static var recordCam = ""
     static var recordDevice = ""
@@ -235,7 +237,7 @@ class SCContext {
 
         ud.setValue(false, forKey: "recordMic")
         DispatchQueue.main.async {
-            let alert = AppDelegate.shared.createAlert(title: "Permission Required",
+            let alert = createAlert(title: "Permission Required",
                                                        message: "QuickRecorder needs permission to record your microphone.",
                                                        button1: "Open Settings",
                                                        button2: "Cancel")
@@ -247,7 +249,7 @@ class SCContext {
     
     private static func requestPermissions() {
         DispatchQueue.main.async {
-            let alert = AppDelegate.shared.createAlert(title: "Permission Required",
+            let alert = createAlert(title: "Permission Required",
                                                        message: "QuickRecorder needs screen recording permissions, even if you only intend on recording audio.",
                                                        button1: "Open Settings",
                                                        button2: "Cancel")
@@ -273,13 +275,11 @@ class SCContext {
     
     static func getRecordingSize() -> String {
         do {
-            if let filePath = filePath {
-                let fileAttr = try FileManager.default.attributesOfItem(atPath: filePath)
-                let byteFormat = ByteCountFormatter()
-                byteFormat.allowedUnits = [.useMB]
-                byteFormat.countStyle = .file
-                return byteFormat.string(fromByteCount: fileAttr[FileAttributeKey.size] as! Int64)
-            }
+            let fileAttr = try fd.attributesOfItem(atPath: filePath)
+            let byteFormat = ByteCountFormatter()
+            byteFormat.allowedUnits = [.useMB]
+            byteFormat.countStyle = .file
+            return byteFormat.string(fromByteCount: fileAttr[FileAttributeKey.size] as! Int64)
         } catch {
             print(String(format: "failed to fetch file for size indicator: %@".local, error.localizedDescription))
         }
@@ -314,6 +314,7 @@ class SCContext {
     
     static func stopRecording() {
         //statusBarItem.isVisible = false
+        if ud.bool(forKey: "preventSleep") { SleepPreventer.shared.allowSleep() }
         autoStop = 0
         lastPTS = nil
         recordCam = ""
@@ -358,6 +359,8 @@ class SCContext {
                                     DispatchQueue.main.async {
                                         AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, only: false)
                                     }
+                                } else {
+                                    showPreview(path: url.path)
                                 }
                             case .failure(let error):
                                 print("Failed to export video: \(error.localizedDescription)")
@@ -391,11 +394,11 @@ class SCContext {
                         let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
                         let id = "quickrecorder.completed.\(UUID().uuidString)"
                         try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
-                        try? FileManager.default.removeItem(atPath: filePath1)
+                        try? fd.removeItem(atPath: filePath1)
                         /*if ud.bool(forKey: "recordMic") {
                             let outPutUrl2 = URL(fileURLWithPath: String(filePath2.dropLast(4)) + ".mp3")
                             try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath2), outputUrl: outPutUrl2)
-                            try? FileManager.default.removeItem(atPath: filePath2)
+                            try? fd.removeItem(atPath: filePath2)
                             body = String(format: "File saved to: %@".local, filePath.removingPercentEncoding!)
                         }*/
                         showNotification(title: title, body: body, id: id)
@@ -405,8 +408,7 @@ class SCContext {
                 }
             } else {
                 let title = "Recording Completed".local
-                var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
-                if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
+                let body = String(format: "File saved to: %@".local, filePath)
                 let id = "quickrecorder.completed.\(UUID().uuidString)"
                 showNotification(title: title, body: body, id: id)
                 if ud.bool(forKey: "remuxAudio") {
@@ -436,8 +438,7 @@ class SCContext {
         
         if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && streamType != .systemaudio {
             let title = "Recording Completed".local
-            var body = String(format: "File saved to folder: %@".local, ud.string(forKey: "saveDirectory")!)
-            if let filePath = filePath { body = String(format: "File saved to: %@".local, filePath) }
+            let body = String(format: "File saved to: %@".local, filePath)
             let id = "quickrecorder.completed.\(UUID().uuidString)"
             if let vW = vW {
                 if vW.status == .completed {
@@ -451,6 +452,23 @@ class SCContext {
         }
         
         streamType = nil
+    }
+    
+    static func showPreview(path: String) {
+        if !ud.bool(forKey: "showPreview") { return }
+        if let frame = firstFrame?.nsImage, let screen = getScreenWithMouse() {
+            let previewWindow = NSWindow(contentRect: NSMakeRect(0, 0, 260, 150), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+            let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: filePath))
+            previewWindow.contentView = contentView
+            previewWindow.level = .floating
+            previewWindow.titlebarAppearsTransparent = true
+            previewWindow.titleVisibility = .hidden
+            previewWindow.isReleasedWhenClosed = false
+            previewWindow.backgroundColor = .clear
+            previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 274, y: screen.frame.minY + 14))
+            previewWindow.orderFront(self)
+            firstFrame = nil
+        }
     }
     
     static func m4a2mp3(inputUrl: URL, outputUrl: URL) async throws {
@@ -472,6 +490,8 @@ class SCContext {
         if ud.bool(forKey: "trimAfterRecord") {
             let fileURL = URL(fileURLWithPath: filePath)
             AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent, only: false)
+        } else {
+            showPreview(path: filePath)
         }
     }
     
@@ -500,7 +520,7 @@ class SCContext {
         return getMicrophone().first(where: { $0.localizedName == deviceName })
     }
     
-    static func getChannelCount() -> Int? {
+    /*static func getChannelCount() -> Int? {
         if let device = getCurrentMic() {
             if let channels = device.formats.first?.formatDescription.audioChannelLayout?.numberOfChannels {
                 return channels
@@ -510,11 +530,11 @@ class SCContext {
             let description = activeFormat.formatDescription
             if let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee {
                 let channelCount = audioStreamBasicDescription.mChannelsPerFrame
-                return Int(channelCount)
+                return max(2, Int(channelCount))
             }
         }
         return getDefaultChannelCount()
-    }
+    }*/
     
     static func getSampleRate() -> Int? {
         if let device = getCurrentMic() {
@@ -529,7 +549,7 @@ class SCContext {
         return getDefaultSampleRate()
     }
     
-    static func getDefaultChannelCount() -> Int? {
+    /*static func getDefaultChannelCount() -> Int? {
         var deviceID = AudioObjectID(0)
         var propertySize = UInt32(MemoryLayout.size(ofValue: deviceID))
         
@@ -589,9 +609,8 @@ class SCContext {
         for buffer in streamConfig! {
             totalChannels += Int(buffer.mNumberChannels)
         }
-        
-        return totalChannels
-    }
+        return max(2, totalChannels)
+    }*/
     
     static func getDefaultSampleRate() -> Int? {
         var deviceID = AudioObjectID(0)
@@ -778,7 +797,7 @@ class SCContext {
                 exportSession.exportAsynchronously {
                     switch exportSession.status {
                     case .completed:
-                        let  fileManager = FileManager.default
+                        let  fileManager = fd
                         try? fileManager.removeItem(atPath: filePath)
                         try? fileManager.removeItem(atPath: audioOutputURL.path)
                         completion(.success(outputURL))

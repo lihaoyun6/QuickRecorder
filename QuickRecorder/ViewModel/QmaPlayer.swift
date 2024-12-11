@@ -616,7 +616,7 @@ class AudioPlayerManager: ObservableObject {
                         Task {
                             do {
                                 try await SCContext.m4a2mp3(inputUrl: oldURL, outputUrl: newURl)
-                                try? FileManager.default.removeItem(at: oldURL)
+                                try? fd.removeItem(at: oldURL)
                             } catch {
                                 SCContext.showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(UUID().uuidString)")
                                 return

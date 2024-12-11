@@ -29,14 +29,14 @@ struct ContentViewNew: View {
             HStack {
                 
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                     appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                 }, label: {
                     SelectorView(title: "Screen".local, symbol: "tv.inset.filled").cornerRadius(8)
                 }).buttonStyle(.plain)
                 Divider().frame(height: 70)
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                     SCContext.updateAvailableContent { _ in
                         DispatchQueue.main.async {
                             appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
@@ -45,7 +45,7 @@ struct ContentViewNew: View {
                                 let display = SCContext.getSCDisplayWithMouse()
                                 if display != currentDisplay {
                                     currentDisplay = display
-                                    appDelegate.closeAllWindow()
+                                    closeAllWindow()
                                     appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
                                 }
                             }
@@ -56,7 +56,7 @@ struct ContentViewNew: View {
                 }).buttonStyle(.plain)
                 Divider().frame(height: 70)
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                     appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
                 }, label: {
                     SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
@@ -64,7 +64,7 @@ struct ContentViewNew: View {
                 }).buttonStyle(.plain)
                 Divider().frame(height: 70)
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                     appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                 }, label: {
                     SelectorView(title: "Window".local, symbol: "macwindow").cornerRadius(8)
@@ -80,7 +80,7 @@ struct ContentViewNew: View {
                 ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
                     Button(action: {
                         if let display = SCContext.getSCDisplayWithMouse() {
-                            appDelegate.closeMainWindow()
+                            closeMainWindow()
                             appDelegate.createCountdownPanel(screen: display) {
                                 AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                             }
@@ -107,7 +107,7 @@ struct ContentViewNew: View {
                             .onChange(of: recordMic) { _ in  Task { await SCContext.performMicCheck() }}
                             if micDevice != "default" && enableAEC && recordMic{
                                 Button {
-                                    let alert = AppDelegate.shared.createAlert(
+                                    let alert = createAlert(
                                         title: "Compatibility Warning".local,
                                         message: "The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC.".local,
                                         button1: "OK".local, button2: "System Preferences".local)
@@ -145,8 +145,8 @@ struct ContentViewNew: View {
                                             Color.primary
                                                 .opacity(0.1)
                                                 .cornerRadius(4)
-                                                .padding([.top, .bottom], -1)
-                                                .padding([.leading, .trailing], 3)
+                                                .padding(.vertical, -1)
+                                                .padding(.horizontal, 3)
                                                 .padding(.trailing, -16)
                                             Image(systemName: "chevron.up.chevron.down")
                                                 .offset(x: 50)
@@ -194,7 +194,7 @@ struct ContentViewNew: View {
                     }
                 Divider().frame(height: 70)
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                     appDelegate.openSettingPanel()
                 }, label: {
                     SelectorView(title: "Preferences".local, symbol: "gearshape").cornerRadius(8)

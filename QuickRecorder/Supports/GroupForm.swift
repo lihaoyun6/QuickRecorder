@@ -1,11 +1,29 @@
 //
-//  SField.swift
-//  QuickRecorder
+//  GroupForm.swift
+//  AirBattery
 //
 //  Created by apple on 2024/10/28.
 //
 
 import SwiftUI
+
+struct HoverButton<Content: View>: View {
+    var color: Color = .primary
+    var secondaryColor: Color = .blue
+    var action: () -> Void
+    @ViewBuilder let label: () -> Content
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Button(action: {
+            action()
+        }, label: {
+            label().foregroundStyle(isHovered ? secondaryColor : color)
+        })
+        .buttonStyle(.plain)
+        .onHover(perform: { isHovered = $0 })
+    }
+}
 
 struct SForm<Content: View>: View {
     var spacing: CGFloat = 30
@@ -39,10 +57,11 @@ struct SGroupBox<Content: View>: View {
 
 struct SItem<Content: View>: View {
     var label: LocalizedStringKey? = nil
+    var spacing: CGFloat = 8
     @ViewBuilder let content: () -> Content
     
     var body: some View {
-        HStack {
+        HStack(spacing: spacing) {
             if let label = label { Text(label) }
             Spacer()
             content()
@@ -56,9 +75,32 @@ struct SDivider: View {
     }
 }
 
+struct SSlider: View {
+    var label: LocalizedStringKey? = nil
+    @Binding var value: Int
+    var range: ClosedRange<Double> = 0...100
+    var width: CGFloat = .infinity
+    
+    var body: some View {
+        HStack {
+            if let label = label {
+                Text(label)
+            }
+            Spacer()
+            Slider(value:
+                    Binding(get: { Double(value) },
+                            set: { newValue in
+                let base: Int = Int(newValue.rounded())
+                let modulo: Int = base % 1
+                value = base - modulo
+            }), in: range).frame(maxWidth: width)
+        }.frame(height: 16)
+    }
+}
+
 struct SInfoButton: View {
     var tips: LocalizedStringKey
-    @State var isPresented: Bool = false
+    @State private var isPresented: Bool = false
     
     var body: some View {
         Button(action: {
@@ -69,6 +111,7 @@ struct SInfoButton: View {
                 .opacity(0.5)
         })
         .buttonStyle(.plain)
+        .onChange(of: isPresented) {_ in}
         .sheet(isPresented: $isPresented) {
             VStack(alignment: .trailing) {
                 GroupBox { Text(tips).padding() }
@@ -85,12 +128,21 @@ struct SInfoButton: View {
 struct SButton: View {
     var title: LocalizedStringKey
     var buttonTitle: LocalizedStringKey
+    var tips: LocalizedStringKey?
     var action: () -> Void
     
+    init(_ title: LocalizedStringKey, buttonTitle: LocalizedStringKey, tips: LocalizedStringKey? = nil, action: @escaping () -> Void) {
+        self.title = title
+        self.buttonTitle = buttonTitle
+        self.tips = tips
+        self.action = action
+    }
+    
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text(title)
             Spacer()
+            if let tips = tips { SInfoButton(tips: tips) }
             Button(buttonTitle,
                    action: { action() })
         }.frame(height: 16)
@@ -99,18 +151,28 @@ struct SButton: View {
 
 struct SField: View {
     var title: LocalizedStringKey
-    var tips: LocalizedStringKey? = nil
+    var placeholder: LocalizedStringKey
+    var tips: LocalizedStringKey?
     @Binding var text: String
+    var width: Double
+    
+    init(_ title: LocalizedStringKey, placeholder:LocalizedStringKey = "", tips: LocalizedStringKey? = nil, text: Binding<String>, width: Double = .infinity) {
+        self.title = title
+        self.placeholder = placeholder
+        self.tips = tips
+        self._text = text
+        self.width = width
+    }
     
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
-            TextField("", text: $text)
+            TextField(placeholder, text: $text)
                 .textFieldStyle(.roundedBorder)
                 .multilineTextAlignment(.trailing)
-                .frame(width: 220)
+                .frame(maxWidth: width)
         }
     }
 }
@@ -135,7 +197,7 @@ struct SPicker<T: Hashable, Content: View, Style: PickerStyle>: View {
             Text(title)
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
-            Picker("", selection: $selection) { content() }
+            Picker(selection: $selection, content: { content() }, label: {})
                 .fixedSize()
                 .pickerStyle(style)
                 .buttonStyle(.borderless)
@@ -155,7 +217,7 @@ struct SToggle: View {
     }
     
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             Text(title)
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
@@ -172,33 +234,33 @@ struct SSteper: View {
     @Binding var value: Int
     var min: Int
     var max: Int
-    var length: CGFloat
+    var width: CGFloat
     var tips: LocalizedStringKey?
     
-    init(_ title: LocalizedStringKey, value: Binding<Int>, min: Int = 0, max: Int = 100, length: CGFloat = 45, tips: LocalizedStringKey? = nil) {
+    init(_ title: LocalizedStringKey, value: Binding<Int>, min: Int = 0, max: Int = 100, width: CGFloat = 45, tips: LocalizedStringKey? = nil) {
         self.title = title
         self._value = value
         self.tips = tips
-        self.length = length
+        self.width = width
         self.min = min
         self.max = max
     }
     
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             Text(title)
             Spacer()
             if let tips = tips { SInfoButton(tips: tips) }
             TextField("", value: $value, formatter: NumberFormatter())
                 .textFieldStyle(.roundedBorder)
                 .multilineTextAlignment(.trailing)
-                .frame(width: length)
+                .frame(width: width)
                 .onChange(of: value) { newValue in
                     if newValue > max { value = max }
                     if newValue < min { value = min }
                 }
             Stepper("", value: $value)
-                .padding(.leading, -10)
+                .padding(.leading, -6)
         }.frame(height: 16)
     }
 }

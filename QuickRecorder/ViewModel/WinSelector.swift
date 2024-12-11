@@ -29,7 +29,22 @@ struct WinSelector: View {
                 if #available(macOS 15, *) {
                     Text("Please select the window(s) to record").offset(y: 12)
                 } else {
-                    Text("Please select the window(s) to record")
+                    HStack {
+                        Spacer()
+                        Text("Please select the window(s) to record")
+                        Spacer()
+                        HoverButton(action: {
+                            WindowHighlighter.shared.registerMouseMonitor()
+                        }, label: {
+                            ZStack {
+                                Color.white.opacity(0.0001)
+                                Image("window.select")
+                                    .resizable().scaledToFit()
+                            }.frame(width: 20, height: 20)
+                        })
+                        .help("Select Window Directly")
+                        .padding(.leading, -20)
+                    }.padding(.horizontal, 10)
                 }
                 TabView(selection: $selectedTab) {
                     let allApps = viewModel.windowThumbnails.sorted(by: { $0.key.displayID < $1.key.displayID })
@@ -92,7 +107,7 @@ struct WinSelector: View {
                                                                 .offset(y: 35)
                                                         }
                                                         .padding(5)
-                                                        .padding([.top, .bottom], 5)
+                                                        .padding(.vertical, 5)
                                                         .background(
                                                             Rectangle()
                                                                 .foregroundStyle(.blue)
@@ -121,7 +136,7 @@ struct WinSelector: View {
                     }
                 }
                 .frame(height: 445)
-                .padding([.leading, .trailing], 10)
+                .padding(.horizontal, 10)
                 .onChange(of: selectedTab) { _ in selected.removeAll() }
                 .onReceive(viewModel.$isReady) { isReady in
                     if isReady {
@@ -132,7 +147,7 @@ struct WinSelector: View {
                         }
                     }
                 }
-                HStack(spacing: 4){
+                HStack(spacing: 4) {
                     Button(action: {
                         self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
                         self.selected.removeAll()
@@ -212,14 +227,27 @@ struct WinSelector: View {
                     })
                     .buttonStyle(.plain)
                     .disabled(selected.count < 1)
-                }.padding([.leading, .trailing], 40)
+                }.padding(.horizontal, 40)
                 Spacer()
             }.padding(.top, -5)
-        }.frame(width: 780, height:555)
+        }
+        .frame(width: 780, height:555)
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                HoverButton(action: {
+                    //panel?.close()
+                    WindowHighlighter.shared.registerMouseMonitor()
+                }, label: {
+                    Image("window.select")
+                        .resizable().scaledToFit()
+                        .frame(width: 20)
+                }).help("Select Window Directly")
+            }
+        }
     }
     
     func startRecording() {
-        appDelegate.closeAllWindow()
+        closeAllWindow()
         appDelegate.createCountdownPanel(screen: display) {
             SCContext.autoStop = autoStop
             appDelegate.prepRecord(type: (selected.count<2 ? "window" : "windows") , screens: display, windows: selected, applications: nil)
@@ -267,7 +295,7 @@ class WindowSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
                     }
                 }
             }
-            self.streams[index].stopCapture()
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { self.streams[index].stopCapture() }
             if index + 1 == self.streams.count { DispatchQueue.main.async { self.isReady = true }}
         }
     }

@@ -40,7 +40,7 @@ struct ContentView: View {
                         ZStack(alignment: Alignment(horizontal: .center, vertical: .bottom)) {
                             Button(action: {
                                 if let display = SCContext.getSCDisplayWithMouse() {
-                                    appDelegate.closeMainWindow()
+                                    closeMainWindow()
                                     appDelegate.createCountdownPanel(screen: display) {
                                         AppDelegate.shared.prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil)
                                     }
@@ -67,7 +67,7 @@ struct ContentView: View {
                                     .onChange(of: recordMic) { _ in  Task { await SCContext.performMicCheck() }}
                                     if micDevice != "default" && enableAEC && recordMic{
                                         Button {
-                                            let alert = AppDelegate.shared.createAlert(
+                                            let alert = createAlert(
                                                 title: "Compatibility Warning".local,
                                                 message: "The \"Acoustic Echo Cancellation\" is enabled, but it won't work on now.\n\nIf you need to use a specific input with AEC, set it to \"Default\" and select the device you want in System Preferences.\n\nOr you can start recording without AEC.".local,
                                                 button1: "OK".local, button2: "System Preferences".local)
@@ -105,8 +105,8 @@ struct ContentView: View {
                                                     Color.primary
                                                         .opacity(0.1)
                                                         .cornerRadius(4)
-                                                        .padding([.top, .bottom], -1)
-                                                        .padding([.leading, .trailing], 3)
+                                                        .padding(.vertical, -1)
+                                                        .padding(.horizontal, 3)
                                                         .padding(.trailing, -16)
                                                     Image(systemName: "chevron.up.chevron.down")
                                                         .offset(x: 50)
@@ -145,14 +145,14 @@ struct ContentView: View {
                         Divider().frame(height: 70)
                     }
                     Button(action: {
-                        appDelegate.closeMainWindow()
+                        closeMainWindow()
                         appDelegate.createNewWindow(view: ScreenSelector(), title: "Screen Selector".local)
                     }, label: {
                         SelectorView(title: "Screen".local, symbol: "tv.inset.filled").cornerRadius(8)
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        appDelegate.closeMainWindow()
+                        closeMainWindow()
                         SCContext.updateAvailableContent { _ in
                             DispatchQueue.main.async {
                                 appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
@@ -161,7 +161,7 @@ struct ContentView: View {
                                     let display = SCContext.getSCDisplayWithMouse()
                                     if display != currentDisplay {
                                         currentDisplay = display
-                                        appDelegate.closeAllWindow()
+                                        closeAllWindow()
                                         appDelegate.showAreaSelector(size: NSSize(width: 600, height: 450))
                                     }
                                 }
@@ -172,7 +172,7 @@ struct ContentView: View {
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        appDelegate.closeMainWindow()
+                        closeMainWindow()
                         appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
                     }, label: {
                         SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
@@ -180,7 +180,7 @@ struct ContentView: View {
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
                     Button(action: {
-                        appDelegate.closeMainWindow()
+                        closeMainWindow()
                         appDelegate.createNewWindow(view: WinSelector(), title: "Window Selector".local)
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow").cornerRadius(8)
@@ -196,7 +196,7 @@ struct ContentView: View {
                         }
                     Divider().frame(height: 70)
                     Button(action: {
-                        appDelegate.closeMainWindow()
+                        closeMainWindow()
                         appDelegate.openSettingPanel()
                     }, label: {
                         SelectorView(title: "Preferences".local, symbol: "gearshape").cornerRadius(8)
@@ -216,7 +216,7 @@ struct ContentView: View {
             }
             if !fromStatusBar {
                 Button(action: {
-                    appDelegate.closeMainWindow()
+                    closeMainWindow()
                 }, label: {
                     Image(systemName: "x.circle")
                         .font(.system(size: 13, weight: .bold))
@@ -314,16 +314,6 @@ struct CountdownView: View {
 
 
 extension AppDelegate {
-    
-    func closeMainWindow() { for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) { w.close() } }
-    
-    func closeAllWindow(except: String = "") {
-        for w in NSApp.windows.filter({
-            $0.title != "Item-0" && $0.title != ""
-            && !$0.title.lowercased().contains(".qma")
-            && !$0.title.contains(except) }) { w.close() }
-    }
-    
     func showAreaSelector(size: NSSize, noPanel: Bool = false) {
         guard let scDisplay = SCContext.getSCDisplayWithMouse() else { return }
         guard let screen = scDisplay.nsScreen else { return }
@@ -332,10 +322,10 @@ extension AppDelegate {
         //screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
         if !noPanel {
-            let wX = (screen.frame.width - 700) / 2 + screen.frame.minX
+            let wX = (screen.frame.width - 720) / 2 + screen.frame.minX
             let wY = screen.visibleFrame.minY + 80
             let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-            contentView.frame = NSRect(x: wX, y: wY, width: 780, height: 110)
+            contentView.frame = NSRect(x: wX, y: wY, width: 720, height: 110)
             contentView.focusRingType = .none
             let areaPanel = NSPanel(contentRect: contentView.frame, styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
             areaPanel.collectionBehavior = [.canJoinAllSpaces]
@@ -388,18 +378,6 @@ extension AppDelegate {
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(self)
         window.orderFrontRegardless()
-    }
-
-    func createAlert(title: String, message: String, button1: String, button2: String = "") -> NSAlert {
-        let alert = NSAlert()
-        alert.messageText = title.local
-        alert.informativeText = message.local
-        alert.addButton(withTitle: button1.local)
-        if button2 != "" {
-            alert.addButton(withTitle: button2.local)
-        }
-        alert.alertStyle = .critical
-        return alert
     }
 }
 

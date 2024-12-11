@@ -69,7 +69,7 @@ struct resizeView: View {
     }
     
     func resize() {
-        appDelegate.closeAllWindow(except: "Start Recording".local)
+        closeAllWindow(except: "Start Recording".local)
         AppDelegate.shared.showAreaSelector(size: NSSize(width: areaWidth, height: areaHeight), noPanel: true)
     }
 }
@@ -168,12 +168,16 @@ struct AreaSelector: View {
                     .foregroundStyle(.secondary)
             })
             .buttonStyle(.plain)
-            .padding(.leading, -354).padding(.top, -39)
-        }.frame(width: 720, height: 90)
+            .padding(.top, -39)
+            .padding(.leading, -354)
+            .keyboardShortcut(.cancelAction)
+        }
+        .focusable(false)
+        .frame(width: 720, height: 90)
     }
     
     func startRecording() {
-        appDelegate.closeAllWindow()
+        closeAllWindow()
         appDelegate.stopGlobalMouseMonitor()
         var window = NSWindow()
         let area = SCContext.screenArea!
