@@ -38,7 +38,7 @@ struct ContentView: View {
                         if isTodayChristmas() && isAllowChristmas() {
                             let images = ["snowflake1", "snowflake2", "snowflake3", "christmasTree1", "christmasTree2"]
                             SurpriseView(snowflakes: images, width: (!showOnDock && !showMenubar) ? 1055 : 930, height: 100)
-                        } else if !isChineseNewYear() && isAllowChineseNewYear() {
+                        } else if isChineseNewYear() && isAllowChineseNewYear() {
                             let images = ["fuzi1", "fuzi2", "fuzi3", "hongbao1", "hongbao3"]
                             SurpriseView(snowflakes: images, width: (!showOnDock && !showMenubar) ? 1055 : 930, height: 100)
                         }
@@ -288,6 +288,7 @@ struct SelectorView: View {
                     Image(systemName: symbol)
                         .opacity(0.95)
                         .font(.system(size: 36))
+                        .frame(height: 40)
                 }
                 Text(overlayer)
                     .fontWeight(.bold)
