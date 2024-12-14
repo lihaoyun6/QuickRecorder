@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "gear@1x.png",
+      "filename" : "hongbao@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "gear.png",
+      "filename" : "hongbao.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

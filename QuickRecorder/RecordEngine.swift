@@ -10,6 +10,7 @@ import UserNotifications
 import ScreenCaptureKit
 import AVFoundation
 import AVFAudio
+import VideoToolbox
 
 extension AppDelegate {
     @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?, fastStart: Bool = false) {
@@ -316,6 +317,8 @@ extension AppDelegate {
             case 0.7: qualityMultiplier = max(0.4, min(0.6, qualityMultiplier * 3))
             default: qualityMultiplier = 1.0
         }
+        let h264Level = AVVideoProfileLevelH264HighAutoLevel
+        let h265Level = kVTProfileLevel_HEVC_Main_AutoLevel as String
         let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((ud.bool(forKey: "withAlpha") && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
@@ -323,6 +326,7 @@ extension AppDelegate {
             AVVideoWidthKey: conf.width,
             AVVideoHeightKey: conf.height,
             AVVideoCompressionPropertiesKey: [
+                AVVideoProfileLevelKey: encoderIsH265 ? h265Level : h264Level,
                 AVVideoAverageBitRateKey: max(200000, Int(targetBitrate)),
                 AVVideoExpectedSourceFrameRateKey: ud.integer(forKey: "frameRate")
             ] as [String : Any]
@@ -341,7 +345,6 @@ extension AppDelegate {
                 AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
                 AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2 ] as [String : Any]
         }
-        
         
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
         //SCContext.vwInputAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: SCContext.vwInput, sourcePixelBufferAttributes: videoSettings)

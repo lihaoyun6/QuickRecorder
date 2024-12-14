@@ -243,12 +243,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
             mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
-        
+
         //statusMenu.delegate = self
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         //statusBarItem.menu = statusMenu
         statusBarItem.button?.image = NSImage()
-        
+
         mousePointer.title = "Mouse Pointer".local
         mousePointer.level = .screenSaver
         mousePointer.ignoresMouseEvents = true
@@ -288,7 +288,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         controlPanel.titlebarAppearsTransparent = true
         controlPanel.isMovableByWindowBackground = true
         
-        KeyboardShortcuts.onKeyDown(for: .showPanel) { _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
+        KeyboardShortcuts.onKeyDown(for: .showPanel) {
+            _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
+            if SCContext.stream == nil { NSApp.activate(ignoringOtherApps: true) }
+        }
         KeyboardShortcuts.onKeyDown(for: .saveFrame) { if SCContext.stream != nil { SCContext.saveFrame = true }}
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { if SCContext.stream != nil { SCContext.isMagnifierEnabled.toggle() }}
         KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
@@ -334,7 +337,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
                 let offset = (!showOnDock && !showMenubar) ? 128 : 0
                 let width = isMacOS12 ? 800 : 927
-                let mainPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
+                let mainPanel = EscPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
                 mainPanel.contentView = NSHostingView(rootView: ContentView())
                 mainPanel.title = "QuickRecorder".local
                 mainPanel.isOpaque = false
@@ -350,7 +353,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                     let wY = (screen.frame.height - mainPanel.frame.height) / 2 + screen.frame.minY
                     mainPanel.setFrameOrigin(NSPoint(x: wX, y: wY))
                 }
-                mainPanel.orderFront(self)
+                mainPanel.makeKeyAndOrderFront(self)
                 if #unavailable(macOS 13) { NSApp.activate(ignoringOtherApps: true) }
                 PopoverState.shared.isShowing = false
             }
@@ -362,10 +365,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         NSApp.activate(ignoringOtherApps: true)
         if #available(macOS 14, *) {
             NSApp.mainMenu?.items.first?.submenu?.item(at: 3)?.performAction()
-        }else if #available(macOS 13, *) {
+        } else if #available(macOS 13, *) {
             NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
         } else {
             NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+        }
+    }
+    
+    class EscPanel: NSPanel {
+        override func cancelOperation(_ sender: Any?) {
+            self.close()
+        }
+        override var canBecomeKey: Bool {
+            return true
         }
     }
 }

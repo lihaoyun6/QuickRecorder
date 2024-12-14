@@ -84,7 +84,12 @@ struct GeneralView: View {
         .onAppear{ if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }}
         .onChange(of: showMenubar) { _ in AppDelegate.shared.updateStatusBar() }
         .onChange(of: showOnDock) { newValue in
-            if !newValue { NSApp.setActivationPolicy(.accessory) } else { NSApp.setActivationPolicy(.regular) }
+            if !newValue {
+                NSApp.setActivationPolicy(.accessory)
+                NSApp.activate(ignoringOtherApps: true)
+            } else {
+                NSApp.setActivationPolicy(.regular)
+            }
         }
     }
 }

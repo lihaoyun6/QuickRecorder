@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "gear@1x.png",
+      "filename" : "snowBlur@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "gear.png",
+      "filename" : "snowBlur.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

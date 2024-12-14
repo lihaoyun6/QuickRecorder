@@ -28,12 +28,22 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
             ZStack {
-                if !fromStatusBar {
-                    Color.clear
-                        .background(.ultraThinMaterial)
-                        .environment(\.controlActiveState, .active)
-                        .cornerRadius(14)
-                }
+                ZStack {
+                    if !fromStatusBar {
+                        Color.clear
+                            .background(.ultraThinMaterial)
+                            .environment(\.controlActiveState, .active)
+                    }
+                    ZStack {
+                        if isTodayChristmas() && isAllowChristmas() {
+                            let images = ["snowflake1", "snowflake2", "snowflake3", "christmasTree1", "christmasTree2"]
+                            SurpriseView(snowflakes: images, width: (!showOnDock && !showMenubar) ? 1055 : 930, height: 100)
+                        } else if !isChineseNewYear() && isAllowChineseNewYear() {
+                            let images = ["fuzi1", "fuzi2", "fuzi3", "hongbao1", "hongbao3"]
+                            SurpriseView(snowflakes: images, width: (!showOnDock && !showMenubar) ? 1055 : 930, height: 100)
+                        }
+                    }.opacity(0.5)
+                }.cornerRadius(14)
                 HStack {
                     if !fromStatusBar { Spacer() }
                     if #available(macOS 13, *) {
@@ -227,6 +237,31 @@ struct ContentView: View {
                 .buttonStyle(.plain)
                 .padding([.horizontal, .top], 7)
             }
+        }.focusable(false)
+    }
+    
+    struct FlakeView: View {
+        var emoji: String
+        var width: CGFloat = 1100
+        @State private var opacity: CGFloat = Double.random(in: 0.1...0.9)
+        @State private var flakeYPosition: CGFloat = -30
+        @State private var flakeXPosition: CGFloat = CGFloat.random(in: 0...1050)
+        private let flakeSize: CGFloat = CGFloat.random(in: 12...30)
+        private let animationDuration: Double = Double.random(in: 4...12)
+
+        var body: some View {
+            Text(emoji)
+                .font(.system(size: flakeSize))
+                .opacity(opacity)
+                .rotationEffect(Angle(degrees: Double.random(in: 0...359)))
+                .position(x: flakeXPosition, y: flakeYPosition)
+                .onAppear {
+                    withAnimation(Animation.linear(duration: animationDuration).repeatForever(autoreverses: false)) {
+                        opacity -= 0.5
+                        flakeYPosition = 130
+                        flakeXPosition += CGFloat.random(in: -70...70)
+                    }
+                }
         }
     }
 }

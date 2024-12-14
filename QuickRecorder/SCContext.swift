@@ -354,13 +354,15 @@ class SCContext {
                             switch result {
                             case .success(let url):
                                 print("Exported video to \(String(describing: url.path))")
-                                showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(UUID().uuidString)")
-                                if ud.bool(forKey: "trimAfterRecord") {
-                                    DispatchQueue.main.async {
+                                if !ud.bool(forKey: "showPreview") {
+                                    showNotification(title: "Recording Completed".local, body: String(format: "File saved to: %@".local, url.path), id: "quickrecorder.completed.\(UUID().uuidString)")
+                                }
+                                DispatchQueue.main.async {
+                                    if ud.bool(forKey: "trimAfterRecord") {
                                         AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, only: false)
+                                    } else {
+                                        showPreview(path: url.path)
                                     }
-                                } else {
-                                    showPreview(path: url.path)
                                 }
                             case .failure(let error):
                                 print("Failed to export video: \(error.localizedDescription)")
@@ -395,12 +397,6 @@ class SCContext {
                         let id = "quickrecorder.completed.\(UUID().uuidString)"
                         try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
                         try? fd.removeItem(atPath: filePath1)
-                        /*if ud.bool(forKey: "recordMic") {
-                            let outPutUrl2 = URL(fileURLWithPath: String(filePath2.dropLast(4)) + ".mp3")
-                            try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath2), outputUrl: outPutUrl2)
-                            try? fd.removeItem(atPath: filePath2)
-                            body = String(format: "File saved to: %@".local, filePath.removingPercentEncoding!)
-                        }*/
                         showNotification(title: title, body: body, id: id)
                     } catch {
                         showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(UUID().uuidString)")
@@ -437,18 +433,21 @@ class SCContext {
         AppDelegate.shared.updateStatusBar()
         
         if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && streamType != .systemaudio {
-            let title = "Recording Completed".local
-            let body = String(format: "File saved to: %@".local, filePath)
-            let id = "quickrecorder.completed.\(UUID().uuidString)"
             if let vW = vW {
-                if vW.status == .completed {
-                    showNotification(title: title, body: body, id: id)
-                    trimVideo()
+                if vW.status != .completed {
+                    streamType = nil
+                    return
                 }
-            } else {
-                showNotification(title: title, body: body, id: id)
-                trimVideo()
             }
+            if !ud.bool(forKey: "showPreview") {
+                let title = "Recording Completed".local
+                let body = String(format: "File saved to: %@".local, filePath)
+                let id = "quickrecorder.completed.\(UUID().uuidString)"
+                showNotification(title: title, body: body, id: id)
+            } else {
+                showPreview(path: filePath)
+            }
+            trimVideo()
         }
         
         streamType = nil
@@ -458,7 +457,7 @@ class SCContext {
         if !ud.bool(forKey: "showPreview") { return }
         if let frame = firstFrame?.nsImage, let screen = getScreenWithMouse() {
             let previewWindow = NSWindow(contentRect: NSMakeRect(0, 0, 260, 150), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
-            let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: filePath))
+            let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: path))
             previewWindow.contentView = contentView
             previewWindow.level = .floating
             previewWindow.titlebarAppearsTransparent = true
@@ -490,8 +489,6 @@ class SCContext {
         if ud.bool(forKey: "trimAfterRecord") {
             let fileURL = URL(fileURLWithPath: filePath)
             AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent, only: false)
-        } else {
-            showPreview(path: filePath)
         }
     }
     
