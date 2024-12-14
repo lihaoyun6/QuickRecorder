@@ -3,6 +3,28 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.5.9</title>
+            <pubDate>Sat, 14 Dec 2024 22:58:23 +0800</pubDate>
+            <sparkle:version>159</sparkle:version>
+            <sparkle:shortVersionString>1.5.9</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li><b>修复了某些场景下异常闪退的 Bug</b></li>
+                <li>修复使用 QuickTime 打开 HDR 录像文件时出现兼容性警告的问题</li>
+                </ul><ul>
+                <li><b>Fixed: App crash after recording sometimes.</b></li>
+                <li>Fixed: Compatibility warning when opening HDR recordings with QuickTime.</li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="280"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.9/QuickRecorder_v1.5.9.dmg" length="4494528" type="application/octet-stream" sparkle:edSignature="EfDzDwVjSigIvA8fNC3w5G9aa5XRTzVccwAwJ9Z3dItfFKiluP7NS/Z4Q8t7XnfhQfexYkYx+eP06uLyW+H2Ag=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.9/Update159-157.delta" sparkle:deltaFrom="157" length="561438" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="fmOYO9WpVEQnr8WCRHbklsVZGZi5+vn/edGvL3nPyXp/Pa+2S3RwQpNo0D0F3ZUM9SEKRKgUjDh+ALnE/v10Aw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.9/Update159-155.delta" sparkle:deltaFrom="155" length="820470" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="HrVaWK9jepCKl+7+cOXADS9nOyfAlLfPvegbZ9YDYDjvVqoR8F6/nuXDI77gLWwb6r6+yT+TmJp/05QiubNyBg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.5.9/Update159-154.delta" sparkle:deltaFrom="154" length="836670" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="sZlsaKJfpmGrJmDUAdufHCtegbEKM3QpgaNcBkzNOzmjFaqEdEtmJtvsryDOr2Hg1wH8vlbBSZRko8a7/xd/Bg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.7</title>
             <pubDate>Wed, 11 Dec 2024 16:04:18 +0800</pubDate>
             <sparkle:version>157</sparkle:version>
