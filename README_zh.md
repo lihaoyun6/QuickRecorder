@@ -2,7 +2,7 @@
 <p align="center">
 <img src="./QuickRecorder/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width="200" height="200" />
 <h1 align="center">QuickRecorder</h1>
-<h3 align="center">多功能、轻量化、高性能的 macOS 屏幕录制工具<br><a href="./README.md">[English Version]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[软件主页]</a>
+<h3 align="center">多功能、轻量化、高性能的 macOS 屏幕录制工具<br><a href="./README.md">[English Version]</a><br><a href="./README_ja.md">[日本語版]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[软件主页]</a>
 </p>
 
 ## 运行截图
