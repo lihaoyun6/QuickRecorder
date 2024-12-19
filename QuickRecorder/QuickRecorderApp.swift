@@ -16,9 +16,9 @@ import ServiceManagement
 import CoreMediaIO
 import Sparkle
 
-var isMacOS12 = true
-var isMacOS14 = false
-var isMacOS15 = false
+let isMacOS12 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 12
+let isMacOS14 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 14
+let isMacOS15 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 15
 var scPerm = false
 let fd = FileManager.default
 let ud = UserDefaults.standard
@@ -167,6 +167,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationWillFinishLaunching(_ notification: Notification) {
+        scPerm = SCContext.updateAvailableContentSync() != nil
+        
         let process = NSWorkspace.shared.runningApplications.filter({ $0.bundleIdentifier == "com.lihaoyun6.QuickRecorder" })
         if process.count > 1 {
             DispatchQueue.main.async {
@@ -176,7 +178,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         }
         
         lazy var userDesktop = (NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true) as [String]).first!
-        //let saveDirectory = (UserDefaults(suiteName: "com.apple.screencapture")?.string(forKey: "location") ?? userDesktop) as NSString
         
         ud.register( // default defaults (used if not set)
             defaults: [
@@ -193,7 +194,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "countdown": 0,
                 "videoFormat": VideoFormat.mp4.rawValue,
                 "pixelFormat": PixFormat.delault.rawValue,
-                //"colorSpace": ColSpace.srgb.rawValue,
                 "encoder": Encoder.h264.rawValue,
                 "poSafeDelay": 1,
                 "saveDirectory": userDesktop as NSString,
@@ -218,18 +218,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             ud.setValue(false, forKey: "showPreview")
             ud.setValue(false, forKey: "remuxAudio")
         }
+        
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }
-        
-        scPerm = SCContext.updateAvailableContentSync() != nil
-        
-        let os = ProcessInfo.processInfo.operatingSystemVersion
-        isMacOS12 = os.majorVersion == 12
-        isMacOS14 = os.majorVersion == 14
-        isMacOS15 = os.majorVersion == 15
-        
-        //if !ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.accessory) }
         
         var allow : UInt32 = 1
         let dataSize : UInt32 = 4
@@ -240,9 +232,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             mElement: CMIOObjectPropertyElement(kCMIOObjectPropertyElementMain))
         CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &prop, zero, nil, dataSize, &allow)
 
-        //statusMenu.delegate = self
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        //statusBarItem.menu = statusMenu
         statusBarItem.button?.image = NSImage()
 
         mousePointer.title = "Mouse Pointer".local
