@@ -22,13 +22,11 @@ var isMacOS15 = false
 var scPerm = false
 let fd = FileManager.default
 let ud = UserDefaults.standard
-//var statusMenu: NSMenu = NSMenu()
 var statusBarItem: NSStatusItem!
 var mouseMonitor: Any?
 var keyMonitor: Any?
 var hideMousePointer = false
 var hideScreenMagnifier = false
-//let info = NSMenuItem(title: "Waiting on update…".local, action: nil, keyEquivalent: "")
 let updateTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
@@ -50,18 +48,12 @@ struct QuickRecorderApp: App {
     }
     
     var body: some Scene {
-        /*WindowGroup {
-            if #unavailable(macOS 13) {
-                ContentView()
-            }
-        }.myWindowIsContentResizable()*/
         DocumentGroup(newDocument: qmaPackageHandle()) { file in
             if SCContext.stream == nil {
                 if let fileURL = file.fileURL {
                     qmaPlayerView(document: file.$document, fileURL: fileURL)
                         .frame(minWidth: 400, minHeight: 100, maxHeight: 100)
                         .focusable(false)
-                    //.onAppear{ closeAllWindow(except: ".qma") }
                 }
             }
         }
@@ -207,21 +199,25 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "saveDirectory": userDesktop as NSString,
                 "showMouse": true,
                 "recordMic": false,
-                "remuxAudio": true,
-                "recordWinSound": true,
+                "remuxAudio": isMacOS12 ? false : true,
+                "recordWinSound": isMacOS12 ? false : true,
                 "trimAfterRecord": false,
                 "showOnDock": true,
                 "showMenubar": false,
                 "enableAEC": false,
                 "recordHDR": false,
-                "showPreview": true,
+                "preventSleep": true,
+                "showPreview": isMacOS12 ? false : true,
                 "savedArea": [String: [String: CGFloat]]()
             ]
         )
         
         if ud.integer(forKey: "highRes") == 0 { ud.setValue(2, forKey: "highRes") }
         if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
-        
+        if isMacOS12 {
+            ud.setValue(false, forKey: "showPreview")
+            ud.setValue(false, forKey: "remuxAudio")
+        }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
         }

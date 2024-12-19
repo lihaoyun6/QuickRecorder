@@ -66,7 +66,7 @@ class SCContext {
         return result
     }
     
-    static func updateAvailableContent(completion: @escaping (SCShareableContent?) -> Void) {
+    private static func updateAvailableContent(completion: @escaping (SCShareableContent?) -> Void) {
         SCShareableContent.getExcludingDesktopWindows(false, onScreenWindowsOnly: true) { [self] content, error in
             if let error = error {
                 switch error {
@@ -88,6 +88,21 @@ class SCContext {
                 print("There needs to be at least one display connected!".local)
                 completion(nil) // 如果没有显示器连接，则返回 nil
             }
+        }
+    }
+    
+    static func updateAvailableContent(completion: @escaping () -> Void) {
+        SCShareableContent.getExcludingDesktopWindows(false, onScreenWindowsOnly: false) { content, error in
+            if let error = error {
+                switch error {
+                case SCStreamError.userDeclined: requestPermissions()
+                default: print("Error: failed to fetch available content: ".local, error.localizedDescription)
+                }
+                return
+            }
+            availableContent = content
+            assert(availableContent?.displays.isEmpty != nil, "There needs to be at least one display connected!".local)
+            completion()
         }
     }
     
@@ -162,27 +177,6 @@ class SCContext {
         }
         return nil
     }
-    
-    /*static func getColorSpace() -> CFString? {
-        switch ud.string(forKey: "colorSpace") {
-        case ColSpace.srgb.rawValue: return CGColorSpace.sRGB
-        case ColSpace.bt709.rawValue: return CGColorSpace.itur_709
-        case ColSpace.bt2020.rawValue: return CGColorSpace.itur_2020
-        case ColSpace.p3.rawValue: return CGColorSpace.displayP3
-        default: return nil
-        }
-    }
-    
-    static func getPixelFormat() -> OSType? {
-        switch ud.string(forKey: "pixelFormat") {
-        case PixFormat.bgra32.rawValue: return kCVPixelFormatType_32BGRA
-        case PixFormat.yuv420p8v.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-        case PixFormat.yuv420p8f.rawValue: return kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-        case PixFormat.yuv420p10v.rawValue: return kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
-        case PixFormat.yuv420p10f.rawValue: return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
-        default: return nil
-        }
-    }*/
     
     static func getFilePath(capture: Bool = false) -> String {
         let dateFormatter = DateFormatter()
@@ -313,7 +307,6 @@ class SCContext {
     }
     
     static func stopRecording() {
-        //statusBarItem.isVisible = false
         if ud.bool(forKey: "preventSleep") { SleepPreventer.shared.allowSleep() }
         autoStop = 0
         lastPTS = nil

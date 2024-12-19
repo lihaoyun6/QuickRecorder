@@ -131,8 +131,10 @@ struct RecorderView: View {
                 SDivider()
                 SToggle("Prevent Mac from sleeping while recording", isOn: $preventSleep)
                 SDivider()
-                SToggle("Show floating preview after recording", isOn: $showPreview)
-                SDivider()
+                if #available(macOS 13, *) {
+                    SToggle("Show floating preview after recording", isOn: $showPreview)
+                    SDivider()
+                }
                 SToggle("Open video trimmer after recording", isOn: $trimAfterRecord)
             }
             SGroupBox {

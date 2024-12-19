@@ -15,7 +15,7 @@ class selectScreen: NSScriptCommand {
             createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             DispatchQueue.main.async {
                 closeAllWindow()
                 if var index = self.evaluatedArguments!["index"] as? Int {
@@ -47,7 +47,7 @@ class selectArea: NSScriptCommand {
             createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             DispatchQueue.main.async {
                 closeAllWindow()
                 DispatchQueue.main.async {
@@ -74,7 +74,7 @@ class selectApps: NSScriptCommand {
             createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             DispatchQueue.main.async {
                 closeAllWindow()
                 if let name = self.evaluatedArguments!["name"] as? String {
@@ -125,7 +125,7 @@ class selectWindows: NSScriptCommand {
             createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             DispatchQueue.main.async {
                 closeAllWindow()
                 if let title = self.evaluatedArguments!["title"] as? String {
@@ -183,7 +183,7 @@ class recordAudio: NSScriptCommand {
             createAlert(title: "Error".local, message: "Already recording!".local, button1: "OK".local).runModal()
             return nil
         }
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             DispatchQueue.main.async {
                 let m = UserDefaults.standard.bool(forKey: "recordMic")
                 if let mic = self.evaluatedArguments!["mic"] as? Bool {

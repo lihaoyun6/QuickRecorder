@@ -178,7 +178,7 @@ class AppSelectorViewModel: ObservableObject {
     }
     
     func updateAppList() {
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             guard let screens = SCContext.availableContent?.displays else { return }
             for screen in screens {
                 var apps = [SCRunningApplication]()

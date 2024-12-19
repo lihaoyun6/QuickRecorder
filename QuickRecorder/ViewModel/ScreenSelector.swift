@@ -192,7 +192,7 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
     }
 
     func setupStreams() {
-        SCContext.updateAvailableContent { _ in
+        SCContext.updateAvailableContent {
             Task {
                 do {
                     self.streams.removeAll()
