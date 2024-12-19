@@ -3,6 +3,29 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.0</title>
+            <pubDate>Thu, 19 Dec 2024 15:40:16 +0800</pubDate>
+            <sparkle:version>160</sparkle:version>
+            <sparkle:shortVersionString>1.6.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>进一步修复了与 macOS 12 的兼容性.</li>
+                <li><b>这将是最后一个支持 macOS 12 系统的版本!</b></li>
+                </ul><ul>
+                <li>Fixed compatibility with macOS 12.</li>
+                <li><b>This will be the final version that supports macOS 12!</b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="300"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.0/QuickRecorder_v1.6.0.dmg" length="4514280" type="application/octet-stream" sparkle:edSignature="RtdbX+DscCYtYLjPHGMHzCQS0JVgdx6a7QB7UgnxKWCbRUbyHwm7rm0ldhJ9MfyDSR4oW/rRkqByjdXQrBlaAA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.0/Update160-159.delta" sparkle:deltaFrom="159" length="539138" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="lw5XX5zP/QZvUYa9+VlWd9OCPOKDOcbL76DNinznVzWXZ0GnYV6RKx9CD/nk30llzN+Zgqm7wScIzQZFxTftBA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.0/Update160-157.delta" sparkle:deltaFrom="157" length="714962" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="b8r+SciCeemDjNkv8swqW1KfCsApQ+KnbmMA2kezbyhNQc2e4TYbaFgxdoNYfQFywE3heAk2NrARqrvghNBmAg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.0/Update160-155.delta" sparkle:deltaFrom="155" length="908082" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="NQZg+/0cEeihZUsJImvRUBvT38Y4EHUSgcIJVzgv3K44Gfl5wpb4bgyPU9ejsWydINPYAzWqMZhp45A6MeVPDg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.0/Update160-154.delta" sparkle:deltaFrom="154" length="913774" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Ba+UiDcLv4wGbkxmFD8c4Q1QWUqyYy5Rrbyg4/2Ff/cpRsfEdAATO/ScSI8nyAdMJsGzmfGdMVZ9Bxvs5eRrCA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.5.9</title>
             <pubDate>Sat, 14 Dec 2024 22:58:23 +0800</pubDate>
             <sparkle:version>159</sparkle:version>
