@@ -1,6 +1,15 @@
 {
-  "originHash" : "1b1d5eee536d7383fd89cd017b59783f56323dd3ee0eaa42a8fdfe9a288c991c",
+  "originHash" : "0f878abe53bbbdf062a4d3cca15cfa8ef45688fb494b96acec807209ad7e0f36",
   "pins" : [
+    {
+      "identity" : "aecaudiostream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/lihaoyun6/AECAudioStream.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0eab971c1dd0420ee84646c71172dd66fa59117c"
+      }
+    },
     {
       "identity" : "keyboardshortcuts",
       "kind" : "remoteSourceControl",

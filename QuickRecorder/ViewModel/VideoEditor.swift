@@ -86,10 +86,10 @@ class RecorderPlayerModel: NSObject, ObservableObject {
                                     }
                                 }
                             }
-                            for w in NSApplication.shared.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
+                            for w in NSApp.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
                         } else {
                             guard let fileUrl = self.fileUrl else { return }
-                            for w in NSApplication.shared.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
+                            for w in NSApp.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
                         }
                     }
                 }

@@ -192,6 +192,12 @@
 "Copy" = "拷贝";
 "Delete" = "删除";
 " Tips" = " 小贴士";
+"Audio Ducking Level" = "音频闪避级别";
+"Min" = "较小";
+"Mid" = "中等";
+"Max" = "最大";
+"Window Area" = "窗口范围";
+"Click on a window to select its area\nor press Esc to cancel." = "点击任意窗口来获取其范围并进行录制\n或者按 Esc 键退出选择";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

@@ -191,6 +191,12 @@
 "Show in Finder" = "在 Finder 中顯示";
 "Copy" = "複製";
 "Delete" = "刪除";
+"Audio Ducking Level" = "音訊閃避級別";
+"Min" = "較小";
+"Mid" = "中等";
+"Max" = "最大";
+"Window Area" = "錄製視窗範圍";
+"Click on a window to select its area\nor press Esc to cancel." = "點選任意視窗來獲取其範圍並進行錄製\n或者按 Esc 鍵退出選擇";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

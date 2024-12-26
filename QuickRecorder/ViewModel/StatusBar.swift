@@ -215,7 +215,7 @@ struct StatusBarItem: View {
                         ContentView(fromStatusBar: true)
                             .onAppear{
                                 closeAllWindow()
-                                if isMacOS12 { NSApplication.shared.activate(ignoringOtherApps: true) }
+                                if isMacOS12 { NSApp.activate(ignoringOtherApps: true) }
                             }
                     }
                 }
@@ -230,21 +230,19 @@ struct StatusBarItem: View {
     }
 }
 
-extension AppDelegate: NSMenuDelegate {
-    func updateStatusBar() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            if SCContext.streamType == nil && !ud.bool(forKey: "showMenubar") {
-                statusBarItem.isVisible = false
-                return
-            }
-            guard let button = statusBarItem.button else { return }
-            //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)
-            let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, isMacOS14 ? -2 : -1))
-            iconView.frame = NSRect(x: 0, y: 1, width: getStatusBarWidth(), height: isMacOS14 ? 22 : 21)
-            button.subviews = [iconView]
-            button.frame = iconView.frame
-            button.setAccessibilityLabel("QuickRecorder")
-            statusBarItem.isVisible = true
+func updateStatusBar() {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        if SCContext.streamType == nil && !ud.bool(forKey: "showMenubar") {
+            statusBarItem.isVisible = false
+            return
         }
+        guard let button = statusBarItem.button else { return }
+        //let width = SCContext.streamType == nil ? 36 : ((SCContext.streamType == .idevice || SCContext.streamType == .systemaudio) ? 138 : 158)
+        let iconView = NSHostingView(rootView: StatusBarItem().padding(.top, isMacOS14 ? -2 : -1))
+        iconView.frame = NSRect(x: 0, y: 1, width: getStatusBarWidth(), height: isMacOS14 ? 22 : 21)
+        button.subviews = [iconView]
+        button.frame = iconView.frame
+        button.setAccessibilityLabel("QuickRecorder")
+        statusBarItem.isVisible = true
     }
 }

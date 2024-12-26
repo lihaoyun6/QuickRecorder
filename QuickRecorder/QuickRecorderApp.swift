@@ -112,16 +112,45 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isResizing = false
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
-    @AppStorage("showOnDock") private var showOnDock: Bool = true
-    @AppStorage("showMenubar") private var showMenubar: Bool = false
+    
+    @AppStorage("showOnDock")       var showOnDock: Bool = true
+    @AppStorage("showMenubar")      var showMenubar: Bool = false
+    @AppStorage("enableAEC")        var enableAEC: Bool = false
+    @AppStorage("recordMic")        var recordMic: Bool = false
+    @AppStorage("micDevice")        var micDevice: String = "default"
+    @AppStorage("remuxAudio")       var remuxAudio: Bool = true
+    @AppStorage("recordWinSound")   var recordWinSound: Bool = true
+    @AppStorage("recordHDR")        var recordHDR: Bool = false
+    @AppStorage("encoder")          var encoder: Encoder = .h264
+    @AppStorage("highRes")          var highRes: Int = 2
+    @AppStorage("AECLevel")         var AECLevel: String = "mid"
+    @AppStorage("withAlpha")        var withAlpha: Bool = false
+    @AppStorage("saveDirectory")    var saveDirectory: String?
+    @AppStorage("countdown")        var countdown: Int = 0
+    @AppStorage("poSafeDelay")      var poSafeDelay: Int = 1
+    @AppStorage("highlightMouse")   var highlightMouse: Bool = false
+    @AppStorage("includeMenuBar")   var includeMenuBar: Bool = true
+    @AppStorage("hideDesktopFiles") var hideDesktopFiles: Bool = false
+    @AppStorage("trimAfterRecord")  var trimAfterRecord: Bool = false
+    @AppStorage("miniStatusBar")    var miniStatusBar: Bool = false
+    @AppStorage("hideSelf")         var hideSelf: Bool = true
+    @AppStorage("preventSleep")     var preventSleep: Bool = true
+    @AppStorage("showPreview")      var showPreview: Bool = true
+    @AppStorage("background")       var background: BackgroundType = .wallpaper
+    @AppStorage("showMouse")        var showMouse: Bool = true
+    @AppStorage("frameRate")        var frameRate: Int = 60
+    @AppStorage("videoQuality")     var videoQuality: Double = 1.0
+    @AppStorage("videoFormat")      var videoFormat: VideoFormat = .mp4
+    @AppStorage("audioFormat")      var audioFormat: AudioFormat = .aac
+    @AppStorage("audioQuality")     var audioQuality: AudioQuality = .high
+    @AppStorage("pixelFormat")      var pixelFormat: PixFormat = .delault
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
-        if !ud.bool(forKey: "highlightMouse")
-            || hideMousePointer
-            || SCContext.stream == nil
-            || SCContext.streamType == .window
-        { mousePointer.orderOut(nil); return }
+        if !highlightMouse || hideMousePointer || SCContext.stream == nil || SCContext.streamType == .window {
+            mousePointer.orderOut(nil)
+            return
+        }
         let mouseLocation = event.locationInWindow
         var windowFrame = mousePointer.frame
         windowFrame.origin = NSPoint(x: mouseLocation.x - windowFrame.width / 2, y: mouseLocation.y - windowFrame.height / 2)
@@ -212,12 +241,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             ]
         )
         
-        if ud.integer(forKey: "highRes") == 0 { ud.setValue(2, forKey: "highRes") }
-        if ud.bool(forKey: "showOnDock") { NSApp.setActivationPolicy(.regular) }
-        if isMacOS12 {
-            ud.setValue(false, forKey: "showPreview")
-            ud.setValue(false, forKey: "remuxAudio")
-        }
+        if highRes == 0 { highRes = 2 }
+        if showOnDock { NSApp.setActivationPolicy(.regular) }
+        if isMacOS12 { showPreview = false; remuxAudio = false }
         
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error { print("Notification authorization denied: \(error.localizedDescription)") }
@@ -307,7 +333,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 return
             }
         }
-        
         updateStatusBar()
     }
     
@@ -369,7 +394,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
 }
 
 func closeMainWindow() {
-    for w in NSApplication.shared.windows.filter({ $0.title == "QuickRecorder".local }) {
+    for w in NSApp.windows.filter({ $0.title == "QuickRecorder".local }) {
         w.close()
     }
 }

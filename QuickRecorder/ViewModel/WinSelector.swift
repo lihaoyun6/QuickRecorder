@@ -34,7 +34,7 @@ struct WinSelector: View {
                         Text("Please select the window(s) to record")
                         Spacer()
                         HoverButton(action: {
-                            WindowHighlighter.shared.registerMouseMonitor()
+                            WindowHighlighter.shared.registerMouseMonitor(mode: 2)
                         }, label: {
                             ZStack {
                                 Color.white.opacity(0.0001)
@@ -236,7 +236,7 @@ struct WinSelector: View {
             ToolbarItem(placement: .automatic) {
                 HoverButton(action: {
                     //panel?.close()
-                    WindowHighlighter.shared.registerMouseMonitor()
+                    WindowHighlighter.shared.registerMouseMonitor(mode: 2)
                 }, label: {
                     Image("window.select")
                         .resizable().scaledToFit()

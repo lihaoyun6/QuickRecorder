@@ -82,7 +82,7 @@ struct GeneralView: View {
             }
         }
         .onAppear{ if #available(macOS 13, *) { launchAtLogin = (SMAppService.mainApp.status == .enabled) }}
-        .onChange(of: showMenubar) { _ in AppDelegate.shared.updateStatusBar() }
+        .onChange(of: showMenubar) { _ in updateStatusBar() }
         .onChange(of: showOnDock) { newValue in
             if !newValue {
                 NSApp.setActivationPolicy(.accessory)
@@ -161,11 +161,12 @@ struct OutputView: View {
     @AppStorage("background")       private var background: BackgroundType = .wallpaper
     @AppStorage("remuxAudio")       private var remuxAudio: Bool = true
     @AppStorage("enableAEC")        private var enableAEC: Bool = false
+    @AppStorage("AECLevel")         private var AECLevel: String = "mid"
     @AppStorage("withAlpha")        private var withAlpha: Bool = false
     @AppStorage("saveDirectory")    private var saveDirectory: String?
 
     var body: some View {
-        SForm {
+        SForm(spacing: 28) {
             SGroupBox(label: "Audio") {
                 SPicker("Quality", selection: $audioQuality) {
                     if audioFormat == .alac || audioFormat == .flac {
@@ -190,6 +191,14 @@ struct OutputView: View {
                     SDivider()
                 }
                 SToggle("Enable Acoustic Echo Cancellation", isOn: $enableAEC)
+                if #available(macOS 14, *) {
+                    SDivider()
+                    SPicker("Audio Ducking Level", selection: $AECLevel) {
+                        Text("Min").tag("min")
+                        Text("Mid").tag("mid")
+                        Text("Max").tag("max")
+                    }.disabled(!enableAEC)
+                }
             }
             SGroupBox(label: "Video") {
                 SPicker("Format", selection: $videoFormat) {

@@ -12,6 +12,7 @@
 		184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */ = {isa = PBXBuildFile; productRef = 184506CD2C69213400AFDA45 /* MatrixColorSelector */; };
 		184CAEC72BDCCC2300D61D57 /* AVContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC62BDCCC2300D61D57 /* AVContext.swift */; };
 		184CAEC92BDDEC6800D61D57 /* AppBlockSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */; };
+		185582A62D1D1CC100F0CF47 /* AECAudioStream in Frameworks */ = {isa = PBXBuildFile; productRef = 185582A52D1D1CC100F0CF47 /* AECAudioStream */; };
 		1862BF8D2BD5494E003ED522 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1862BF8F2BD5494E003ED522 /* Credits.rtf */; };
 		18775C202BE21F38008333EF /* iDeviceSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18775C1F2BE21F38008333EF /* iDeviceSelector.swift */; };
 		187966FA2BD5639D003DB1B2 /* MousePointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187966F92BD5639D003DB1B2 /* MousePointer.swift */; };
@@ -101,6 +102,7 @@
 				18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
 				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
+				185582A62D1D1CC100F0CF47 /* AECAudioStream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,9 +180,9 @@
 			children = (
 				18944C632D0AD36C00B6C811 /* SurpriseView.swift */,
 				18D3BDFE2BCE5E4B006CFFC0 /* StatusBar.swift */,
+				18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */,
 				18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */,
 				1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */,
-				18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */,
 				18D3BE002BCEB1BF006CFFC0 /* AppSelector.swift */,
 				18FEBDAB2BD01E82003F09BC /* WinSelector.swift */,
 				18F1A0E12BD3E4C000DB102C /* AreaSelector.swift */,
@@ -218,6 +220,7 @@
 				181724042BE3BEA600F5F539 /* Sparkle */,
 				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
 				184506CD2C69213400AFDA45 /* MatrixColorSelector */,
+				185582A52D1D1CC100F0CF47 /* AECAudioStream */,
 			);
 			productName = QuickRecorder;
 			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
@@ -255,6 +258,7 @@
 				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */,
 				184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */,
+				185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */,
 			);
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
@@ -483,7 +487,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 160;
+				CURRENT_PROJECT_VERSION = 161;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -501,7 +505,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.6.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -517,7 +521,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 160;
+				CURRENT_PROJECT_VERSION = 161;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -535,7 +539,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.6.0;
+				MARKETING_VERSION = 1.6.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -583,6 +587,14 @@
 				kind = branch;
 			};
 		};
+		185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/lihaoyun6/AECAudioStream.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hidden-spectrum/SwiftLAME.git";
@@ -611,6 +623,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */;
 			productName = MatrixColorSelector;
+		};
+		185582A52D1D1CC100F0CF47 /* AECAudioStream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */;
+			productName = AECAudioStream;
 		};
 		18F40B482BFB988A00F0AC70 /* SwiftLAME */ = {
 			isa = XCSwiftPackageProductDependency;

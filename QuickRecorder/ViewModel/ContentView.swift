@@ -185,7 +185,7 @@ struct ContentView: View {
                         closeMainWindow()
                         appDelegate.createNewWindow(view: AppSelector(), title: "App Selector".local)
                     }, label: {
-                        SelectorView(title: "Application".local, symbol: "app", overlayer: "App")
+                        SelectorView(title: "Application".local, symbol: "app", symbolSize: 38, overlayer: "App")
                             .cornerRadius(8)
                     }).buttonStyle(.plain)
                     Divider().frame(height: 70)
@@ -269,6 +269,7 @@ struct ContentView: View {
 struct SelectorView: View {
     var title = "No Title".local
     var symbol = "app"
+    var symbolSize: CGFloat = 36
     var overlayer = ""
     @State private var backgroundOpacity = 0.0001
     
@@ -287,7 +288,7 @@ struct SelectorView: View {
                 } else {
                     Image(systemName: symbol)
                         .opacity(0.95)
-                        .font(.system(size: 36))
+                        .font(.system(size: symbolSize))
                         .frame(height: 40)
                 }
                 Text(overlayer)
@@ -358,10 +359,10 @@ extension AppDelegate {
         //screenshotWindow.orderFront(self)
         screenshotWindow.orderFrontRegardless()
         if !noPanel {
-            let wX = (screen.frame.width - 720) / 2 + screen.frame.minX
+            let wX = (screen.frame.width - 790) / 2 + screen.frame.minX
             let wY = screen.visibleFrame.minY + 80
             let contentView = NSHostingView(rootView: AreaSelector(screen: scDisplay))
-            contentView.frame = NSRect(x: wX, y: wY, width: 720, height: 110)
+            contentView.frame = NSRect(x: wX, y: wY, width: 790, height: 90)
             contentView.focusRingType = .none
             let areaPanel = NSPanel(contentRect: contentView.frame, styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
             areaPanel.collectionBehavior = [.canJoinAllSpaces]

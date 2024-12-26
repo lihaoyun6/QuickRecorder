@@ -95,7 +95,7 @@ struct SwiftCameraView: View {
                         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
                     Button(action: {
                         if type == .idevice {
-                            for w in NSApplication.shared.windows.filter({ $0.title == "iDevice Overlayer".local }) { w.close() }
+                            for w in NSApp.windows.filter({ $0.title == "iDevice Overlayer".local }) { w.close() }
                         } else {
                             isFlipped.toggle()
                         }

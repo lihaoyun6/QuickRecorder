@@ -12,6 +12,7 @@ import ScreenCaptureKit
 import UserNotifications
 import SwiftLAME
 import SwiftUI
+import AECAudioStream
 
 class SCContext {
     static var firstFrame: CMSampleBuffer?
@@ -32,6 +33,7 @@ class SCContext {
     static var timeOffset = CMTimeMake(value: 0, timescale: 0)
     static var screenArea: NSRect?
     static let audioEngine = AVAudioEngine()
+    static let AECEngine = AECAudioStream(sampleRate: 48000)
     static var backgroundColor: CGColor = CGColor.black
     //static var recordMic = false
     static var filePath: String!
@@ -317,18 +319,17 @@ class SCContext {
         screenMagnifier.orderOut(nil)
         AppDelegate.shared.stopGlobalMouseMonitor()
 
-        if let w = NSApplication.shared.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
+        if let w = NSApp.windows.first(where:  { $0.title == "Area Overlayer".local }) { w.close() }
         
         if stream != nil { stream.stopCapture() }
         stream = nil
         if ud.bool(forKey: "recordMic") {
-            if streamType != .systemaudio { micInput.markAsFinished() }
+            micInput.markAsFinished()
             AudioRecorder.shared.stop()
             audioEngine.inputNode.removeTap(onBus: 0)
             audioEngine.stop()
-            DispatchQueue.global().async {
-                try? audioEngine.inputNode.setVoiceProcessingEnabled(false)
-            }
+            //DispatchQueue.global().async { try? audioEngine.inputNode.setVoiceProcessingEnabled(false) }
+            if ud.bool(forKey: "enableAEC") { try? AECEngine.stopAudioUnit() }
         }
         if streamType != .systemaudio {
             let dispatchGroup = DispatchGroup()
@@ -336,7 +337,6 @@ class SCContext {
             vwInput.markAsFinished()
             if #available(macOS 13, *) { awInput.markAsFinished() }
             vW.finishWriting {
-                startTime = nil
                 if vW.status != .completed {
                     print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
                     let err = vW.error?.localizedDescription ?? "Unknow Error"
@@ -366,6 +366,8 @@ class SCContext {
                 dispatchGroup.leave()
             }
             dispatchGroup.wait()
+        } else {
+            vW.finishWriting {}
         }
         
         DispatchQueue.main.async {
@@ -400,7 +402,7 @@ class SCContext {
                 let body = String(format: "File saved to: %@".local, filePath)
                 let id = "quickrecorder.completed.\(UUID().uuidString)"
                 showNotification(title: title, body: body, id: id)
-                if ud.bool(forKey: "remuxAudio") {
+                if ud.bool(forKey: "remuxAudio") && ud.bool(forKey: "recordMic") {
                     let fileURL = URL(fileURLWithPath: filePath)
                     let document = try? qmaPackageHandle.load(from: fileURL)
                     if let document = document {
@@ -423,7 +425,7 @@ class SCContext {
         screen = nil
         startTime = nil
         AppDelegate.shared.presenterType = "OFF"
-        AppDelegate.shared.updateStatusBar()
+        updateStatusBar()
         
         if !(ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio")) && streamType != .systemaudio {
             if let vW = vW {
@@ -452,7 +454,7 @@ class SCContext {
             let previewWindow = NSWindow(contentRect: NSMakeRect(0, 0, 260, 150), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
             let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: path))
             previewWindow.contentView = contentView
-            previewWindow.level = .floating
+            previewWindow.level = .statusBar
             previewWindow.titlebarAppearsTransparent = true
             previewWindow.titleVisibility = .hidden
             previewWindow.isReleasedWhenClosed = false
@@ -524,22 +526,9 @@ class SCContext {
             }
         }
         return getDefaultChannelCount()
-    }*/
-    
-    static func getSampleRate() -> Int? {
-        if let device = getCurrentMic() {
-            let activeFormat = device.activeFormat
-            let description = activeFormat.formatDescription
-            
-            if let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee {
-                let sampleRate = audioStreamBasicDescription.mSampleRate
-                return Int(sampleRate)
-            }
-        }
-        return getDefaultSampleRate()
     }
     
-    /*static func getDefaultChannelCount() -> Int? {
+    static func getDefaultChannelCount() -> Int? {
         var deviceID = AudioObjectID(0)
         var propertySize = UInt32(MemoryLayout.size(ofValue: deviceID))
         
@@ -601,6 +590,19 @@ class SCContext {
         }
         return max(2, totalChannels)
     }*/
+    
+    static func getSampleRate() -> Int? {
+        if let device = getCurrentMic() {
+            let activeFormat = device.activeFormat
+            let description = activeFormat.formatDescription
+            
+            if let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(description)?.pointee {
+                let sampleRate = audioStreamBasicDescription.mSampleRate
+                return Int(sampleRate)
+            }
+        }
+        return getDefaultSampleRate()
+    }
     
     static func getDefaultSampleRate() -> Int? {
         var deviceID = AudioObjectID(0)

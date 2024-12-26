@@ -109,10 +109,34 @@ struct HighlightMask: View {
     
     func startRecording() {
         closeAllWindow()
-        if let d = display, let w = window {
-            appDelegate.createCountdownPanel(screen: d) {
+        switch WindowHighlighter.shared.Mode {
+        case 2:
+            var dashWindow = NSWindow()
+            guard let screen = display, let nsScreen = display?.nsScreen, var area = window?.frame else { return }
+            area = CGRectTransform(cgRect: area)
+            SCContext.screenArea = area
+            let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 3),
+                               y: Int(area.origin.y + nsScreen.frame.minY - 3),
+                               width: Int(area.width + 6), height: Int(area.height + 6))
+            dashWindow = NSWindow(contentRect: frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+            dashWindow.hasShadow = false
+            dashWindow.level = .screenSaver
+            dashWindow.ignoresMouseEvents = true
+            dashWindow.isReleasedWhenClosed = false
+            dashWindow.title = "Area Overlayer".local
+            dashWindow.backgroundColor = NSColor.clear
+            dashWindow.contentView = NSHostingView(rootView: DashWindow())
+            dashWindow.orderFront(self)
+            appDelegate.createCountdownPanel(screen: screen) {
                 SCContext.autoStop = autoStop
-                appDelegate.prepRecord(type: "window" , screens: d, windows: [w], applications: nil)
+                appDelegate.prepRecord(type: "area", screens: display, windows: nil, applications: nil)
+            }
+        default:
+            if let d = display, let w = window {
+                appDelegate.createCountdownPanel(screen: d) {
+                    SCContext.autoStop = autoStop
+                    appDelegate.prepRecord(type: "window" , screens: d, windows: [w], applications: nil)
+                }
             }
         }
     }
@@ -124,10 +148,24 @@ class WindowHighlighter {
     var mouseMonitorL: Any?
     var targetWindowID: Int?
     var mask: EscPanel?
+    var Mode: Int = 1
     
-    func registerMouseMonitor() {
+    func registerMouseMonitor(mode: Int = 1) {
         closeAllWindow()
-        DispatchQueue.main.async { tips("Click the window you want to record\nor press Esc to cancel.".local, id: "qr.how-to-select.note") }
+        Mode = mode
+        DispatchQueue.main.async {
+            var message = ""
+            var id = ""
+            switch mode {
+            case 2:
+                id = "qr.how-to-select.note2"
+                message = "Click on a window to select its area\nor press Esc to cancel.".local
+            default:
+                message = "Click the window you want to record\nor press Esc to cancel.".local
+                id = "qr.how-to-select.note"
+            }
+            tips(message, id: id)
+        }
         
         for screen in NSScreen.screens {
             let cover = EscPanel(contentRect: screen.frame, styleMask: [.nonactivatingPanel, .fullSizeContentView], backing: .buffered, defer: false)
@@ -269,6 +307,17 @@ class EscPanel: NSPanel {
     override var canBecomeKey: Bool {
         return true
     }
+}
+
+func CGRectTransform(cgRect: CGRect) -> NSRect {
+    let x = cgRect.origin.x
+    let y = cgRect.origin.y
+    let w = cgRect.width
+    let h = cgRect.height
+    if let main = NSScreen.screens.first(where: { $0.isMainScreen }) {
+        return NSRect(x: x, y: main.frame.height - y - h, width: w, height: h)
+    }
+    return cgRect
 }
 
 extension View {
