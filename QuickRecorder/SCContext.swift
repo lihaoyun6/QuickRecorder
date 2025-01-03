@@ -367,7 +367,7 @@ class SCContext {
             }
             dispatchGroup.wait()
         } else {
-            vW.finishWriting {}
+            if ud.bool(forKey: "recordMic") { vW.finishWriting {} }
         }
         
         DispatchQueue.main.async {
@@ -387,21 +387,21 @@ class SCContext {
                 Task {
                     let outPutUrl = URL(fileURLWithPath: String(filePath.dropLast(4)) + ".mp3")
                     do {
-                        let title = "Recording Completed".local
-                        let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
-                        let id = "quickrecorder.completed.\(UUID().uuidString)"
                         try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
                         try? fd.removeItem(atPath: filePath1)
-                        showNotification(title: title, body: body, id: id)
+                        if !ud.bool(forKey: "showPreview") {
+                            let title = "Recording Completed".local
+                            let body = String(format: "File saved to: %@".local, outPutUrl.path.removingPercentEncoding!)
+                            let id = "quickrecorder.completed.\(UUID().uuidString)"
+                            showNotification(title: title, body: body, id: id)
+                        } else {
+                            DispatchQueue.main.async { showPreview(path: outPutUrl.path, image: NSImage(named: "audioIcon")) }
+                        }
                     } catch {
                         showNotification(title: "Failed to save file".local, body: "\(error.localizedDescription)", id: "quickrecorder.error.\(UUID().uuidString)")
                     }
                 }
             } else {
-                let title = "Recording Completed".local
-                let body = String(format: "File saved to: %@".local, filePath)
-                let id = "quickrecorder.completed.\(UUID().uuidString)"
-                showNotification(title: title, body: body, id: id)
                 if ud.bool(forKey: "remuxAudio") && ud.bool(forKey: "recordMic") {
                     let fileURL = URL(fileURLWithPath: filePath)
                     let document = try? qmaPackageHandle.load(from: fileURL)
@@ -414,6 +414,15 @@ class SCContext {
                         let format = exportMP3 ? "mp3" : document.info.format
                         let saveURL = fileURL.deletingPathExtension().appendingPathExtension(format)
                         audioPlayerManager.saveFile(saveURL, saveAsMP3: exportMP3)
+                    }
+                } else {
+                    if !ud.bool(forKey: "showPreview") {
+                        let title = "Recording Completed".local
+                        let body = String(format: "File saved to: %@".local, filePath)
+                        let id = "quickrecorder.completed.\(UUID().uuidString)"
+                        showNotification(title: title, body: body, id: id)
+                    } else {
+                        showPreview(path: filePath, image: NSImage(named: "qmaIcon"))
                     }
                 }
             }
@@ -448,9 +457,11 @@ class SCContext {
         streamType = nil
     }
     
-    static func showPreview(path: String) {
+    static func showPreview(path: String, image: NSImage? = nil) {
         if !ud.bool(forKey: "showPreview") { return }
-        if let frame = firstFrame?.nsImage, let screen = getScreenWithMouse() {
+        var frame: NSImage?
+        if let i = image { frame = i } else { if let f = firstFrame?.nsImage { frame = f }}
+        if let frame = frame, let screen = getScreenWithMouse() {
             let previewWindow = NSWindow(contentRect: NSMakeRect(0, 0, 260, 150), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
             let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: path))
             previewWindow.contentView = contentView

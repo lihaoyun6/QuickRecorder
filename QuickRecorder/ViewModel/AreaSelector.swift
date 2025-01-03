@@ -204,9 +204,9 @@ struct AreaSelector: View {
         var window = NSWindow()
         let area = SCContext.screenArea!
         guard let nsScreen = screen.nsScreen else { return }
-        let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 3),
-                           y: Int(area.origin.y + nsScreen.frame.minY - 3),
-                           width: Int(area.width + 6), height: Int(area.height + 6))
+        let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 4),
+                           y: Int(area.origin.y + nsScreen.frame.minY - 4),
+                           width: Int(area.width + 8), height: Int(area.height + 8))
         window = NSWindow(contentRect: frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
         window.hasShadow = false
         window.level = .screenSaver
