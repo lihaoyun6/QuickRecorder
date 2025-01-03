@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.2</title>
+            <pubDate>Fri, 03 Jan 2025 14:56:56 +0800</pubDate>
+            <sparkle:version>162</sparkle:version>
+            <sparkle:shortVersionString>1.6.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了录制屏幕区域时虚线边框出现在画面中的问题</li>
+                <li>修复了仅录制系统声音时可能出现崩溃的问题</li>
+                <li><b style="color: orange">请注意, v1.6.x 将是最后一个支持 macOS 12 系统的版本!</b></li>
+                </ul><ul>
+                <li>Fixed: Screen area selector outline appearing in clips.</li>
+                <li>Fixed: App may crash when recording "System Audio".</li>
+                <li><b style="color: orange">v1.6.x will be the final version that supports macOS 12!</b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.2/QuickRecorder_v1.6.2.dmg" length="4598450" type="application/octet-stream" sparkle:edSignature="s2TdhJCjj91u594/OfGglVtEf7o9PI/sMBRpzOwQ6+Ll/RXcN8PtTaYgu3m/nPxJgyLu1Xhz8074A9Cw7F5QAg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.2/Update162-161.delta" sparkle:deltaFrom="161" length="235734" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="wtb3hK8V6o2Ct4igl4ocUh/SZddkWPiHlgswUeGLkQ2A4Pil5FqLY2+0QITmeEXPArrSCjlAr+C+oasThu4JDw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.2/Update162-160.delta" sparkle:deltaFrom="160" length="524406" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="08BydKVi59fgPYqQGbkga3e9lCqWpzJHcc6ODV5J0LdUF2s8zg8xzHNOqvpO9e3iruedwj/iQ9uVy41DVb/3Ag=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.2/Update162-159.delta" sparkle:deltaFrom="159" length="678834" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="oh70JLHCSAu9GcRgRX/HbhDyc0ICdTgICXDOowzErhiuOK63XInqvfZYrHEFfStxgsY68d/pDEezEXCcBaRiDw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.1</title>
             <pubDate>Thu, 26 Dec 2024 00:28:27 +0800</pubDate>
             <sparkle:version>161</sparkle:version>
