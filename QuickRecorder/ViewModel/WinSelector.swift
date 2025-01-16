@@ -235,8 +235,7 @@ struct WinSelector: View {
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 HoverButton(action: {
-                    //panel?.close()
-                    WindowHighlighter.shared.registerMouseMonitor(mode: 2)
+                    WindowHighlighter.shared.registerMouseMonitor()
                 }, label: {
                     Image("window.select")
                         .resizable().scaledToFit()

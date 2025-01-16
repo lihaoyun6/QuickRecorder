@@ -8,12 +8,12 @@ class RecorderPlayerModel: NSObject, ObservableObject {
     var asset: AVAsset?
     var fileUrl: URL?
     var playerItem: AVPlayerItem!
+    var nsWindow: NSWindow?
     
     override init() {
         self.playerView = AVPlayerView()
         super.init()
         self.playerView.player = AVPlayer()
-        
     }
     
     func loadVideo(fromUrl: URL, completion: @escaping () -> Void) {
@@ -67,7 +67,7 @@ class RecorderPlayerModel: NSObject, ObservableObject {
                             path = fileUrl.deletingPathExtension().path
                             guard let path = path else { return }
                             let filePath = path.removingPercentEncoding! + " (Cropped in ".local + "\(dateFormatter.string(from: Date())))." + fileEnding
-                            exportSession?.outputURL = URL(fileURLWithPath: filePath)
+                            exportSession?.outputURL = filePath.url
                             exportSession?.outputFileType = fileType
                             exportSession?.timeRange = timeRange
                             exportSession?.exportAsynchronously {
@@ -86,10 +86,9 @@ class RecorderPlayerModel: NSObject, ObservableObject {
                                     }
                                 }
                             }
-                            for w in NSApp.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
+                            self.nsWindow?.close()
                         } else {
-                            guard let fileUrl = self.fileUrl else { return }
-                            for w in NSApp.windows.filter({ $0.title == fileUrl.lastPathComponent }) { w.close() }
+                            self.nsWindow?.close()
                         }
                     }
                 }
@@ -147,9 +146,13 @@ struct VideoTrimmerView: View {
             }.padding([.bottom, .leading, .trailing])
         }
         .padding(.top, -22)
-        .background(WindowAccessor(onWindowOpen: {_ in}, onWindowClose: {
+        .background(WindowAccessor(onWindowOpen: { window in
+            playerViewModel.nsWindow = window
+            SCContext.trimingList.append(videoURL)
+        }, onWindowClose: {
             playerViewModel.playerView.player?.replaceCurrentItem(with: nil)
             playerViewModel.playerView.player = nil
+            SCContext.trimingList.removeAll(where: { $0 == videoURL })
         }))
         //.navigationTitle(videoURL.lastPathComponent)
         //.preferredColorScheme(.dark)

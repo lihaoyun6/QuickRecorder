@@ -102,7 +102,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             let fileEnding = ud.string(forKey: "videoFormat") ?? ""
             SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
             SCContext.captureSession.startRunning()
-            output.startRecording(to: URL(fileURLWithPath: SCContext.filePath), recordingDelegate: self)
+            output.startRecording(to: SCContext.filePath.url, recordingDelegate: self)
             SCContext.streamType = StreamType.idevice
             SCContext.startTime = Date.now
         }

@@ -67,6 +67,7 @@ extension AppDelegate {
             return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title == "Dock"
         })
         let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
+        let controlCenterWindow = SCContext.availableContent!.applications.filter({ $0.bundleIdentifier == "com.apple.controlcenter" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         let camLayer = SCContext.availableContent!.windows.filter({ $0.title == "Camera Overlayer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         var appBlackList = [String]()
@@ -75,13 +76,13 @@ extension AppDelegate {
             appBlackList = (decodedApps as [AppInfo]).map({ $0.bundleID })
         }
         let excliudedApps = SCContext.availableContent!.applications.filter({ appBlackList.contains($0.bundleIdentifier) })
-        
+        let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
                 if includ.count > 1 {
                     if highlightMouse { includ += mouseWindow }
                     if background.rawValue == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
-                    SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ + camLayer)
+                    SCContext.filter = SCContentFilter(display: screen, including: includ + camLayer)
                     if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = includeMenuBar }
                 } else {
                     SCContext.streamType = .window
@@ -89,8 +90,7 @@ extension AppDelegate {
                 }
             }
         } else {
-            if SCContext.streamType == .screen || SCContext.streamType == .screenarea || SCContext.streamType == .systemaudio {
-                let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
+            if SCContext.streamType == .screen || SCContext.streamType == .screenarea {
                 if SCContext.streamType == .screenarea {
                     if let area = SCContext.screenArea, let name = screen.nsScreen?.localizedName {
                         let a = ["x": area.origin.x, "y": area.origin.y, "width": area.width, "height": area.height]
@@ -100,6 +100,7 @@ extension AppDelegate {
                 var excluded = [SCRunningApplication]()
                 var except = [SCWindow]()
                 excluded += excliudedApps
+                if hideCCenter { excluded += controlCenterWindow }
                 if hideSelf { if let qrWindows = qrWindows { except += qrWindows }}
                 if background.rawValue != BackgroundType.wallpaper.rawValue { if dockApp != nil { except += wallpaper}}
                 if hideDesktopFiles { except += desktopFiles }
@@ -115,11 +116,14 @@ extension AppDelegate {
                 if hideSelf { if let qrWindows = qrWindows { except += qrWindows }}
                 //if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
                 if background.rawValue == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except += dockWindow}}
-                SCContext.filter = SCContentFilter(display: SCContext.screen ?? SCContext.getSCDisplayWithMouse()!, including: includ, exceptingWindows: except)
+                SCContext.filter = SCContentFilter(display: screen, including: includ, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = includeMenuBar }
             }
         }
-        if SCContext.streamType == .systemaudio { prepareAudioRecording() }
+        if SCContext.streamType == .systemaudio {
+            SCContext.filter = SCContentFilter(display: screen, excludingApplications: [], exceptingWindows: [])
+            prepareAudioRecording()
+        }
         Task { await record(filter: SCContext.filter!, fastStart: fastStart) }
     }
 
@@ -243,25 +247,25 @@ extension AppDelegate {
             SCContext.filePath = "\(path).qma"
             SCContext.filePath1 = "\(path).qma/sys.\(fileEnding)"
             SCContext.filePath2 = "\(path).qma/mic.\(fileEnding)"
-            let infoJsonURL = URL(fileURLWithPath: "\(path).qma/info.json")
+            let infoJsonURL = "\(path).qma/info.json".url
             let jsonString = "{\"format\": \"\(fileEnding)\", \"encoder\": \"\(encorder)\", \"exportMP3\": \(audioFormat.rawValue == AudioFormat.mp3.rawValue), \"sysVol\": 1.0, \"micVol\": 1.0}"
-            try? fd.createDirectory(at: URL(fileURLWithPath: SCContext.filePath), withIntermediateDirectories: true, attributes: nil)
+            try? fd.createDirectory(at: SCContext.filePath.url, withIntermediateDirectories: true, attributes: nil)
             try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
             
-            SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath1), settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
+            SCContext.audioFile = try! AVAudioFile(forWriting: SCContext.filePath1.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
 
             let sampleRate = SCContext.getSampleRate() ?? 48000
             let settings = SCContext.updateAudioSettings(rate: sampleRate)
-            SCContext.vW = try? AVAssetWriter.init(outputURL: URL(fileURLWithPath: SCContext.filePath2), fileType: fileType)
+            SCContext.vW = try? AVAssetWriter.init(outputURL: SCContext.filePath2.url, fileType: fileType)
             SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
             if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
             SCContext.vW.startWriting()
-            //SCContext.audioFile2 = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath2), settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
+            //SCContext.audioFile2 = try! AVAudioFile(forWriting: SCContext.filePath2.url, settings: settings, commonFormat: .pcmFormatFloat32, interleaved: false)
         } else {
             SCContext.filePath = "\(path).\(fileEnding)"
             SCContext.filePath1 = SCContext.filePath
-            SCContext.audioFile = try! AVAudioFile(forWriting: URL(fileURLWithPath: SCContext.filePath), settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
+            SCContext.audioFile = try! AVAudioFile(forWriting: SCContext.filePath.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
         }
     }
 }
@@ -299,7 +303,7 @@ extension AppDelegate {
         } else {
             SCContext.filePath = "\(SCContext.getFilePath()).\(fileEnding)"
         }
-        SCContext.vW = try? AVAssetWriter.init(outputURL: URL(fileURLWithPath: SCContext.filePath), fileType: fileType!)
+        SCContext.vW = try? AVAssetWriter.init(outputURL: SCContext.filePath.url, fileType: fileType!)
         let encoderIsH265 = (encoder.rawValue == Encoder.h265.rawValue) || recordHDR
         let fpsMultiplier: Double = Double(frameRate)/8
         let encoderMultiplier: Double = encoderIsH265 ? 0.5 : 0.9
@@ -448,7 +452,7 @@ extension AppDelegate {
                 let url = URL(filePath: "\(SCContext.getFilePath(capture: true)).png")
                 sampleBuffer.nsImage?.saveToFile(url)
             } else {
-                let url = URL(fileURLWithPath: "\(SCContext.getFilePath(capture: true)).png")
+                let url = "\(SCContext.getFilePath(capture: true)).png".url
                 sampleBuffer.nsImage?.saveToFile(url)
             }
         }

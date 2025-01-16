@@ -35,7 +35,7 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }.frame(width: 600, height: 475)
+        }.frame(width: 600, height: 512)
     }
 }
 
@@ -105,6 +105,7 @@ struct RecorderView: View {
     @AppStorage("hideSelf")         private var hideSelf: Bool = true
     @AppStorage("preventSleep")     private var preventSleep: Bool = true
     @AppStorage("showPreview")      private var showPreview: Bool = true
+    @AppStorage("hideCCenter")      private var hideCCenter: Bool = false
     
     @State private var userColor: Color = Color.black
 
@@ -141,12 +142,14 @@ struct RecorderView: View {
                 SToggle("Exclude QuickRecorder itself", isOn: $hideSelf)
                 SDivider()
                 if #available (macOS 13, *) {
-                    SToggle("Include MenuBar in Recording", isOn: $includeMenuBar)
+                    SToggle("Include Menu Bar in Recording", isOn: $includeMenuBar)
                     SDivider()
                 }
+                SToggle("Hide Control Center Icons", isOn: $hideCCenter, tips: "Hide the clock, Wi-Fi, bluetooth, volume and other system icons in the menu bar.")
+                SDivider()
                 SToggle("Highlight the Mouse Cursor", isOn: $highlightMouse, tips: "Not available for \"Single Window Capture\"")
                 SDivider()
-                SToggle("Exclude the \"Desktop Files\" layer", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
+                SToggle("Exclude Files on Desktop", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
             }
         }.onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
     }
@@ -166,7 +169,7 @@ struct OutputView: View {
     @AppStorage("saveDirectory")    private var saveDirectory: String?
 
     var body: some View {
-        SForm(spacing: 28) {
+        SForm(spacing: 30) {
             SGroupBox(label: "Audio") {
                 SPicker("Quality", selection: $audioQuality) {
                     if audioFormat == .alac || audioFormat == .flac {
@@ -215,7 +218,7 @@ struct OutputView: View {
             }
             SGroupBox(label: "Save") {
                 SItem(label: "Output Folder") {
-                    Text(String(format: "Currently set to \"%@\"".local, URL(fileURLWithPath: saveDirectory!).lastPathComponent))
+                    Text(String(format: "Currently set to \"%@\"".local, saveDirectory!.lastPathComponent))
                         .font(.footnote)
                         .foregroundColor(Color.secondary)
                         .lineLimit(1)

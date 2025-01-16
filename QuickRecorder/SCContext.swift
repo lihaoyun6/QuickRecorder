@@ -15,6 +15,7 @@ import SwiftUI
 import AECAudioStream
 
 class SCContext {
+    static var trimingList = [URL]()
     static var firstFrame: CMSampleBuffer?
     static var autoStop = 0
     static var recordCam = ""
@@ -23,7 +24,6 @@ class SCContext {
     static var previewSession: AVCaptureSession!
     static var frameCache: CMSampleBuffer?
     static var filter: SCContentFilter?
-    //static var audioSettings: [String : Any]!
     static var isMagnifierEnabled = false
     static var saveFrame = false
     static var isPaused = false
@@ -35,7 +35,6 @@ class SCContext {
     static let audioEngine = AVAudioEngine()
     static let AECEngine = AECAudioStream(sampleRate: 48000)
     static var backgroundColor: CGColor = CGColor.black
-    //static var recordMic = false
     static var filePath: String!
     static var filePath1: String!
     static var filePath2: String!
@@ -43,7 +42,6 @@ class SCContext {
     static var audioFile2: AVAudioFile?
     static var vW: AVAssetWriter!
     static var vwInput, awInput, micInput: AVAssetWriterInput!
-    //static var vwInputAdaptor: AVAssetWriterInputPixelBufferAdaptor!
     static var startTime: Date?
     static var timePassed: TimeInterval = 0
     static var stream: SCStream!
@@ -51,7 +49,6 @@ class SCContext {
     static var window: [SCWindow]?
     static var application: [SCRunningApplication]?
     static var streamType: StreamType?
-    //static var previewType: StreamType?
     static var availableContent: SCShareableContent?
     static let excludedApps = ["", "com.apple.dock", "com.apple.screencaptureui", "com.apple.controlcenter", "com.apple.notificationcenterui", "com.apple.systemuiserver", "com.apple.WindowManager", "dev.mnpn.Azayaka", "com.gaosun.eul", "com.pointum.hazeover", "net.matthewpalmer.Vanilla", "com.dwarvesv.minimalbar", "com.bjango.istatmenus.status"]
     
@@ -343,7 +340,7 @@ class SCContext {
                     showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(UUID().uuidString)")
                 } else {
                     if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
-                        mixAudioTracks(videoURL: URL(fileURLWithPath: filePath)) { result in
+                        mixAudioTracks(videoURL: filePath.url) { result in
                             switch result {
                             case .success(let url):
                                 print("Exported video to \(String(describing: url.path))")
@@ -385,9 +382,9 @@ class SCContext {
         if streamType == .systemaudio {
             if ud.string(forKey: "audioFormat") == AudioFormat.mp3.rawValue && !ud.bool(forKey: "recordMic") {
                 Task {
-                    let outPutUrl = URL(fileURLWithPath: String(filePath.dropLast(4)) + ".mp3")
+                    let outPutUrl = (String(filePath.dropLast(4)) + ".mp3").url
                     do {
-                        try await m4a2mp3(inputUrl: URL(fileURLWithPath: filePath1), outputUrl: outPutUrl)
+                        try await m4a2mp3(inputUrl: filePath1.url, outputUrl: outPutUrl)
                         try? fd.removeItem(atPath: filePath1)
                         if !ud.bool(forKey: "showPreview") {
                             let title = "Recording Completed".local
@@ -403,7 +400,7 @@ class SCContext {
                 }
             } else {
                 if ud.bool(forKey: "remuxAudio") && ud.bool(forKey: "recordMic") {
-                    let fileURL = URL(fileURLWithPath: filePath)
+                    let fileURL = filePath.url
                     let document = try? qmaPackageHandle.load(from: fileURL)
                     if let document = document {
                         let audioPlayerManager = AudioPlayerManager()
@@ -455,6 +452,7 @@ class SCContext {
         }
         
         streamType = nil
+        firstFrame = nil
     }
     
     static func showPreview(path: String, image: NSImage? = nil) {
@@ -472,7 +470,6 @@ class SCContext {
             previewWindow.backgroundColor = .clear
             previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 274, y: screen.frame.minY + 14))
             previewWindow.orderFront(self)
-            firstFrame = nil
         }
     }
     
@@ -493,7 +490,7 @@ class SCContext {
     
     static func trimVideo() {
         if ud.bool(forKey: "trimAfterRecord") {
-            let fileURL = URL(fileURLWithPath: filePath)
+            let fileURL = filePath.url
             AppDelegate.shared.createNewWindow(view: VideoTrimmerView(videoURL: fileURL), title: fileURL.lastPathComponent, only: false)
         }
     }

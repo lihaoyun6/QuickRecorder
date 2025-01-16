@@ -255,9 +255,9 @@ struct OptionsView: View {
                 }.padding(.leading, isMacOS12 ? 0 : 8)
                 VStack(alignment: .leading, spacing: 10) {
                     Picker("", selection: $videoQuality) {
-                        Text("Low").tag(0.3)
-                        Text("Medium").tag(0.7)
                         Text("High").tag(1.0)
+                        Text("Medium").tag(0.7)
+                        Text("Low").tag(0.3)
                     }
                     .buttonStyle(.borderless)
                     .frame(minWidth: isMacOS12 ? 100 : 10)

@@ -65,7 +65,7 @@
 "Video" = "视频设置";
 "Save" = "保存位置";
 "Exclude QuickRecorder itself" = "排除QuickRecorder窗口";
-"Highlight the Mouse Cursor" = "为鼠标光标添加高亮效果";
+"Highlight the Mouse Cursor" = "高亮显示鼠标指针";
 "Not available for \"Single Window Capture\"" = "此功能在录制单个窗口时不可用";
 "Normal - 128Kbps" = "标准 - 128Kbps";
 "Good - 192Kbps" = "优质 - 192Kbps";
@@ -76,7 +76,7 @@
 "Record Microphone to Main Track" = "将麦克风录制到主音轨";
 "If enabled, all files on the Desktop will be hidden from the video when recording." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
 "These apps will be excluded when recording \"Screen\" or \"Screen Area\"\nBut if the app is launched after the recording starts, it cannot be excluded." = "在录制 \"全屏画面\" 或 \"屏幕区域\" 的时候将不会录制这些 App 的画面\n但如果列表中的 App 在录屏开始后才被启动, 则无法被排除在录制画面之外.";
-"Exclude the \"Desktop Files\" layer" = "录制时排除所有桌面文件";
+"Exclude Files on Desktop" = "隐藏桌面上的文件";
 "Recording with Alpha Channel" = "在输出中包含 Alpha 通道";
 "Delay Before Recording" = "开始录制前倒数 (秒)";
 "s" = "秒";
@@ -111,13 +111,13 @@
 "Select Area to Record" = "选择屏幕区域以录制";
 "Toggle Screen Magnifier" = "显示/隐藏屏幕放大器";
 "Waiting on update…" = "正在更新, 请稍等…";
-"Include MenuBar in Recording" = "在录像中录制菜单栏画面";
+"Include Menu Bar in Recording" = "录制菜单栏画面";
 "Excluded Apps" = "App 排除列表";
 "Record with Camera:" = "录制摄像头:";
 "Presenter Overlay Camera:" = "\"演讲者前置\"摄像头:";
 //"Can only be turned off on macOS 14.2 or later!" = "此选项仅 macOS 14.2 或更高版本系统可中可被关闭!";
 "Presenter Overlay Delay" = "演讲者前置延迟 (秒)";
-"Open video trimmer after recording" = "录制结束自动打开修剪器";
+"Open video trimmer after recording" = "录制结束后自动打开修剪器";
 "Unable to use camera overlayer when recording a single window!" = "录制单个窗口时无法使用摄像头浮窗!";
 " Please use \"Presenter Overlay\"" = " 请使用\"演讲者前置\"功能";
 "No Devices Found!" = "未找到任何设备";
@@ -187,7 +187,7 @@
 "Open Main Panel" = "打开主面板";
 "Prevent Mac from sleeping while recording" = "录制时防止 Mac 进入睡眠";
 "Click the window you want to record\nor press Esc to cancel." = "请直接点击要录制的窗口\n或者按 Esc 键退出选择";
-"Show floating preview after recording" = "录制结束后显示预览浮窗";
+"Show floating preview after recording" = "录制结束后显示预览悬浮窗";
 "Show in Finder" = "在访达中显示";
 "Copy" = "拷贝";
 "Delete" = "删除";
@@ -198,6 +198,13 @@
 "Max" = "最大";
 "Window Area" = "窗口范围";
 "Click on a window to select its area\nor press Esc to cancel." = "点击任意窗口来获取其范围并进行录制\n或者按 Esc 键退出选择";
+"Trim" = "修剪视频";
+"Make GIF" = "创建 GIF";
+"Gifski not found" = "未安装 Gifski";
+"Please install \"Gifski\" first to make GIF!" = "需要先安装 Gifski 才能创建 GIF!";
+"Open App Store" = "从 App Store 安装";
+"Hide Control Center Icons" = "隐藏控制中心图标";
+"Hide the clock, Wi-Fi, bluetooth, volume and other system icons in the menu bar." = "隐藏菜单栏上的时钟、Wi-Fi、蓝牙和音量等系统图标.";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

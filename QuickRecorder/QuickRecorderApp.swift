@@ -49,13 +49,13 @@ struct QuickRecorderApp: App {
     
     var body: some Scene {
         DocumentGroup(newDocument: qmaPackageHandle()) { file in
-            if SCContext.stream == nil {
+            //if SCContext.stream == nil {
                 if let fileURL = file.fileURL {
                     qmaPlayerView(document: file.$document, fileURL: fileURL)
                         .frame(minWidth: 400, minHeight: 100, maxHeight: 100)
                         .focusable(false)
                 }
-            }
+            //}
         }
         .myWindowIsContentResizable()
         .commands {
@@ -144,6 +144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     @AppStorage("audioFormat")      var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     var audioQuality: AudioQuality = .high
     @AppStorage("pixelFormat")      var pixelFormat: PixFormat = .delault
+    @AppStorage("hideCCenter")      var hideCCenter: Bool = false
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -190,6 +191,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls {
+            if SCContext.trimingList.contains(url) { continue }
             createNewWindow(view: VideoTrimmerView(videoURL: url), title: url.lastPathComponent, random: true, only: false)
             closeMainWindow()
         }
@@ -501,6 +503,13 @@ extension String {
     var deletingPathExtension: String {
         return (self as NSString).deletingPathExtension
     }
+    var pathExtension: String {
+        return (self as NSString).pathExtension
+    }
+    var lastPathComponent: String {
+        return (self as NSString).lastPathComponent
+    }
+    var url: URL { return URL(fileURLWithPath: self) }
 }
 
 extension NSMenuItem {
