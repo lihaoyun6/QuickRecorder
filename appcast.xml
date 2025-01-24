@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.4</title>
+            <pubDate>Sat, 25 Jan 2025 01:49:16 +0800</pubDate>
+            <sparkle:version>164</sparkle:version>
+            <sparkle:shortVersionString>1.6.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了预览悬浮窗导致的内存泄漏</li>
+                <li>修复了当开启"隐藏桌面文件"时无法录制预览窗口的问题</li>
+                <li><b style="color: orange">请注意, v1.6.x 将是最后一个支持 macOS 12 系统的版本!</b></li>
+                </ul><ul>
+                <li>Fixed the memory leak caused by the preview popup.</li>
+                <li>Fixed: Unable to record the "Preview" window when "Hide desktop files" is enabled.</li>
+                <li><b style="color: orange">v1.6.x will be the final version that supports macOS 12!</b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.4/QuickRecorder_v1.6.4.dmg" length="4614284" type="application/octet-stream" sparkle:edSignature="XmWNRCdXXKfiuMVz12jLlbBVpm33Vi4lEXt8txKknrFQCWSzkZyO1CUXI5n+CV2VBgNVPWcA+5b5uSxYqatuAA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.4/Update164-163.delta" sparkle:deltaFrom="163" length="492198" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="e0AvRgbI+cQuvc0sH8LiRAwRcMsd8mlD4jfxtbsZKVggxEGu6gS61GK8C/TLNY+xAJ/DeMUjNtv1riDCmzePDg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.4/Update164-162.delta" sparkle:deltaFrom="162" length="544098" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="ZbTFsS4jT2aH/mYuZIbUWsSpODwjEy4LnMSCjPl4XEbihjdjkf3vF77T2ZWFBhlUp/cjYijx5r4pRx50fsUOCA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.4/Update164-161.delta" sparkle:deltaFrom="161" length="551978" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="l7eXlYRFxJo96iXMRbrNQ1UhNJNUJk182BK/0HIuQHh2f8wSAuFOc3oK+zhARmU43eDyk7XAJTAVzdepB2YuAg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.3</title>
             <pubDate>Thu, 16 Jan 2025 16:30:49 +0800</pubDate>
             <sparkle:version>163</sparkle:version>
