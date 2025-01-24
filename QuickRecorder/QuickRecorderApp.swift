@@ -34,6 +34,7 @@ let camWindow = NSPanel(contentRect: NSRect(x: 200, y: 200, width: 200, height: 
 let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 let countdownPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 120, height: 120), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
+let previewWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 266, height: 156), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 var updaterController: SPUStandardUpdaterController!
 
 @main
@@ -302,6 +303,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         controlPanel.titlebarAppearsTransparent = true
         controlPanel.isMovableByWindowBackground = true
         
+        previewWindow.level = .statusBar
+        previewWindow.titlebarAppearsTransparent = true
+        previewWindow.titleVisibility = .hidden
+        previewWindow.isReleasedWhenClosed = false
+        previewWindow.backgroundColor = .clear
+        
         KeyboardShortcuts.onKeyDown(for: .showPanel) {
             _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
             if SCContext.stream == nil { NSApp.activate(ignoringOtherApps: true) }
@@ -427,7 +434,7 @@ func getStatusBarWidth() -> CGFloat {
     case nil: width = miniStatusBar ? 36.0 : 36.0
     case .idevice: width = miniStatusBar ? 68.0 : 138.0
     case .systemaudio: width = miniStatusBar ? 68.0 : 114.0
-    default: width = miniStatusBar ? 84.0 : 158.0
+    default: width = miniStatusBar ? 78.0 : 158.0
     }
     return width
 }
@@ -552,10 +559,10 @@ extension NSImage {
         return NSImage(cgImage: imageRef, size: NSSize(width: CGFloat(imageRef.width)/factor, height: CGFloat(imageRef.height)/factor))
     }
     
-    func saveToFile(_ url: URL) {
+    func saveToFile(_ url: URL, type: NSBitmapImageRep.FileType = .png) {
         if let tiffData = self.tiffRepresentation,
            let imageRep = NSBitmapImageRep(data: tiffData) {
-            let pngData = imageRep.representation(using: .png, properties: [:])
+            let pngData = imageRep.representation(using: type, properties: [:])
             do {
                 try pngData?.write(to: url)
             } catch {

@@ -55,6 +55,7 @@ extension AppDelegate {
             SCContext.application = SCContext.availableContent!.applications.filter({ applications.contains($0) })
         } else { if SCContext.streamType == .application { SCContext.streamType = nil; return } }
         
+        let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
         let qrSelf = SCContext.getSelf()
         let qrWindows = SCContext.getSelfWindows()
         let dockApp = SCContext.availableContent!.applications.first(where: { $0.bundleIdentifier.description == "com.apple.dock" })
@@ -66,7 +67,9 @@ extension AppDelegate {
             guard let title = $0.title else { return true }
             return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title == "Dock"
         })
-        let desktopFiles = SCContext.availableContent!.windows.filter({ $0.title == "" && $0.owningApplication?.bundleIdentifier == "com.apple.finder" })
+        let desktopFiles = SCContext.availableContent!.windows.filter({
+            $0.owningApplication?.bundleIdentifier == "com.apple.finder"
+            && $0.title == "" && $0.frame == screen.frame })
         let controlCenterWindow = SCContext.availableContent!.applications.filter({ $0.bundleIdentifier == "com.apple.controlcenter" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         let camLayer = SCContext.availableContent!.windows.filter({ $0.title == "Camera Overlayer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
@@ -76,7 +79,7 @@ extension AppDelegate {
             appBlackList = (decodedApps as [AppInfo]).map({ $0.bundleID })
         }
         let excliudedApps = SCContext.availableContent!.applications.filter({ appBlackList.contains($0.bundleIdentifier) })
-        let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
+        
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
                 if includ.count > 1 {
@@ -133,7 +136,6 @@ extension AppDelegate {
         SCContext.isResume = false
         
         let audioOnly = SCContext.streamType == .systemaudio
-        let encoderIsH265 = (encoder.rawValue == Encoder.h265.rawValue) || recordHDR
         
         let conf: SCStreamConfiguration
 #if compiler(>=6.0)
@@ -176,13 +178,7 @@ extension AppDelegate {
             conf.showsCursor = showMouse || fastStart
             if background.rawValue != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if !recordHDR {
-                if encoderIsH265 {
-                    conf.pixelFormat = kCVPixelFormatType_ARGB2101010LEPacked
-                    conf.colorSpaceName = CGColorSpace.displayP3
-                } else {
-                    conf.pixelFormat = kCVPixelFormatType_32BGRA
-                    conf.colorSpaceName = CGColorSpace.sRGB
-                }
+                conf.colorSpaceName = CGColorSpace.sRGB
                 if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
             }
         }
@@ -329,14 +325,7 @@ extension AppDelegate {
             ] as [String : Any]
         ]
         
-        if encoderIsH265 {
-            if !recordHDR {
-                videoSettings[AVVideoColorPropertiesKey] = [
-                    AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
-                    AVVideoColorPrimariesKey: AVVideoColorPrimaries_P3_D65,
-                    AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2 ] as [String : Any]
-            }
-        } else {
+        if !recordHDR {
             videoSettings[AVVideoColorPropertiesKey] = [
                 AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
                 AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
@@ -398,34 +387,6 @@ extension AppDelegate {
         }
     }
     
-    /*func startMicRecording() {
-        if micDevice == "default" {
-            let input = SCContext.audioEngine.inputNode
-            if enableAEC {
-                try? input.setVoiceProcessingEnabled(true)
-                if #available(macOS 14, *) {
-                    let duckingConfig = AVAudioVoiceProcessingOtherAudioDuckingConfiguration(enableAdvancedDucking: false, duckingLevel: .min)
-                    input.voiceProcessingOtherAudioDuckingConfiguration = duckingConfig
-                    //input.voiceProcessingOtherAudioDuckingConfiguration.duckingLevel = .min
-                }
-            }
-            let inputFormat = input.inputFormat(forBus: 0)
-            let monoFormat = AVAudioFormat(commonFormat: inputFormat.commonFormat,
-                                           sampleRate: inputFormat.sampleRate, channels: 1,
-                                           interleaved: inputFormat.isInterleaved) ?? inputFormat
-            input.installTap(onBus: 0, bufferSize: 1024, format: enableAEC ? monoFormat : inputFormat) { buffer, time in
-                if SCContext.isPaused || SCContext.startTime == nil { return }
-                if SCContext.micInput.isReadyForMoreMediaData {
-                    SCContext.micInput.append(buffer.asSampleBuffer!)
-                }
-            }
-            try! SCContext.audioEngine.start()
-        } else {
-            AudioRecorder.shared.setupAudioCapture()
-            AudioRecorder.shared.start()
-        }
-    }*/
-    
     func outputVideoEffectDidStart(for stream: SCStream) {
         DispatchQueue.main.async { camWindow.close() }
         print("[Presenter Overlay ON]")
@@ -448,13 +409,8 @@ extension AppDelegate {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
-            if #available(macOS 13.0, *) {
-                let url = URL(filePath: "\(SCContext.getFilePath(capture: true)).png")
-                sampleBuffer.nsImage?.saveToFile(url)
-            } else {
-                let url = "\(SCContext.getFilePath(capture: true)).png".url
-                sampleBuffer.nsImage?.saveToFile(url)
-            }
+            let url = "\(SCContext.getFilePath(capture: true)).png".url
+            sampleBuffer.nsImage?.saveToFile(url)
         }
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }
@@ -623,15 +579,17 @@ extension CMSampleBuffer {
     }
     
     var nsImage: NSImage? {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(self) else { return nil }
-        CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
-        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let context = CIContext()
-        if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
-            return NSImage(cgImage: cgImage, size: NSSize.zero)
+        return autoreleasepool {
+            guard let pixelBuffer = CMSampleBufferGetImageBuffer(self) else { return nil }
+            CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+            defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+            let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+            let ciContext = CIContext()
+            if let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) {
+                return NSImage(cgImage: cgImage, size: .zero)
+            }
+            return nil
         }
-        return nil
     }
 }
 

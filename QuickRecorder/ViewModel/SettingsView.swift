@@ -210,8 +210,8 @@ struct OutputView: View {
                 }.disabled(withAlpha)
                 SDivider()
                 SPicker("Encoder", selection: $encoder) {
-                    Text("H.264 + sRGB").tag(Encoder.h264)
-                    Text("H.265 + P3").tag(Encoder.h265)
+                    Text("H.264").tag(Encoder.h264)
+                    Text("H.265").tag(Encoder.h265)
                 }.disabled(withAlpha)
                 SDivider()
                 SToggle("Recording with Alpha Channel", isOn: $withAlpha)

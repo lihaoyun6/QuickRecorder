@@ -457,18 +457,15 @@ class SCContext {
     
     static func showPreview(path: String, image: NSImage? = nil) {
         if !ud.bool(forKey: "showPreview") { return }
-        var frame: NSImage?
-        if let i = image { frame = i } else { if let f = firstFrame?.nsImage { frame = f }}
-        if let frame = frame, let screen = getScreenWithMouse() {
-            let previewWindow = NSWindow(contentRect: NSMakeRect(0, 0, 260, 150), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
-            let contentView = NSHostingView(rootView: PreviewView(frame: frame, filePath: path))
+        var previewImage: NSImage?
+        let previewURL = fd.temporaryDirectory.appendingPathComponent("qr-preview.jpg")
+        if image == nil { firstFrame?.nsImage?.saveToFile(previewURL, type: .jpeg) }
+        
+        if let i = image { previewImage = i } else { previewImage = NSImage(contentsOf: previewURL) }
+        if let previewImage = previewImage, let screen = getScreenWithMouse() {
+            let contentView = NSHostingView(rootView: PreviewView(frame: previewImage, filePath: path))
             previewWindow.contentView = contentView
-            previewWindow.level = .statusBar
-            previewWindow.titlebarAppearsTransparent = true
-            previewWindow.titleVisibility = .hidden
-            previewWindow.isReleasedWhenClosed = false
-            previewWindow.backgroundColor = .clear
-            previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 274, y: screen.frame.minY + 14))
+            previewWindow.setFrameOrigin(NSPoint(x: screen.frame.maxX - 280, y: screen.frame.minY + 20))
             previewWindow.orderFront(self)
         }
     }

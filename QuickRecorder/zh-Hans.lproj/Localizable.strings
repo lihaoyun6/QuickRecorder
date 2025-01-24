@@ -76,7 +76,7 @@
 "Record Microphone to Main Track" = "将麦克风录制到主音轨";
 "If enabled, all files on the Desktop will be hidden from the video when recording." = "启用此选项后, 当录制\"屏幕画面\"或\"访达\"程序时, 桌面上的所有文件将会从录制画面中被隐藏.";
 "These apps will be excluded when recording \"Screen\" or \"Screen Area\"\nBut if the app is launched after the recording starts, it cannot be excluded." = "在录制 \"全屏画面\" 或 \"屏幕区域\" 的时候将不会录制这些 App 的画面\n但如果列表中的 App 在录屏开始后才被启动, 则无法被排除在录制画面之外.";
-"Exclude Files on Desktop" = "隐藏桌面上的文件";
+"Exclude Files on Desktop" = "隐藏桌面文件图标";
 "Recording with Alpha Channel" = "在输出中包含 Alpha 通道";
 "Delay Before Recording" = "开始录制前倒数 (秒)";
 "s" = "秒";

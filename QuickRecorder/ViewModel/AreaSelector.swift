@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ScreenCaptureKit
+import Quartz
 
 struct DashWindow: View {
     var body: some View {
@@ -78,6 +79,7 @@ struct AreaSelector: View {
     @State private var isPopoverShowing = false
     @State private var resizePopoverShowing = false
     @State private var autoStop = 0
+    @State private var nsWindow: NSWindow?
     
     var screen: SCDisplay!
     var appDelegate = AppDelegate.shared
@@ -90,7 +92,8 @@ struct AreaSelector: View {
                 HStack(spacing: 6) {
                     Spacer()
                     Button(action: {
-                        for w in NSApp.windows.filter({$0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+                        nsWindow?.close()
+                        for w in NSApp.windows.filter({$0.title == "Area Selector".local }) { w.close() }
                         appDelegate.stopGlobalMouseMonitor()
                         WindowHighlighter.shared.registerMouseMonitor(mode: 2)
                     }, label: {
@@ -182,8 +185,13 @@ struct AreaSelector: View {
                 }
             }.padding(.horizontal, 10)
             Button(action: {
-                for w in NSApp.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
-                appDelegate.stopGlobalMouseMonitor()
+                /*for w in NSApp.windows.filter({ $0.title == "Area Selector".local || $0.title == "Start Recording".local}) { w.close() }
+                if let monitor = keyMonitor {
+                    NSEvent.removeMonitor(monitor)
+                    keyMonitor = nil
+                }
+                appDelegate.stopGlobalMouseMonitor()*/
+                nsWindow?.close()
             }, label: {
                 Image(systemName: "x.circle")
                     .font(.system(size: 12, weight: .bold))
@@ -196,6 +204,16 @@ struct AreaSelector: View {
         }
         .focusable(false)
         .frame(width: 790, height: 90)
+        .background(WindowAccessor(onWindowOpen: { w in nsWindow = w }, onWindowClose: {
+            DispatchQueue.main.async {
+                for w in NSApp.windows.filter({ $0.title == "Area Selector".local }) { w.close() }
+                if let monitor = keyMonitor {
+                    NSEvent.removeMonitor(monitor)
+                    keyMonitor = nil
+                }
+                appDelegate.stopGlobalMouseMonitor()
+            }
+        }))
     }
     
     func startRecording() {
@@ -227,9 +245,13 @@ class ScreenshotOverlayView: NSView {
     @AppStorage("areaWidth") private var areaWidth: Int = 600
     @AppStorage("areaHeight") private var areaHeight: Int = 450
     
-    var selectionRect: NSRect?
+    var selectionRect: NSRect? {
+        didSet {
+            updateMaskLayer()
+            updateSelectionLayer()
+        }
+    }
     var initialLocation: NSPoint?
-    var maskLayer: CALayer?
     var dragIng: Bool = false
     var activeHandle: ResizeHandle = .none
     var lastMouseLocation: NSPoint?
@@ -239,65 +261,111 @@ class ScreenshotOverlayView: NSView {
 
     let controlPointSize: CGFloat = 10.0
     let controlPointColor: NSColor = NSColor.systemYellow
-    
+
+    private var maskLayer: CAShapeLayer?
+    private var selectionLayer: CAShapeLayer?
+    private var controlPointLayers: [CAShapeLayer] = []
+
     init(frame: CGRect, size: NSSize, force: Bool) {
         self.size = size
         self.force = force
         super.init(frame: frame)
+        wantsLayer = true
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        selectionRect = NSRect(x: (self.frame.width - size.width) / 2, y: (self.frame.height - size.height) / 2, width: size.width, height:size.height)
+        selectionRect = NSRect(x: (self.frame.width - size.width) / 2, y: (self.frame.height - size.height) / 2, width: size.width, height: size.height)
         if !force {
             let savedArea = ud.object(forKey: "savedArea") as! [String: [String: CGFloat]]
-            if let name = self.window?.screen?.localizedName { if let area = savedArea[name] {
-                selectionRect = NSRect(x: area["x"]!, y: area["y"]!, width: area["width"]!, height: area["height"]!)
-            }}
+            if let name = self.window?.screen?.localizedName {
+                if let area = savedArea[name] {
+                    selectionRect = NSRect(x: area["x"]!, y: area["y"]!, width: area["width"]!, height: area["height"]!)
+                }
+            }
         }
         if self.window != nil {
             areaWidth = Int(selectionRect!.width)
             areaHeight = Int(selectionRect!.height)
             SCContext.screenArea = selectionRect
         }
+        updateMaskLayer()
+        updateSelectionLayer()
+        setupControlPoints()
     }
-    
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         maxFrame = dirtyRect
-        
-        NSColor.black.withAlphaComponent(0.5).setFill()
-        dirtyRect.fill()
-        
-        // Draw selection rectangle
-        if let rect = selectionRect {
-            let dashPattern: [CGFloat] = [4.0, 4.0]
-            let dashedBorder = NSBezierPath(rect: rect)
-            dashedBorder.lineWidth = 4.0
-            dashedBorder.setLineDash(dashPattern, count: 2, phase: 0.0)
-            NSColor.white.setStroke()
-            dashedBorder.stroke()
-            NSColor.init(white: 1, alpha: 0.01).setFill()
-            __NSRectFill(rect)
-            // Draw control points
-            for handle in ResizeHandle.allCases {
-                if let point = controlPointForHandle(handle, inRect: rect) {
-                    let controlPointRect = NSRect(origin: point, size: CGSize(width: controlPointSize, height: controlPointSize))
-                    let controlPointPath = NSBezierPath(ovalIn: controlPointRect)
-                    controlPointColor.setFill()
-                    controlPointPath.fill()
-                }
-            }
+    }
+
+     private func updateMaskLayer() {
+        maskLayer?.removeFromSuperlayer()
+
+        guard let rect = selectionRect else { return }
+         
+         let path = CGMutablePath()
+         path.addRect(bounds)
+         path.addRect(rect)
+
+         let mask = CAShapeLayer()
+         mask.path = path
+         mask.fillRule = .evenOdd
+         mask.fillColor = NSColor.black.withAlphaComponent(0.5).cgColor
+         self.layer?.addSublayer(mask)
+         maskLayer = mask
+     }
+
+
+    private func updateSelectionLayer() {
+        selectionLayer?.removeFromSuperlayer()
+        controlPointLayers.forEach{
+           $0.removeFromSuperlayer()
         }
+        controlPointLayers.removeAll()
+        
+        guard let rect = selectionRect else { return }
+    
+        let path = CGPath(rect: rect, transform: nil)
+    
+        let shapeLayer = CAShapeLayer()
+        shapeLayer.path = path
+        shapeLayer.fillColor = NSColor.init(white: 1, alpha: 0.01).cgColor
+        shapeLayer.strokeColor = NSColor.white.cgColor
+        shapeLayer.lineWidth = 4.0
+        shapeLayer.lineDashPattern = [4,4]
+    
+        self.layer?.addSublayer(shapeLayer)
+        self.selectionLayer = shapeLayer
+    
+        setupControlPoints()
     }
     
+    private func setupControlPoints() {
+      guard let rect = selectionRect else { return }
+        
+      for handle in ResizeHandle.allCases {
+        if let point = controlPointForHandle(handle, inRect: rect) {
+             let controlPointRect = NSRect(origin: point, size: CGSize(width: controlPointSize, height: controlPointSize))
+              let controlPointPath = CGPath(ellipseIn: controlPointRect, transform: nil)
+              
+              let controlLayer = CAShapeLayer()
+              controlLayer.path = controlPointPath
+              controlLayer.fillColor = controlPointColor.cgColor
+            
+             layer?.addSublayer(controlLayer)
+             controlPointLayers.append(controlLayer)
+        }
+      }
+    }
+
     func handleForPoint(_ point: NSPoint) -> ResizeHandle {
         guard let rect = selectionRect else { return .none }
-        
+
         for handle in ResizeHandle.allCases {
             if let controlPoint = controlPointForHandle(handle, inRect: rect), NSRect(origin: controlPoint, size: CGSize(width: controlPointSize, height: controlPointSize)).contains(point) {
                 return handle
@@ -305,7 +373,7 @@ class ScreenshotOverlayView: NSView {
         }
         return .none
     }
-    
+
     func controlPointForHandle(_ handle: ResizeHandle, inRect rect: NSRect) -> NSPoint? {
         switch handle {
         case .topLeft:
@@ -328,28 +396,27 @@ class ScreenshotOverlayView: NSView {
             return nil
         }
     }
-    
+
     override func mouseDown(with event: NSEvent) {
         let location = convert(event.locationInWindow, from: nil)
         initialLocation = location
         lastMouseLocation = location
         activeHandle = handleForPoint(location)
         if let rect = selectionRect, NSPointInRect(location, rect) { dragIng = true }
-        needsDisplay = true
         AppDelegate.shared.isResizing = true
     }
-    
+
     override func mouseDragged(with event: NSEvent) {
         guard var initialLocation = initialLocation else { return }
         let currentLocation = convert(event.locationInWindow, from: nil)
         if activeHandle != .none {
-            
+
             // Calculate new rectangle size and position
             var newRect = selectionRect ?? CGRect.zero
-            
+
             // Get last mouse location
             let lastLocation = lastMouseLocation ?? currentLocation
-            
+
             let deltaX = currentLocation.x - lastLocation.x
             let deltaY = currentLocation.y - lastLocation.y
 
@@ -394,7 +461,7 @@ class ScreenshotOverlayView: NSView {
                 // 计算移动偏移量
                 let deltaX = currentLocation.x - initialLocation.x
                 let deltaY = currentLocation.y - initialLocation.y
-                
+
                 // 更新矩形位置
                 let x = self.selectionRect?.origin.x
                 let y = self.selectionRect?.origin.y
@@ -421,9 +488,8 @@ class ScreenshotOverlayView: NSView {
             self.initialLocation = initialLocation
         }
         lastMouseLocation = currentLocation
-        needsDisplay = true
     }
-    
+
     override func mouseUp(with event: NSEvent) {
         initialLocation = nil
         activeHandle = .none
@@ -431,8 +497,6 @@ class ScreenshotOverlayView: NSView {
         AppDelegate.shared.isResizing = false
         if let rect = selectionRect {
             SCContext.screenArea = rect
-            //let rectArray = [Int(rect.origin.x), Int(rect.origin.y), Int(rect.size.width), Int(rect.size.height)]
-            //ud.setValue(rectArray, forKey: "screenArea")
         }
     }
 }
@@ -450,7 +514,7 @@ class ScreenshotWindow: NSPanel {
         self.isReleasedWhenClosed = false
         self.contentView = overlayView
         
-        if let monitor = keyMonitor { NSEvent.removeMonitor(monitor) }
+        if keyMonitor != nil { return }
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: NSEvent.EventTypeMask.keyDown, handler: myKeyDownEvent)
     }
     
@@ -463,6 +527,10 @@ class ScreenshotWindow: NSPanel {
             self.close()
             for w in NSApp.windows.filter({ $0.title == "Start Recording".local }) { w.close() }
             AppDelegate.shared.stopGlobalMouseMonitor()
+            if let monitor = keyMonitor {
+                NSEvent.removeMonitor(monitor)
+                keyMonitor = nil
+            }
             return nil
         }
         return event

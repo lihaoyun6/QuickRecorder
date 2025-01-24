@@ -21,7 +21,7 @@ struct StatusBarItem: View {
     @StateObject private var popoverState = PopoverState.shared
     //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
-    @AppStorage("highlightMouse") private var highlightMouse: Bool = false
+    //@AppStorage("highlightMouse") private var highlightMouse: Bool = false
     private var appDelegate = AppDelegate.shared
     
     var body: some View {
@@ -77,14 +77,7 @@ struct StatusBarItem: View {
                                             .opacity(deviceWindowIsShowing ? 1 : 0.7)
                                     }).buttonStyle(.plain)
                                 }
-                            } else {
-                                Text(recordingLength)
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 15).monospaced())
-                                    .offset(x: 0.5)
-                            }
-                            if SCContext.streamType != .systemaudio {
-                                if SCContext.streamType != .idevice {
+                                if SCContext.streamType != .systemaudio && SCContext.streamType != .idevice && SCContext.streamType != .window {
                                     Button(action:{
                                         popoverState.isShowing = true
                                     }, label: {
@@ -92,12 +85,13 @@ struct StatusBarItem: View {
                                             .font(.system(size: 16))
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)
-                                    })
-                                    .buttonStyle(.plain)
-                                    .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
-                                        CameraPopoverView(closePopover: { popoverState.isShowing = false })
-                                    }
+                                    }).buttonStyle(.plain)
                                 }
+                            } else {
+                                Text(recordingLength)
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 15).monospaced())
+                                    .offset(x: 0.5)
                             }
                         } else {
                             Group {
@@ -139,6 +133,9 @@ struct StatusBarItem: View {
                     }
                 }
                 .padding([.leading,.trailing], 4)
+                .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
+                    CameraPopoverView(closePopover: { popoverState.isShowing = false })
+                }
                 .onReceive(updateTimer) { t in
                     recordingLength = SCContext.getRecordingLength()
                     let timePassed = Date.now.timeIntervalSince(SCContext.startTime ?? t)
@@ -171,11 +168,7 @@ struct StatusBarItem: View {
                                     Image("camera")
                                         .foregroundStyle(.white)
                                 }.frame(width: 36).padding([.leading,.trailing], 4)
-                            })
-                            .buttonStyle(.plain)
-                            .popover(isPresented: $popoverState.isShowing, arrowEdge: .bottom) {
-                                CameraPopoverView(closePopover: { popoverState.isShowing = false })
-                            }
+                            }).buttonStyle(.plain)
                         } else {
                             Button(action:{
                                 DispatchQueue.main.async {
