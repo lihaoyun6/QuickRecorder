@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var infoGlowing = false
     @State private var micGlowing = false
     @State private var isPopoverShowing = false
+    @State private var isPopoverShowing2 = false
     @State private var micList = SCContext.getMicrophone()
     @AppStorage("enableAEC") private var enableAEC: Bool = false
     @AppStorage("recordMic") private var recordMic: Bool = false
@@ -195,15 +196,26 @@ struct ContentView: View {
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow").cornerRadius(8)
                     }).buttonStyle(.plain)
+                    /*Divider().frame(height: 70)
+                    Button(action: {
+                        isPopoverShowing2 = true
+                    }, label: {
+                        SelectorView(title: "Camera".local, symbol: "camera").cornerRadius(8)
+                    })
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $isPopoverShowing2, arrowEdge: .bottom) {
+                        CameraPopoverView(closePopover: { isPopoverShowing2 = false })
+                    }*/
                     Divider().frame(height: 70)
                     Button(action: {
                         isPopoverShowing = true
                     }, label: {
                         SelectorView(title: "Mobile Device".local, symbol: "apps.ipad").cornerRadius(8)
-                    }).buttonStyle(.plain)
-                        .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
-                            iDevicePopoverView(closePopover: { isPopoverShowing = false })
-                        }
+                    })
+                    .buttonStyle(.plain)
+                    .popover(isPresented: $isPopoverShowing, arrowEdge: .bottom) {
+                        iDevicePopoverView(closePopover: { isPopoverShowing = false })
+                    }
                     Divider().frame(height: 70)
                     Button(action: {
                         closeMainWindow()
@@ -238,31 +250,6 @@ struct ContentView: View {
                 .padding([.horizontal, .top], 7)
             }
         }.focusable(false)
-    }
-    
-    struct FlakeView: View {
-        var emoji: String
-        var width: CGFloat = 1100
-        @State private var opacity: CGFloat = Double.random(in: 0.1...0.9)
-        @State private var flakeYPosition: CGFloat = -30
-        @State private var flakeXPosition: CGFloat = CGFloat.random(in: 0...1050)
-        private let flakeSize: CGFloat = CGFloat.random(in: 12...30)
-        private let animationDuration: Double = Double.random(in: 4...12)
-
-        var body: some View {
-            Text(emoji)
-                .font(.system(size: flakeSize))
-                .opacity(opacity)
-                .rotationEffect(Angle(degrees: Double.random(in: 0...359)))
-                .position(x: flakeXPosition, y: flakeYPosition)
-                .onAppear {
-                    withAnimation(Animation.linear(duration: animationDuration).repeatForever(autoreverses: false)) {
-                        opacity -= 0.5
-                        flakeYPosition = 130
-                        flakeXPosition += CGFloat.random(in: -70...70)
-                    }
-                }
-        }
     }
 }
 

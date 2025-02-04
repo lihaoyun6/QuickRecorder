@@ -147,6 +147,7 @@ struct VideoTrimmerView: View {
         }
         .padding(.top, -22)
         .background(WindowAccessor(onWindowOpen: { window in
+            window?.styleMask.insert(.resizable)
             playerViewModel.nsWindow = window
             SCContext.trimingList.append(videoURL)
         }, onWindowClose: {

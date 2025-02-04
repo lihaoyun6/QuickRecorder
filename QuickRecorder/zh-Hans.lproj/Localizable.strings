@@ -11,6 +11,7 @@
 "Screen" = "录制全屏画面";
 "Application" = "录制应用程序";
 "Window" = "录制窗口内容";
+//"Camera" = "录制摄像头";
 "Mobile Device" = "录制移动设备";
 "Preferences" = "偏好设置";
 "No Title" = "无标题";

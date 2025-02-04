@@ -355,8 +355,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
             let w1 = NSApp.windows.filter({ !$0.title.contains("Item-0") && !$0.title.isEmpty && $0.isVisible })
             let w2 = w1.filter({ !$0.title.contains(".qma") })
             if (!w1.isEmpty && w2.isEmpty) || w1.isEmpty {
-                let offset = (!showOnDock && !showMenubar) ? 128 : 0
-                let width = isMacOS12 ? 800 : 927
+                let offset = (!showOnDock && !showMenubar) ? 127 : 0
+                let width = isMacOS12 ? 800 : 928
                 let mainPanel = EscPanel(contentRect: NSRect(x: 0, y: 0, width: width + offset, height: 100), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
                 mainPanel.contentView = NSHostingView(rootView: ContentView())
                 mainPanel.title = "QuickRecorder".local

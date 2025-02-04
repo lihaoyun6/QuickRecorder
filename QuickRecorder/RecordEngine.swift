@@ -178,8 +178,9 @@ extension AppDelegate {
             conf.showsCursor = showMouse || fastStart
             if background.rawValue != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if !recordHDR {
+                conf.pixelFormat = kCVPixelFormatType_32BGRA
                 conf.colorSpaceName = CGColorSpace.sRGB
-                if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+                //if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
             }
         }
         
@@ -311,7 +312,7 @@ extension AppDelegate {
             default: qualityMultiplier = 1.0
         }
         let h264Level = AVVideoProfileLevelH264HighAutoLevel
-        let h265Level = kVTProfileLevel_HEVC_Main_AutoLevel as String
+        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
         let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((withAlpha && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
@@ -329,7 +330,7 @@ extension AppDelegate {
             videoSettings[AVVideoColorPropertiesKey] = [
                 AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
                 AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
-                AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2 ] as [String : Any]
+                AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2] as [String : Any]
         }
         
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)

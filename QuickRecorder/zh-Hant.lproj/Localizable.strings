@@ -11,6 +11,7 @@
 "Screen" = "錄製整個螢幕";
 "Application" = "錄製應用程式";
 "Window" = "錄製視窗內容";
+//"Camera" = "網路攝影機";
 "Mobile Device" = "錄製行動裝置";
 "Preferences" = "偏好設定";
 "No Title" = "無標題";
