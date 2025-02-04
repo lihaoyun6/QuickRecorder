@@ -3,6 +3,30 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.5</title>
+            <pubDate>Wed, 05 Feb 2025 00:20:51 +0800</pubDate>
+            <sparkle:version>165</sparkle:version>
+            <sparkle:shortVersionString>1.6.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了录屏颜色与 HDR 色彩深度</li>
+                <li>视频修剪器窗口支持缩放大小</li>
+                <li><b style="color: orange">😢近日意外摔伤导致手臂骨折, 治疗花费两万余元. 如有朋友愿意献出点滴爱心, 本人感激不尽!</b></li>
+                </ul><ul>
+                <li>Fixed video color and HDR bit depth.</li>
+                <li>The video trimmer window is now resizable.</li>
+                <li><b style="color: orange">I broke my arm accidentally, so this update is done with one hand only. And the hospital billed me about $3000, is there anyone willing to give me a little help?😢</b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.5/QuickRecorder_v1.6.5.dmg" length="4612475" type="application/octet-stream" sparkle:edSignature="yb82dbHbtWyLawI71apsDX9B1LiO0kU4bcNhTl+jsTD6kBRGgd6mdajnSU+MccMX1pwycOAJ5d6Lzh1uqYLYBg=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.5/Update165-164.delta" sparkle:deltaFrom="164" length="235570" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="/X4DPMj1bd0AhxMgRC4oWLcWgUckoo/cBCvX67BRczaE9xZFQfSmQxPZ58UnHKb8+DTLa677CSf+duNtlJm3Dg=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.5/Update165-163.delta" sparkle:deltaFrom="163" length="498778" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="OD9n/flpDT3va/cFTsQjy1mJYvjNCRdXwgpcx0yAu9vgdLLEY911VgSwl0wR/H3bd04T044cm/SDDvN8T945Ag=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.5/Update165-162.delta" sparkle:deltaFrom="162" length="553258" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="51hYI6hiso55u36Kr7sUvJ0HBNU8T+oLv+Cuo3QWNWnPCKtTnRhxJSOob58Eja27Eun7X4ymjYgwz/6DlPpUBQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.4</title>
             <pubDate>Sat, 25 Jan 2025 01:49:16 +0800</pubDate>
             <sparkle:version>164</sparkle:version>
