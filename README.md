@@ -2,7 +2,7 @@
 <p align="center">
 <img src="./QuickRecorder/Assets.xcassets/AppIcon.appiconset/icon_128x128@2x.png" width="200" height="200" />
 <h1 align="center">QuickRecorder</h1>
-<h3 align="center">A lightweight and high-performance screen recorder for macOS<br><a href="./README_zh.md">[中文版本]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[Landing Page]</a>
+<h3 align="center">A lightweight and high-performance screen recorder for macOS<br><a href="./README_zh.md">[中文版本]</a><br><a href="./README_ja.md">[日本語版]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[Landing Page]</a>
 </p>
 
 ## Screenshot
