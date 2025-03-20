@@ -25,6 +25,13 @@ Download the latest installation file [here](../../releases/latest) or install v
 brew install lihaoyun6/tap/quickrecorder
 ```
 
+> [!NOTE]
+> This app has not yet been notarized by Apple.
+> By default, macOS will show a warning and refuse to open QuickRecorder.
+> To run the software anyway, follow [Apple's guide](https://support.apple.com/en-us/102445#openanyway) to bypassing these protections.
+>
+> [Donate](#Donate) to help this project get notarized!
+
 ### Features/Usage:
 - You can use QuickRecorder to record your screens / windows / applications / mobile devices... etc.
 
