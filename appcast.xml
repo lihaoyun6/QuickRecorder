@@ -3,6 +3,34 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.6</title>
+            <pubDate>Tue, 29 Apr 2025 14:52:47 +0800</pubDate>
+            <sparkle:version>166</sparkle:version>
+            <sparkle:shortVersionString>1.6.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了录制高分辨率 H.264 视频时的 CPU 占用问题</li>
+                <li>修复了"录制窗口范围"功能与多显示器的兼容性</li>
+                <li>修复了无法录制透明桌面背景的问题</li>
+                <li>修复了其他已知的 bug</li>
+                <li><b style="color: orange">感谢大家的爱心❤️骨折手术很成功, 目前正在稳步康复中!</b></li>
+                </ul><ul>
+                <li>"Recording Window Area" now works in multi-screen environments.</li>
+                <li>Fixed: High CPU usage when recording high resolution H.264 video.</li>
+                <li>Fixed: Unable to record transparent desktop background.</li>
+                <li>Fixed other known issues.</li>
+                <li><b style="color: orange">Thank you for your donation, my arm is healing and I can touch my nose again😆</b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.6/QuickRecorder_v1.6.6.dmg" length="4667894" type="application/octet-stream" sparkle:edSignature="A8Xp5+aeF67obDpK+gmezjiFqqrSZoEhdTyYa3FjNpgWIM3k0gBld+qT4mv3Oemz5uRXnX6DOmVzcjg5WUyyCA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.6/Update166-165.delta" sparkle:deltaFrom="165" length="550574" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="YwzRNCxUDCPpc2tcBTj7q2E6Ro5G+EdMmtlioKVPxEzyNDFAJSWxelm1T9UFdlm4aRE7P2I0N9z9kHchFqYWCA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.6/Update166-164.delta" sparkle:deltaFrom="164" length="561194" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="aasJViad3v92Mh8oG+gTm4IT7vDChuNjal239JxY3W2aRz9JV7AmfHWX8trNjD6XajSUY48IQjiJlIdTjC0mDw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.6/Update166-163.delta" sparkle:deltaFrom="163" length="619638" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="QImDo4slw1dZSFhQqqeHmjJ8NRTG+3ymRrLF3xRdbWHDaPt2ua38WgoEH9ovIStfNrjUcOtmYUXGZkSw7r1tBA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.5</title>
             <pubDate>Wed, 05 Feb 2025 00:20:51 +0800</pubDate>
             <sparkle:version>165</sparkle:version>
