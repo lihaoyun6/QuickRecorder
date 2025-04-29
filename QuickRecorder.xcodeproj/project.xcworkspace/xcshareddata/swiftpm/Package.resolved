@@ -1,5 +1,5 @@
 {
-  "originHash" : "0f878abe53bbbdf062a4d3cca15cfa8ef45688fb494b96acec807209ad7e0f36",
+  "originHash" : "a89f15c8917c69baa61d735aebe94d657281ac2cd56f20025c83a6956b56bdb3",
   "pins" : [
     {
       "identity" : "aecaudiostream",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sindresorhus/KeyboardShortcuts.git",
       "state" : {
-        "revision" : "09e4a10ed6b65b3a40fe07b6bf0c84809313efc4",
-        "version" : "2.0.0"
+        "revision" : "7ecc38bb6edf7d087d30e737057b8d8a9b7f51eb",
+        "version" : "2.2.4"
       }
     },
     {
@@ -25,7 +25,7 @@
       "location" : "https://github.com/lihaoyun6/MatrixColorSelector.git",
       "state" : {
         "branch" : "main",
-        "revision" : "1f68adbfd1c3f876d3cf3ba0600adeb08621cb88"
+        "revision" : "0853e68c0c9b205ffe6a963f2a56b26e6ceca51a"
       }
     },
     {

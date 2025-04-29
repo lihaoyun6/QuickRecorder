@@ -5,6 +5,6 @@
   Created by apple on 2024/4/28.
   
 */
-"NSMicrophoneUsageDescription" = "QuickRecorder 需要使用此权限以在录制屏幕画面的同时记录麦克风声音.";
-"NSCameraUsageDescription" = "QuickRecorder 需要使用此权限以在录制屏幕画面的同时叠加摄像头画面.";
+"NSMicrophoneUsageDescription" = "QuickRecorder 需要使用此权限以录制来自麦克风的声音.";
+"NSCameraUsageDescription" = "QuickRecorder 需要使用此权限以录制来自摄像头或移动设备的画面.";
 "NSHumanReadableCopyright" = "版权所有 © 2024 lihaoyun6. 保留所有权利.";

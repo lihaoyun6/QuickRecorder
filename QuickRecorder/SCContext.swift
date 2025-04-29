@@ -207,7 +207,7 @@ class SCContext {
     }
     
     static func getBackgroundColor() -> CGColor {
-        let color = ud.string(forKey: "background")
+        guard let color = ud.string(forKey: "background") else { return CGColor.black  }
         if color == BackgroundType.wallpaper.rawValue { return CGColor.black }
         switch color {
             case "clear": backgroundColor = CGColor.clear
@@ -250,6 +250,26 @@ class SCContext {
                 NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
             }
             NSApp.terminate(self)
+        }
+    }
+    
+    static func requestCameraPermission() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized, .restricted, .notDetermined:
+            break
+        case .denied:
+            DispatchQueue.main.async {
+                let alert = createAlert(title: "Permission Required",
+                                                           message: "QuickRecorder needs this permission to record your camera or mobile device.",
+                                                           button1: "Open Settings",
+                                                           button2: "Cancel")
+                if alert.runModal() == .alertFirstButtonReturn {
+                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera")!)
+                }
+            }
+        @unknown default:
+            break
         }
     }
     

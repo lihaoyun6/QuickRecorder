@@ -5,6 +5,6 @@
   Created by apple on 2024/4/28.
   
 */
-"NSMicrophoneUsageDescription" = "QuickRecorder 需要此權限以在錄製螢幕畫面的同時記錄麥克風聲音.";
-"NSCameraUsageDescription" = "QuickRecorder 需要此權限以在錄製螢幕畫面的同時疊加攝像頭畫面.";
+"NSMicrophoneUsageDescription" = "QuickRecorder 需要此權限以錄製來自麥克風的聲音.";
+"NSCameraUsageDescription" = "QuickRecorder 需要此權限以錄製來自攝像頭或行動裝置的畫面.";
 "NSHumanReadableCopyright" = "版權所有 © 2024 lihaoyun6. 保留所有權利.";

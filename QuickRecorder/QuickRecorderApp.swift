@@ -496,6 +496,20 @@ func createAlert(level: NSAlert.Style = .warning, title: String, message: String
     return alert
 }
 
+func showAlertSyncOnMainThread(level: NSAlert.Style = .warning, title: String, message: String, button1: String, button2: String = "", width: Int? = nil) -> NSApplication.ModalResponse {
+    var response: NSApplication.ModalResponse = .abort
+    let semaphore = DispatchSemaphore(value: 0)
+    
+    DispatchQueue.main.async {
+        let alert = createAlert(level: level, title: title, message: message, button1: button1, button2: button2, width: width)
+        response = alert.runModal()
+        semaphore.signal()
+    }
+    
+    semaphore.wait()
+    return response
+}
+
 extension Bundle {
     var appName: String {
         let appName = self.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String

@@ -76,6 +76,8 @@ struct ContentView: View {
                                     }
                                     .buttonStyle(.plain)
                                     .onChange(of: recordMic) { _ in  Task { await SCContext.performMicCheck() }}
+                                    .onAppear{ if micList.isEmpty { recordMic = false } }
+                                    .disabled(micList.isEmpty)
                                     if micDevice != "default" && enableAEC && recordMic{
                                         Button {
                                             let alert = createAlert(

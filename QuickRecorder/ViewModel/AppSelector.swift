@@ -327,6 +327,8 @@ struct OptionsView: View {
                         .onChange(of: recordMic) { _ in
                             Task { await SCContext.performMicCheck() }
                         }
+                        .onAppear{ if micList.isEmpty { recordMic = false } }
+                        .disabled(micList.isEmpty)
                         Picker("", selection: $micDevice) {
                             Text("Default".local).tag("default")
                             ForEach(micList, id: \.self) { device in

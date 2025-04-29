@@ -205,6 +205,11 @@
 "Open App Store" = "從 App Store 下載";
 "Hide Control Center Icons" = "隱藏控制中心圖示";
 "Hide the clock, Wi-Fi, bluetooth, volume and other system icons in the menu bar." = "隱藏選單列中的時鐘、Wi-Fi、藍芽和音量等系統圖示.";
+"VideoToolbox H.264 hardware encoder doesn't support the current resolution.\nContinue with a software encoder will significantly increase the CPU usage.\n\nWould you like to use H.265 instead?" = "內建 H.264 硬體編碼器不支援當前解析度\n繼續使用 H.264 編碼錄製將大量佔用CPU\n\n是否改為使用 H.265 編碼進行錄製?";
+"Use H.265" = "錄製 H.265";
+"Continue with H.264" = "繼續使用 H.264";
+"QuickRecorder needs this permission to record your camera or mobile device." = "QuickRecorder 需要此權限以錄製來自攝像頭或行動裝置的畫面.";
+"Select Window Directly" = "直接點選視窗";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

@@ -16,6 +16,7 @@ extension AppDelegate {
         guard let input = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input) else {
             print("Failed to set up camera")
+            SCContext.requestCameraPermission()
             return
         }
         SCContext.captureSession.addInput(input)
@@ -74,6 +75,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
               SCContext.captureSession.canAddOutput(output),
               SCContext.previewSession.canAddOutput(dataOutput) else {
             print("Failed to set up camera or device")
+            SCContext.requestCameraPermission()
             return
         }
         

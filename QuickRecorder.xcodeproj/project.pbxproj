@@ -27,6 +27,7 @@
 		18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */; };
 		18A551FB2D0749C3008FC5F6 /* WindowHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */; };
 		18A551FC2D0749C3008FC5F6 /* Scriptable.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 18A551F02D0749C3008FC5F6 /* Scriptable.sdef */; };
+		18AFF77B2D5F91F800C795A1 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */; };
 		18CEED922D08312C00FBC4BF /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18CEED912D08312C00FBC4BF /* PreviewView.swift */; };
 		18D3BDEB2BCE5DC1006CFFC0 /* QuickRecorderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */; };
 		18D3BDED2BCE5DC1006CFFC0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D3BDEC2BCE5DC1006CFFC0 /* ContentView.swift */; };
@@ -40,7 +41,6 @@
 		18F1A0E22BD3E4C000DB102C /* AreaSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F1A0E12BD3E4C000DB102C /* AreaSelector.swift */; };
 		18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */ = {isa = PBXBuildFile; productRef = 18F40B482BFB988A00F0AC70 /* SwiftLAME */; };
 		18FDFC8E2BDA435F0020E685 /* ScreenMagnifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FDFC8D2BDA435F0020E685 /* ScreenMagnifier.swift */; };
-		18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */; };
 		18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDA92BCF8200003F09BC /* RecordEngine.swift */; };
 		18FEBDAC2BD01E82003F09BC /* WinSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAB2BD01E82003F09BC /* WinSelector.swift */; };
 		18FEBDAE2BD10ED1003F09BC /* ScreenSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAD2BD10ED1003F09BC /* ScreenSelector.swift */; };
@@ -99,8 +99,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */,
-				18FDFC912BDA4DB30020E685 /* KeyboardShortcuts in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
+				18AFF77B2D5F91F800C795A1 /* KeyboardShortcuts in Frameworks */,
 				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
 				185582A62D1D1CC100F0CF47 /* AECAudioStream in Frameworks */,
 			);
@@ -216,11 +216,11 @@
 			);
 			name = QuickRecorder;
 			packageProductDependencies = (
-				18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */,
 				181724042BE3BEA600F5F539 /* Sparkle */,
 				18F40B482BFB988A00F0AC70 /* SwiftLAME */,
 				184506CD2C69213400AFDA45 /* MatrixColorSelector */,
 				185582A52D1D1CC100F0CF47 /* AECAudioStream */,
+				18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */,
 			);
 			productName = QuickRecorder;
 			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
@@ -254,11 +254,11 @@
 			);
 			mainGroup = 18D3BDDE2BCE5DC1006CFFC0;
 			packageReferences = (
-				18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				181724032BE3BEA600F5F539 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */,
 				184506CC2C69213400AFDA45 /* XCRemoteSwiftPackageReference "MatrixColorSelector" */,
 				185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */,
+				18AFF7792D5F91F800C795A1 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 			);
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
@@ -487,7 +487,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 165;
+				CURRENT_PROJECT_VERSION = 166;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -497,15 +497,15 @@
 				INFOPLIST_FILE = QuickRecorder/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera alongside your display's content.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera and mobile device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 lihaoyun6. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your microphone alongside your display's content.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.6.5;
+				MARKETING_VERSION = 1.6.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -521,7 +521,7 @@
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 165;
+				CURRENT_PROJECT_VERSION = 166;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"QuickRecorder/Preview Content\"";
 				DEVELOPMENT_TEAM = L4T783637F;
@@ -531,15 +531,15 @@
 				INFOPLIST_FILE = QuickRecorder/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera alongside your display's content.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "QuickRecorder needs this permission to record your camera and mobile device.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 lihaoyun6. All rights reserved.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your microphone alongside your display's content.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "QuickRecorder needs this permission to record your voice.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
-				MARKETING_VERSION = 1.6.5;
+				MARKETING_VERSION = 1.6.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorder;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -595,20 +595,20 @@
 				kind = branch;
 			};
 		};
+		18AFF7792D5F91F800C795A1 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.4;
+			};
+		};
 		18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hidden-spectrum/SwiftLAME.git";
 			requirement = {
 				kind = revision;
 				revision = e8256a8151594f47f103c742f684253c6c44871d;
-			};
-		};
-		18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -629,15 +629,15 @@
 			package = 185582A42D1D1CC100F0CF47 /* XCRemoteSwiftPackageReference "AECAudioStream" */;
 			productName = AECAudioStream;
 		};
+		18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18AFF7792D5F91F800C795A1 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
 		18F40B482BFB988A00F0AC70 /* SwiftLAME */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 18F40B472BFB988A00F0AC70 /* XCRemoteSwiftPackageReference "SwiftLAME" */;
 			productName = SwiftLAME;
-		};
-		18FDFC902BDA4DB30020E685 /* KeyboardShortcuts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 18FDFC8F2BDA4DB30020E685 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
-			productName = KeyboardShortcuts;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

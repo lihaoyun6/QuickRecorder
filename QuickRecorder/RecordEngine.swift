@@ -63,6 +63,10 @@ extension AppDelegate {
             guard let title = $0.title else { return false }
             return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title != "LPSpringboard" && title != "Dock"
         })
+        let desktop = SCContext.availableContent!.windows.filter({
+            guard let title = $0.title else { return false }
+            return $0.owningApplication?.bundleIdentifier == "" && title == "Desktop"
+        })
         let dockWindow = SCContext.availableContent!.windows.filter({
             guard let title = $0.title else { return true }
             return $0.owningApplication?.bundleIdentifier == "com.apple.dock" && title == "Dock"
@@ -105,7 +109,10 @@ extension AppDelegate {
                 excluded += excliudedApps
                 if hideCCenter { excluded += controlCenterWindow }
                 if hideSelf { if let qrWindows = qrWindows { except += qrWindows }}
-                if background.rawValue != BackgroundType.wallpaper.rawValue { if dockApp != nil { except += wallpaper}}
+                if background.rawValue != BackgroundType.wallpaper.rawValue { if dockApp != nil {
+                    except += wallpaper
+                    except += desktop
+                }}
                 if hideDesktopFiles { except += desktopFiles }
                 SCContext.filter = SCContentFilter(display: screen, excludingApplications: excluded, exceptingWindows: except)
                 if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = ((SCContext.streamType == .screen || SCContext.streamType == .screenarea) && includeMenuBar) }
@@ -204,6 +211,35 @@ extension AppDelegate {
                     conf.width = Int(conf.sourceRect.width) * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
                     conf.height = Int(conf.sourceRect.height) * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
                 }
+            }
+        }
+        
+        let encoderIsH265 = (encoder.rawValue == Encoder.h265.rawValue) || recordHDR
+        if !audioOnly && !encoderIsH265 {
+            var session: VTCompressionSession?
+            let status = VTCompressionSessionCreate(
+                allocator: nil,
+                width: Int32(conf.width),
+                height: Int32(conf.height),
+                codecType: kCMVideoCodecType_H264,
+                encoderSpecification: [kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder as String: true] as CFDictionary,
+                imageBufferAttributes: nil,
+                compressedDataAllocator: nil,
+                outputCallback: nil,
+                refcon: nil,
+                compressionSessionOut: &session
+            )
+            
+            if status != noErr {
+                let button = showAlertSyncOnMainThread(
+                    level: .critical,
+                    title: "Encoder Warning".local,
+                    message: "VideoToolbox H.264 hardware encoder doesn't support the current resolution.\nContinue with a software encoder will significantly increase the CPU usage.\n\nWould you like to use H.265 instead?".local,
+                    button1: "Use H.265".local,
+                    button2: "Continue with H.264".local
+                )
+
+                if button == .alertFirstButtonReturn { self.encoder = .h265 }
             }
         }
         

@@ -189,40 +189,32 @@ class ScreenSelectorViewModel: NSObject, ObservableObject, SCStreamDelegate, SCS
 
     func setupStreams() {
         SCContext.updateAvailableContent {
-            Task { [weak self] in
-                guard let self = self else { return }
-                await self.configureStreams()
+            Task {
+                do {
+                    self.streams.removeAll()
+                    DispatchQueue.main.async { self.screenThumbnails.removeAll() }
+                    guard let screens = SCContext.availableContent?.displays else { return }
+                    self.allScreens = screens
+                    let qrSelf = SCContext.getSelf()
+                    let contentFilters = self.allScreens.map { SCContentFilter(display: $0, excludingApplications: qrSelf != nil ? [qrSelf!] : [], exceptingWindows: []) }
+                    for (index, contentFilter) in contentFilters.enumerated() {
+                        let streamConfiguration = SCStreamConfiguration()
+                        streamConfiguration.width = Int(self.allScreens[index].frame.width)
+                        streamConfiguration.height = Int(self.allScreens[index].frame.height)
+                        streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
+                        streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
+                        if #available(macOS 13, *) { streamConfiguration.capturesAudio = false }
+                        streamConfiguration.showsCursor = false
+                        streamConfiguration.queueDepth = 3
+                        let stream = SCStream(filter: contentFilter, configuration: streamConfiguration, delegate: self)
+                        try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
+                        try await stream.startCapture()
+                        self.streams.append(stream)
+                    }
+                } catch {
+                    print("Get screenshot error：\(error)")
+                }
             }
-        }
-    }
-
-    @MainActor
-    private func configureStreams() async {
-        do {
-            self.streams.removeAll()
-            self.screenThumbnails.removeAll()
-            guard let screens = SCContext.availableContent?.displays else { return }
-            self.allScreens = screens
-            let qrSelf = SCContext.getSelf()
-            let contentFilters = self.allScreens.map {
-                SCContentFilter(display: $0, excludingApplications: qrSelf != nil ? [qrSelf!] : [], exceptingWindows: [])
-            }
-            for (index, contentFilter) in contentFilters.enumerated() {
-                let streamConfiguration = SCStreamConfiguration()
-                streamConfiguration.width = Int(self.allScreens[index].frame.width)
-                streamConfiguration.height = Int(self.allScreens[index].frame.height)
-                streamConfiguration.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(1))
-                streamConfiguration.pixelFormat = kCVPixelFormatType_32BGRA
-                if #available(macOS 13, *) { streamConfiguration.capturesAudio = false }
-                streamConfiguration.showsCursor = false
-                streamConfiguration.queueDepth = 3
-                let stream = SCStream(filter: contentFilter, configuration: streamConfiguration, delegate: self)
-                try stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .main)
-                try await stream.startCapture()
-                self.streams.append(stream)
-            }
-        } catch {
-            print("Get screenshot error：\(error)")
         }
     }
 }

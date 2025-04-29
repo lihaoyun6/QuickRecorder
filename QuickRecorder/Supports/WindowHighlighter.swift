@@ -114,9 +114,9 @@ struct HighlightMask: View {
             var dashWindow = NSWindow()
             guard let screen = display, let nsScreen = display?.nsScreen, var area = window?.frame else { return }
             area = CGRectTransform(cgRect: area)
-            SCContext.screenArea = area
-            let frame = NSRect(x: Int(area.origin.x + nsScreen.frame.minX - 3),
-                               y: Int(area.origin.y + nsScreen.frame.minY - 3),
+            SCContext.screenArea = NSRect(x: area.origin.x - nsScreen.frame.minX, y: area.origin.y - nsScreen.frame.minY, width:area.width, height: area.height)
+            let frame = NSRect(x: Int(area.origin.x - 3),
+                               y: Int(area.origin.y - 3),
                                width: Int(area.width + 6), height: Int(area.height + 6))
             dashWindow = NSWindow(contentRect: frame, styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
             dashWindow.hasShadow = false
