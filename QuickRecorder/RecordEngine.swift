@@ -349,7 +349,12 @@ extension AppDelegate {
         }
         let h264Level = AVVideoProfileLevelH264HighAutoLevel
         let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
-        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
+//        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
+        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier*8
+        print("framerate: \(frameRate)")
+        print("target bitrate: \(targetBitrate/1000000)")
+        // target bitrate: 115.81056 for 3.5K30 High
+
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((withAlpha && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
@@ -358,7 +363,9 @@ extension AppDelegate {
             AVVideoCompressionPropertiesKey: [
                 AVVideoProfileLevelKey: encoderIsH265 ? h265Level : h264Level,
                 AVVideoAverageBitRateKey: max(200000, Int(targetBitrate)),
-                AVVideoExpectedSourceFrameRateKey: frameRate
+                AVVideoExpectedSourceFrameRateKey: frameRate,
+                AVVideoQualityKey: 0.99 //quality 1.0 will overide target average bitrate, but quality is excellent. 3.5K30 is 580 Mbps
+                // 0.99 quality plus 115mbps target bitrate has good quality
             ] as [String : Any]
         ]
         
