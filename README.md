@@ -5,13 +5,30 @@
 <h3 align="center">A lightweight and high-performance screen recorder for macOS<br><a href="./README_zh.md">[中文版本]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[Landing Page]</a>
 </p>
 
-## Updates/Notes by Andrew
+## Updates by Andrew
+
+Improve image quality by targeting ~ 110 mbps for 3.5K30 recording. Image quality increase is significant when recording HDR videos. 
+
+Comparison: Both at Resolution: High, Quality: High
+
+Previous setting 
+
+<img width="412" alt="image" src="https://github.com/user-attachments/assets/08df03f7-3ce8-4a90-b591-13c502c0fd8d" />
+
+New setting
+
+<img width="404" alt="image" src="https://github.com/user-attachments/assets/4370f46d-5aee-47a1-90f3-984266e3a49f" />
+
+
+
+
+## Notes
 
 Grant screen recording permissions to all new builds when building in xcode:
 - in settings > privacy and security , delete previous permissions for QuickRecorder
 - add QuickRecorder in Xcode build folder
 
-
+#
 
 **Original readme continues below**
 
