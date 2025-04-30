@@ -5,6 +5,16 @@
 <h3 align="center">A lightweight and high-performance screen recorder for macOS<br><a href="./README_zh.md">[中文版本]</a><br><a href="https://lihaoyun6.github.io/quickrecorder/">[Landing Page]</a>
 </p>
 
+## Updates/Notes by Andrew
+
+Grant screen recording permissions to all new builds when building in xcode:
+- in settings > privacy and security , delete previous permissions for QuickRecorder
+- add QuickRecorder in Xcode build folder
+
+
+
+**Original readme continues below**
+
 ## Screenshot
 <p align="center">
 <picture>
