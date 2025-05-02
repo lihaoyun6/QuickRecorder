@@ -188,6 +188,9 @@ extension AppDelegate {
                 conf.pixelFormat = kCVPixelFormatType_32BGRA
                 conf.colorSpaceName = CGColorSpace.sRGB
                 //if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+            } else {
+                // For recording HDR in a BT2020 PQ container
+                conf.colorSpaceName = CGColorSpace.itur_2100_PQ
             }
         }
         
