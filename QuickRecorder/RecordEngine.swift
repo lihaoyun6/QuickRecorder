@@ -488,11 +488,38 @@ extension AppDelegate {
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
-        if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
+        if SCContext.saveFrame, let imageBuffer = sampleBuffer.imageBuffer {
             SCContext.saveFrame = false
-            // This part seems to be saving PNG file. TODO change to HDR avif
-            let url = "\(SCContext.getFilePath(capture: true)).png".url
-            sampleBuffer.nsImage?.saveToFile(url)
+            
+            var ciImage = CIImage(cvPixelBuffer: imageBuffer)
+            let url = "\(SCContext.getFilePath(capture: true)).heic".url
+            let context = CIContext()
+
+            // Create the HEIF destination with the correct UTI
+//            if let destination = url? {
+                // Specify format and color space (assuming default settings here)
+//                let format = CIFormat.rgb10
+                let colorSpace = CGColorSpace(name: CGColorSpace.itur_2100_PQ) ?? CGColorSpaceCreateDeviceRGB()
+
+                // let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
+            
+            // Image exposure needs to be increased by one stop to match the original
+             ciImage = ciImage.applyingFilter("CIExposureAdjust", parameters: ["inputEV": 1.0])
+
+            
+            
+
+                
+//                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
+                do{
+                    try context.writeHEIF10Representation(of:ciImage, to:url,colorSpace:colorSpace)
+            //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
+                } catch let error {
+                    // Handle the error case
+                    print("Error: \(error)")
+                }
+//                CGImageDestinationFinalize(destination)
+            
         }
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }

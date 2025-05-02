@@ -59,6 +59,12 @@ Tips for usage: Use 30 FPS if recording desktop, static items.
 Use 60+ when recording anything moving, e.g. videos or games.
 Don't use 30fps setting for 30fps games/videos
 
+
+### HDR Screenshot
+
+- macOS does not support writing AVIF or JXL
+- current approach is to write 10 bit HEIF PQ BT2020, but this is limited to 420 chroma sampling
+
 ### Notes for building
 
 Grant screen recording permissions to all new builds when building in xcode:
