@@ -498,7 +498,7 @@ extension AppDelegate {
             SCContext.saveFrame = false
             
             var ciImage = CIImage(cvPixelBuffer: imageBuffer)
-            let url = "\(SCContext.getFilePath(capture: true)).heic".url
+            let url = "\(SCContext.getFilePath(capture: true)).png".url
             let context = CIContext()
 
             // Create the HEIF destination with the correct UTI
@@ -518,13 +518,25 @@ extension AppDelegate {
                 
 //                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
                 do{
-                    try context.writeHEIF10Representation(of:ciImage,
-                                                          to:url,
-                                                          colorSpace:colorSpace,
-                                                          options: [
-                        kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: 1.0
-                        
-                    ])
+                    // try context.writeHEIF10Representation(of:ciImage,
+                    //                                       to:url,
+                    //                                       colorSpace:colorSpace,
+                    //                                       options: [
+                    //     kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: 1.0
+                    if #available(macOS 14.0, *) {
+                        try context.writePNGRepresentation(of:ciImage,
+                                                           to:url,
+                                                           format: .RGB10,
+                                                           colorSpace:colorSpace
+                        )
+                    } else {
+                        // Fallback on earlier versions
+                        print("RGB10 PNG not supported on this macOS version")
+                        try context.writePNGRepresentation(of:ciImage,
+                                                           to:url,
+                                                           format: .RGBA8,
+                                                           colorSpace:colorSpace)
+                    }
             //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
                 } catch let error {
                     // Handle the error case
