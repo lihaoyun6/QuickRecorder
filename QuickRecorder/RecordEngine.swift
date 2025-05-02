@@ -186,8 +186,14 @@ extension AppDelegate {
                 conf.width = conf.width * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
                 conf.height = conf.height * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
             }
+            
+            if fastStart{
+                conf.showsCursor = false
+            } else{
+                conf.showsCursor = showMouse
+            }
+                    
 
-            conf.showsCursor = showMouse || fastStart
             if background.rawValue != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if !recordHDR {
                 conf.pixelFormat = kCVPixelFormatType_32BGRA
