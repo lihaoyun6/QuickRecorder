@@ -382,7 +382,10 @@ extension AppDelegate {
             default: qualityMultiplier = 1.0
         }
         let h264Level = AVVideoProfileLevelH264HighAutoLevel
-        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
+        // let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main42210_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
+//        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
+        let h265Level = "HEVC_Main44410_AutoLevel"
+        
 //        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
         let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier*8
         print("framerate set in app: \(frameRate)")
