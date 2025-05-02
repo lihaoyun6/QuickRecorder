@@ -235,11 +235,11 @@ struct OptionsView: View {
                         if ![240, 144, 120, 90, 60, 30, 24, 15 ,10].contains(frameRate) {
                             Text("\(frameRate) FPS").tag(frameRate)
                         }
-                        Text("240 FPS").tag(240)
-                        Text("144 FPS").tag(144)
-                        Text("120 FPS").tag(120)
-                        Text("90 FPS").tag(90)
-                        Text("60 FPS").tag(60)
+//                        Text("240+ FPS").tag(240)
+//                        Text("144+ FPS").tag(144)
+                        Text("120+ FPS").tag(120)
+//                        Text("90+ FPS").tag(90)
+                        Text("60+ FPS").tag(60)
                         Text("30 FPS").tag(30)
                         Text("24 FPS").tag(24)
                         Text("15 FPS").tag(15)

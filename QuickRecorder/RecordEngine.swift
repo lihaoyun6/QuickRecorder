@@ -148,6 +148,11 @@ extension AppDelegate {
 #if compiler(>=6.0)
         if recordHDR {
             if #available(macOS 15, *) {
+                // TODO change here. https://developer.apple.com/videos/play/wwdc2024/10088/?time=191
+                // For canonical display, it means you are capturing HDR content that is optimized for sharing with other HDR devices.
+                // hdrLocalDisplay or hdrCanonicalDisplay
+
+
                 conf = SCStreamConfiguration(preset: .captureHDRStreamLocalDisplay)
             } else { conf = SCStreamConfiguration() }
         } else { conf = SCStreamConfiguration() }
@@ -191,6 +196,14 @@ extension AppDelegate {
             } else {
                 // For recording HDR in a BT2020 PQ container
                 conf.colorSpaceName = CGColorSpace.itur_2100_PQ
+//                https://developer.apple.com/videos/play/wwdc2022/10155/ guide on how to record 4k60
+//                streamConfiguration.pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+    
+// Note: 420 encoding causes color bleed at edges, e.g. youtube settings icon with red logo
+                // conf.pixelFormat = kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+//              dont exceed 8 frames  https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/queuedepth
+//                lower queuedepth has more stutter, dont go below 4 https://github.com/nonstrict-hq/ScreenCaptureKit-Recording-example/blob/main/Sources/sckrecording/main.swift
+                conf.queueDepth = 8
             }
         }
         
@@ -200,7 +213,25 @@ extension AppDelegate {
             conf.channelCount = 2
         }
         
-        conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
+
+        //  conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
+         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : (frameRate >= 60 ? 0 : CMTimeScale(frameRate)))
+
+//        CMTimeScale is the denominator in the fraction
+//        conf.minimumFrameInterval = CMTime(seconds: audioOnly ? Double(CMTimeScale.max) : Double(1)/Double(frameRate), preferredTimescale: 10000)
+
+        // note: ScreenCaptureKit only delivers frames when something changes
+        // https://www.reddit.com/r/swift/comments/158n4c9/comment/ju847rm/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+
+        //blog post from the reddit comment https://nonstrict.eu/blog/2023/recording-to-disk-with-screencapturekit/
+
+        //https://github.com/nonstrict-hq/ScreenCaptureKit-Recording-example
+
+        // https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/minimumframeinterval
+        //minimumFrameInterval: Use this value to throttle the rate at which you receive updates. The default value is 0, which indicates that the system uses the maximum supported frame rate.
+
+        print("Frame interval passed to ScreenCaptureKit. (timescale is FPS. 0 means no throttling): \(conf.minimumFrameInterval)")
+        
 
         if SCContext.streamType == .screenarea {
             if let nsRect = SCContext.screenArea {
@@ -354,7 +385,7 @@ extension AppDelegate {
         let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
 //        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
         let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier*8
-        print("framerate: \(frameRate)")
+        print("framerate set in app: \(frameRate)")
         print("target bitrate: \(targetBitrate/1000000)")
         // target bitrate: 115.81056 for 3.5K30 High
 
@@ -456,6 +487,7 @@ extension AppDelegate {
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
+            // This part seems to be saving PNG file. TODO change to HDR avif
             let url = "\(SCContext.getFilePath(capture: true)).png".url
             sampleBuffer.nsImage?.saveToFile(url)
         }
