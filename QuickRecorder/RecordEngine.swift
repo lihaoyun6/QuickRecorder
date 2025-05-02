@@ -512,7 +512,13 @@ extension AppDelegate {
                 
 //                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
                 do{
-                    try context.writeHEIF10Representation(of:ciImage, to:url,colorSpace:colorSpace)
+                    try context.writeHEIF10Representation(of:ciImage,
+                                                          to:url,
+                                                          colorSpace:colorSpace,
+                                                          options: [
+                        kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: 1.0
+                        
+                    ])
             //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
                 } catch let error {
                     // Handle the error case
