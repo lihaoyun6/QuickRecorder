@@ -35,7 +35,7 @@ struct SettingsView: View {
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }.frame(width: 600, height: 512)
+        }.frame(width: 600, height: 512, alignment: .top)
     }
 }
 

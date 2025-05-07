@@ -13,7 +13,7 @@ struct HoverButton<Content: View>: View {
     var action: () -> Void
     @ViewBuilder let label: () -> Content
     @State private var isHovered: Bool = false
-    
+
     var body: some View {
         Button(action: {
             action()
@@ -29,18 +29,19 @@ struct SForm<Content: View>: View {
     var spacing: CGFloat = 30
     var noSpacer: Bool = false
     @ViewBuilder let content: () -> Content
-    
+
     var body: some View {
-        VStack(spacing: spacing) {
-            content()
-            if !noSpacer {
-                Spacer().frame(minHeight: 0)
+        ScrollView {
+            VStack(spacing: spacing) {
+                content()
+                if !noSpacer {
+                    Spacer().frame(minHeight: 0)
+                }
             }
+            .padding(.bottom, noSpacer ? 0 : -spacing)
+            .padding()
+            .frame(maxWidth: .infinity)
         }
-        .padding(.bottom, noSpacer ? 0 : -spacing)
-        .padding()
-        .frame(maxWidth: .infinity)
-        
     }
 }
 
@@ -59,7 +60,7 @@ struct SItem<Content: View>: View {
     var label: LocalizedStringKey? = nil
     var spacing: CGFloat = 8
     @ViewBuilder let content: () -> Content
-    
+
     var body: some View {
         HStack(spacing: spacing) {
             if let label = label { Text(label) }
@@ -80,7 +81,7 @@ struct SSlider: View {
     @Binding var value: Int
     var range: ClosedRange<Double> = 0...100
     var width: CGFloat = .infinity
-    
+
     var body: some View {
         HStack {
             if let label = label {
@@ -101,7 +102,7 @@ struct SSlider: View {
 struct SInfoButton: View {
     var tips: LocalizedStringKey
     @State private var isPresented: Bool = false
-    
+
     var body: some View {
         Button(action: {
             isPresented = true
@@ -130,14 +131,14 @@ struct SButton: View {
     var buttonTitle: LocalizedStringKey
     var tips: LocalizedStringKey?
     var action: () -> Void
-    
+
     init(_ title: LocalizedStringKey, buttonTitle: LocalizedStringKey, tips: LocalizedStringKey? = nil, action: @escaping () -> Void) {
         self.title = title
         self.buttonTitle = buttonTitle
         self.tips = tips
         self.action = action
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
@@ -155,7 +156,7 @@ struct SField: View {
     var tips: LocalizedStringKey?
     @Binding var text: String
     var width: Double
-    
+
     init(_ title: LocalizedStringKey, placeholder:LocalizedStringKey = "", tips: LocalizedStringKey? = nil, text: Binding<String>, width: Double = .infinity) {
         self.title = title
         self.placeholder = placeholder
@@ -163,7 +164,7 @@ struct SField: View {
         self._text = text
         self.width = width
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
@@ -183,7 +184,7 @@ struct SPicker<T: Hashable, Content: View, Style: PickerStyle>: View {
     var style: Style
     var tips: LocalizedStringKey?
     @ViewBuilder let content: () -> Content
-    
+
     init(_ title: LocalizedStringKey, selection: Binding<T>, style: Style = .menu, tips: LocalizedStringKey? = nil, @ViewBuilder content: @escaping () -> Content) {
             self.title = title
             self._selection = selection
@@ -191,7 +192,7 @@ struct SPicker<T: Hashable, Content: View, Style: PickerStyle>: View {
             self.tips = tips
             self.content = content
         }
-    
+
     var body: some View {
         HStack {
             Text(title)
@@ -209,13 +210,13 @@ struct SToggle: View {
     var title: LocalizedStringKey
     @Binding var isOn: Bool
     var tips: LocalizedStringKey?
-    
+
     init(_ title: LocalizedStringKey, isOn: Binding<Bool>, tips: LocalizedStringKey? = nil) {
         self.title = title
         self._isOn = isOn
         self.tips = tips
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
@@ -236,7 +237,7 @@ struct SSteper: View {
     var max: Int
     var width: CGFloat
     var tips: LocalizedStringKey?
-    
+
     init(_ title: LocalizedStringKey, value: Binding<Int>, min: Int = 0, max: Int = 100, width: CGFloat = 45, tips: LocalizedStringKey? = nil) {
         self.title = title
         self._value = value
@@ -245,7 +246,7 @@ struct SSteper: View {
         self.min = min
         self.max = max
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
             Text(title)
