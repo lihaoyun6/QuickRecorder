@@ -13,7 +13,7 @@ import MatrixColorSelector
 
 struct SettingsView: View {
     @State private var selectedItem: String? = "General"
-    
+
     var body: some View {
         NavigationView {
             List(selection: $selectedItem) {
@@ -44,7 +44,7 @@ struct GeneralView: View {
     @AppStorage("poSafeDelay") private var poSafeDelay: Int = 1
     @AppStorage("showOnDock") private var showOnDock: Bool = true
     @AppStorage("showMenubar") private var showMenubar: Bool = false
-    
+
     @State private var launchAtLogin = false
 
     var body: some View {
@@ -106,7 +106,10 @@ struct RecorderView: View {
     @AppStorage("preventSleep")     private var preventSleep: Bool = true
     @AppStorage("showPreview")      private var showPreview: Bool = true
     @AppStorage("hideCCenter")      private var hideCCenter: Bool = false
-    
+    @AppStorage("recordCameraWithScreen") private var recordCameraWithScreen: Bool = false
+    @AppStorage("cameraPosition")   private var cameraPosition: String = "bottomRight"
+    @AppStorage("cameraSize")       private var cameraSize: Int = 20
+
     @State private var userColor: Color = Color.black
 
     var body: some View {
@@ -150,6 +153,21 @@ struct RecorderView: View {
                 SToggle("Highlight the Mouse Cursor", isOn: $highlightMouse, tips: "Not available for \"Single Window Capture\"")
                 SDivider()
                 SToggle("Exclude Files on Desktop", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
+            }
+            SGroupBox(label: "Camera") {
+                SToggle("Record camera during screen recording", isOn: $recordCameraWithScreen, tips: "When enabled, your camera will be recorded as a picture-in-picture overlay in the final video.")
+
+                if recordCameraWithScreen {
+                    SDivider()
+                    SPicker("Camera Position", selection: $cameraPosition) {
+                        Text("Bottom Right").tag("bottomRight")
+                        Text("Bottom Left").tag("bottomLeft")
+                        Text("Top Right").tag("topRight")
+                        Text("Top Left").tag("topLeft")
+                    }
+                    SDivider()
+                    SSteper("Camera Size (%)", value: $cameraSize, min: 10, max: 30, tips: "Size of camera overlay as percentage of screen")
+                }
             }
         }.onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
     }
@@ -234,7 +252,7 @@ struct OutputView: View {
             }
         }
     }
-    
+
     func updateOutputDirectory() { // todo: re-sandbox
         let openPanel = NSOpenPanel()
         openPanel.canChooseFiles = false
@@ -296,7 +314,7 @@ extension UserDefaults {
             removeObject(forKey: key)
             return
         }
-        
+
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: NSColor(color), requiringSecureCoding: false)
             set(data, forKey: key)
@@ -304,7 +322,7 @@ extension UserDefaults {
             print("Error archiving color:", error)
         }
     }
-    
+
     func color(forKey key: String) -> Color? {
         guard let data = data(forKey: key),
               let nsColor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: data) else {
@@ -312,7 +330,7 @@ extension UserDefaults {
         }
         return Color(nsColor)
     }
-    
+
     func cgColor(forKey key: String) -> CGColor? {
         guard let data = data(forKey: key),
               let nsColor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: NSColor.self, from: data) else {

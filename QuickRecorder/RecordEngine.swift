@@ -12,6 +12,8 @@ import AVFoundation
 import AVFAudio
 import VideoToolbox
 import AECAudioStream
+import CoreImage
+import CoreImage.CIFilterBuiltins
 
 extension AppDelegate {
     @objc func prepRecord(type: String, screens: SCDisplay?, windows: [SCWindow]?, applications: [SCRunningApplication]?, fastStart: Bool = false) {
@@ -41,20 +43,20 @@ extension AppDelegate {
                 return
             }
         }
-        
+
         // file preparation
         if let screens = screens {
             SCContext.screen = SCContext.availableContent!.displays.first(where: { $0 == screens })
         } else { SCContext.streamType = nil; return }
-        
+
         if let windows = windows {
             SCContext.window = SCContext.availableContent!.windows.filter({ windows.contains($0) })
         } else { if SCContext.streamType == .window { SCContext.streamType = nil; return } }
-        
+
         if let applications = applications {
             SCContext.application = SCContext.availableContent!.applications.filter({ applications.contains($0) })
         } else { if SCContext.streamType == .application { SCContext.streamType = nil; return } }
-        
+
         let screen = SCContext.screen ?? SCContext.getSCDisplayWithMouse()!
         let qrSelf = SCContext.getSelf()
         let qrWindows = SCContext.getSelfWindows()
@@ -83,7 +85,7 @@ extension AppDelegate {
             appBlackList = (decodedApps as [AppInfo]).map({ $0.bundleID })
         }
         let excliudedApps = SCContext.availableContent!.applications.filter({ appBlackList.contains($0.bundleIdentifier) })
-        
+
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
                 if includ.count > 1 {
@@ -134,16 +136,39 @@ extension AppDelegate {
             SCContext.filter = SCContentFilter(display: screen, excludingApplications: [], exceptingWindows: [])
             prepareAudioRecording()
         }
-        Task { await record(filter: SCContext.filter!, fastStart: fastStart) }
+
+        // Check if camera recording is enabled and a camera is selected
+        if recordCameraWithScreen && SCContext.recordCam != "" && SCContext.streamType != .systemaudio {
+            // Check camera permissions before attempting to use camera
+            checkCameraPermissions { granted in
+                guard granted else {
+                    DispatchQueue.main.async {
+                        SCContext.requestCameraPermission()
+                        // Continue with screen recording without camera
+                        Task { await self.record(filter: SCContext.filter!, fastStart: fastStart) }
+                    }
+                    return
+                }
+
+                // Continue with camera and screen recording
+                DispatchQueue.main.async {
+                    self.setupCameraRecording()
+                    Task { await self.record(filter: SCContext.filter!, fastStart: fastStart) }
+                }
+            }
+        } else {
+            // Continue with screen recording only
+            Task { await record(filter: SCContext.filter!, fastStart: fastStart) }
+        }
     }
 
     func record(filter: SCContentFilter, fastStart: Bool = true) async {
         SCContext.timeOffset = CMTimeMake(value: 0, timescale: 0)
         SCContext.isPaused = false
         SCContext.isResume = false
-        
+
         let audioOnly = SCContext.streamType == .systemaudio
-        
+
         let conf: SCStreamConfiguration
 #if compiler(>=6.0)
         if recordHDR {
@@ -156,7 +181,7 @@ extension AppDelegate {
 #endif
         conf.width = 2
         conf.height = 2
-        
+
         if !audioOnly {
             if #available(macOS 14.0, *) {
                 conf.width = Int(filter.contentRect.width) * (highRes == 2 ? Int(filter.pointPixelScale) : 1)
@@ -190,13 +215,13 @@ extension AppDelegate {
                 //if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
             }
         }
-        
+
         if #available(macOS 13, *) {
             conf.capturesAudio = recordWinSound || fastStart || audioOnly
             conf.sampleRate = 48000
             conf.channelCount = 2
         }
-        
+
         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
 
         if SCContext.streamType == .screenarea {
@@ -213,7 +238,7 @@ extension AppDelegate {
                 }
             }
         }
-        
+
         let encoderIsH265 = (encoder.rawValue == Encoder.h265.rawValue) || recordHDR
         if !audioOnly && !encoderIsH265 {
             var session: VTCompressionSession?
@@ -229,7 +254,7 @@ extension AppDelegate {
                 refcon: nil,
                 compressionSessionOut: &session
             )
-            
+
             if status != noErr {
                 let button = showAlertSyncOnMainThread(
                     level: .critical,
@@ -242,7 +267,7 @@ extension AppDelegate {
                 if button == .alertFirstButtonReturn { self.encoder = .h265 }
             }
         }
-        
+
         SCContext.stream = SCStream(filter: filter, configuration: conf, delegate: self)
         do {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
@@ -284,7 +309,7 @@ extension AppDelegate {
             let jsonString = "{\"format\": \"\(fileEnding)\", \"encoder\": \"\(encorder)\", \"exportMP3\": \(audioFormat.rawValue == AudioFormat.mp3.rawValue), \"sysVol\": 1.0, \"micVol\": 1.0}"
             try? fd.createDirectory(at: SCContext.filePath.url, withIntermediateDirectories: true, attributes: nil)
             try? jsonString.write(to: infoJsonURL, atomically: true, encoding: .utf8)
-            
+
             SCContext.audioFile = try! AVAudioFile(forWriting: SCContext.filePath1.url, settings: SCContext.updateAudioSettings(), commonFormat: .pcmFormatFloat32, interleaved: false)
 
             let sampleRate = SCContext.getSampleRate() ?? 48000
@@ -320,6 +345,87 @@ extension SCDisplay {
 }
 
 extension AppDelegate {
+    private func checkCameraPermissions(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                completion(granted)
+            }
+        case .denied, .restricted:
+            completion(false)
+        @unknown default:
+            completion(false)
+        }
+    }
+
+    private func setupCameraRecording() {
+        // Find the selected camera device
+        let cameras = SCContext.getCameras()
+        guard let selectedCamera = cameras.first(where: { $0.localizedName == SCContext.recordCam }) else {
+            print("Error: Selected camera not found")
+            // Log error and continue without camera
+            return
+        }
+
+        // Store the camera device for later use
+        SCContext.recordDevice = selectedCamera.uniqueID
+
+        // Set up camera capture session
+        configureCameraForRecording(with: selectedCamera)
+    }
+
+    private func configureCameraForRecording(with device: AVCaptureDevice) {
+        // Create a separate capture session for recording
+        let captureSession = AVCaptureSession()
+        captureSession.sessionPreset = .high
+
+        // Try to add camera input
+        do {
+            let input = try AVCaptureDeviceInput(device: device)
+            if captureSession.canAddInput(input) {
+                captureSession.addInput(input)
+            } else {
+                print("Error: Cannot add camera input to session")
+                return
+            }
+
+            // Set up video data output
+            let videoOutput = AVCaptureVideoDataOutput()
+            videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "cameraQueue"))
+            videoOutput.alwaysDiscardsLateVideoFrames = true
+
+            if captureSession.canAddOutput(videoOutput) {
+                captureSession.addOutput(videoOutput)
+            } else {
+                print("Error: Cannot add video output to session")
+                return
+            }
+
+            // Configure video connection
+            if let connection = videoOutput.connection(with: .video) {
+                // Mirror the camera if it's a front-facing camera
+                if device.position == .front {
+                    connection.isVideoMirrored = true
+                }
+
+                // Set video orientation
+                connection.videoOrientation = .portrait
+            }
+
+            // Store the capture session
+            SCContext.cameraRecordingSession = captureSession
+
+            // Start the capture session
+            captureSession.startRunning()
+
+        } catch {
+            print("Error setting up camera: \(error.localizedDescription)")
+        }
+    }
+
     func initVideo(conf: SCStreamConfiguration) {
         SCContext.startTime = nil
 
@@ -361,17 +467,17 @@ extension AppDelegate {
                 AVVideoExpectedSourceFrameRateKey: frameRate
             ] as [String : Any]
         ]
-        
+
         if !recordHDR {
             videoSettings[AVVideoColorPropertiesKey] = [
                 AVVideoTransferFunctionKey: AVVideoTransferFunction_ITU_R_709_2,
                 AVVideoColorPrimariesKey: AVVideoColorPrimaries_ITU_R_709_2,
                 AVVideoYCbCrMatrixKey: AVVideoYCbCrMatrix_ITU_R_709_2] as [String : Any]
         }
-        
+
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
         SCContext.vwInput.expectsMediaDataInRealTime = true
-        
+
         if SCContext.vW.canAdd(SCContext.vwInput) { SCContext.vW.add(SCContext.vwInput) }
 
         if #available(macOS 13, *) {
@@ -383,15 +489,53 @@ extension AppDelegate {
         if recordMic {
             let sampleRate = SCContext.getSampleRate() ?? 48000
             let settings = SCContext.updateAudioSettings(rate: sampleRate)
-            
+
             SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
             if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
             startMicRecording()
         }
+
+        // If camera recording is enabled, set up additional components
+        if recordCameraWithScreen && SCContext.recordCam != "" {
+            setupCameraVideoInput(width: conf.width, height: conf.height)
+        }
+
         SCContext.vW.startWriting()
     }
-    
+
+    private func setupCameraVideoInput(width: Int, height: Int) {
+        // Calculate camera overlay size based on percentage
+        let cameraSizePercent = CGFloat(cameraSize) / 100.0
+
+        // Create a video input for the camera overlay
+        let cameraSettings: [String: Any] = [
+            AVVideoCodecKey: encoder.rawValue == Encoder.h265.rawValue ? AVVideoCodecType.hevc : AVVideoCodecType.h264,
+            AVVideoWidthKey: width,
+            AVVideoHeightKey: height
+        ]
+
+        SCContext.cameraWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: cameraSettings)
+        SCContext.cameraWriterInput?.expectsMediaDataInRealTime = true
+
+        // Create a pixel buffer adaptor for the camera input
+        let pixelAttributes: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32ARGB,
+            kCVPixelBufferWidthKey as String: width,
+            kCVPixelBufferHeightKey as String: height
+        ]
+
+        SCContext.cameraPixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(
+            assetWriterInput: SCContext.cameraWriterInput!,
+            sourcePixelBufferAttributes: pixelAttributes
+        )
+
+        // Add the camera input to the asset writer
+        if SCContext.vW.canAdd(SCContext.cameraWriterInput!) {
+            SCContext.vW.add(SCContext.cameraWriterInput!)
+        }
+    }
+
     func startMicRecording() {
         if micDevice == "default" {
             if enableAEC {
@@ -423,7 +567,7 @@ extension AppDelegate {
             AudioRecorder.shared.start()
         }
     }
-    
+
     func outputVideoEffectDidStart(for stream: SCStream) {
         DispatchQueue.main.async { camWindow.close() }
         print("[Presenter Overlay ON]")
@@ -432,7 +576,7 @@ extension AppDelegate {
             self.isCameraReady = true
         }
     }
-    
+
     func outputVideoEffectDidStop(for stream: SCStream) {
         print("[Presenter Overlay OFF]")
         presenterType = "OFF"
@@ -442,7 +586,109 @@ extension AppDelegate {
             if SCContext.stream != nil { camWindow.orderFront(self) }
         }
     }
-    
+
+    private func processCombinedFrame(screenBuffer: CMSampleBuffer) {
+        guard let screenImage = screenBuffer.imageBuffer,
+              let cameraImage = SCContext.latestCameraFrame,
+              let pixelBufferAdaptor = SCContext.cameraPixelBufferAdaptor,
+              SCContext.cameraWriterInput?.isReadyForMoreMediaData == true else {
+            return
+        }
+
+        // Create a new pixel buffer for the combined frame
+        var combinedBuffer: CVPixelBuffer?
+        let width = CVPixelBufferGetWidth(screenImage)
+        let height = CVPixelBufferGetHeight(screenImage)
+
+        let status = CVPixelBufferCreate(
+            kCFAllocatorDefault,
+            width,
+            height,
+            kCVPixelFormatType_32ARGB,
+            nil,
+            &combinedBuffer
+        )
+
+        guard status == kCVReturnSuccess, let combinedBuffer = combinedBuffer else {
+            print("Error creating pixel buffer")
+            return
+        }
+
+        // Lock the buffers for reading/writing
+        CVPixelBufferLockBaseAddress(screenImage, .readOnly)
+        CVPixelBufferLockBaseAddress(cameraImage, .readOnly)
+        CVPixelBufferLockBaseAddress(combinedBuffer, [])
+
+        // Create a Core Image context
+        let ciContext = CIContext()
+
+        // Create CIImages from the pixel buffers
+        let screenCIImage = CIImage(cvPixelBuffer: screenImage)
+        let cameraCIImage = CIImage(cvPixelBuffer: cameraImage)
+
+        // Calculate camera overlay position and size
+        let cameraSizePercent = CGFloat(cameraSize) / 100.0
+        let cameraWidth = Double(width) * cameraSizePercent
+        let cameraHeight = Double(height) * cameraSizePercent
+
+        // Determine position based on user setting
+        let cameraPosition = cameraPosition
+        var xPosition: CGFloat = 0
+        var yPosition: CGFloat = 0
+
+        switch cameraPosition {
+        case "bottomRight":
+            xPosition = CGFloat(width) - CGFloat(cameraWidth) - 20
+            yPosition = 20
+        case "bottomLeft":
+            xPosition = 20
+            yPosition = 20
+        case "topRight":
+            xPosition = CGFloat(width) - CGFloat(cameraWidth) - 20
+            yPosition = CGFloat(height) - CGFloat(cameraHeight) - 20
+        case "topLeft":
+            xPosition = 20
+            yPosition = CGFloat(height) - CGFloat(cameraHeight) - 20
+        default:
+            xPosition = CGFloat(width) - CGFloat(cameraWidth) - 20
+            yPosition = 20
+        }
+
+        // Scale and position the camera image
+        let scaledCamera = cameraCIImage.transformed(by: CGAffineTransform(scaleX: CGFloat(cameraWidth) / CGFloat(CVPixelBufferGetWidth(cameraImage)),
+                                                                       y: CGFloat(cameraHeight) / CGFloat(CVPixelBufferGetHeight(cameraImage))))
+
+        let translatedCamera = scaledCamera.transformed(by: CGAffineTransform(translationX: xPosition, y: yPosition))
+
+        // Composite the images
+        let compositeFilter = CIFilter.sourceOverCompositing()
+        compositeFilter.inputImage = translatedCamera
+        compositeFilter.backgroundImage = screenCIImage
+
+        // Get the final image
+        guard let outputImage = compositeFilter.outputImage else {
+            // Unlock buffers and return
+            CVPixelBufferUnlockBaseAddress(screenImage, .readOnly)
+            CVPixelBufferUnlockBaseAddress(cameraImage, .readOnly)
+            CVPixelBufferUnlockBaseAddress(combinedBuffer, [])
+            return
+        }
+
+        // Render the output image to the combined buffer
+        ciContext.render(outputImage, to: combinedBuffer)
+
+        // Unlock the buffers
+        CVPixelBufferUnlockBaseAddress(screenImage, .readOnly)
+        CVPixelBufferUnlockBaseAddress(cameraImage, .readOnly)
+        CVPixelBufferUnlockBaseAddress(combinedBuffer, [])
+
+        // Get the presentation time from the screen buffer
+        let presentationTime = CMSampleBufferGetPresentationTimeStamp(screenBuffer)
+
+        // Append the combined buffer to the video
+        pixelBufferAdaptor.append(combinedBuffer, withPresentationTime: presentationTime)
+    }
+
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
             SCContext.saveFrame = false
@@ -452,6 +698,17 @@ extension AppDelegate {
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }
         var SampleBuffer = sampleBuffer
+
+        // If this is a video frame and camera recording is enabled, add camera overlay
+        if outputType == .screen &&
+           recordCameraWithScreen &&
+           SCContext.recordCam != "" &&
+           SCContext.latestCameraFrame != nil &&
+           sampleBuffer.imageBuffer != nil {
+
+            // Process the frame with camera overlay
+            processCombinedFrame(screenBuffer: sampleBuffer)
+        }
         if SCContext.isResume {
             SCContext.isResume = false
             var pts = CMSampleBufferGetPresentationTimeStamp(SampleBuffer)
@@ -472,7 +729,7 @@ extension AppDelegate {
             guard let statusRawValue = attachments[SCStreamFrameInfo.status] as? Int,
                   let status = SCFrameStatus(rawValue: statusRawValue),
                   status == .complete else { return }
-            
+
             if SCContext.vW != nil && SCContext.vW?.status == .writing, SCContext.startTime == nil {
                 SCContext.startTime = Date.now
                 SCContext.vW.startSession(atSourceTime: CMSampleBufferGetPresentationTimeStamp(SampleBuffer))
@@ -553,7 +810,7 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
             print("Unable to access microphone")
             return
         }
-        
+
         // Create audio input
         do {
             audioInput = try AVCaptureDeviceInput(device: audioDevice)
@@ -561,7 +818,7 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
             print("Unable to create audio input: \(error)")
             return
         }
-        
+
         // Add audio input to capture session
         if captureSession.canAddInput(audioInput) {
             captureSession.addInput(audioInput)
@@ -574,7 +831,7 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
         audioDataOutput = AVCaptureAudioDataOutput()
         let audioQueue = DispatchQueue(label: "audioQueue")
         audioDataOutput.setSampleBufferDelegate(self, queue: audioQueue)
-        
+
         // Add audio data output to capture session
         if captureSession.canAddOutput(audioDataOutput) {
             captureSession.addOutput(audioDataOutput)
@@ -583,13 +840,13 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
             return
         }
     }
-    
+
     func start() {
         if let session = captureSession {
             session.startRunning()
         }
     }
-    
+
     func stop() {
         if let session = captureSession {
             if session.isRunning { session.stopRunning() }
@@ -614,7 +871,7 @@ extension CMSampleBuffer {
             return AVAudioPCMBuffer(pcmFormat: format, bufferListNoCopy: audioBufferList.unsafePointer)
         }
     }
-    
+
     var nsImage: NSImage? {
         return autoreleasepool {
             guard let pixelBuffer = CMSampleBufferGetImageBuffer(self) else { return nil }

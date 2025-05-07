@@ -21,9 +21,10 @@ struct StatusBarItem: View {
     @StateObject private var popoverState = PopoverState.shared
     //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
+    @AppStorage("recordCameraWithScreen") private var recordCameraWithScreen: Bool = false
     //@AppStorage("highlightMouse") private var highlightMouse: Bool = false
     private var appDelegate = AppDelegate.shared
-    
+
     var body: some View {
         HStack(spacing: 0) {
             if SCContext.streamType != nil {
@@ -88,10 +89,17 @@ struct StatusBarItem: View {
                                     }).buttonStyle(.plain)
                                 }
                             } else {
-                                Text(recordingLength)
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 15).monospaced())
-                                    .offset(x: 0.5)
+                                HStack(spacing: 4) {
+                                    if recordCameraWithScreen && SCContext.recordCam != "" {
+                                        Image(systemName: "video.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.system(size: 12))
+                                    }
+                                    Text(recordingLength)
+                                        .foregroundStyle(.white)
+                                        .font(.system(size: 15).monospaced())
+                                        .offset(x: 0.5)
+                                }
                             }
                         } else {
                             Group {
@@ -124,10 +132,17 @@ struct StatusBarItem: View {
                                             .frame(width: 16, alignment: .center)
                                     }).buttonStyle(.plain)
                                 }
-                                Text(recordingLength)
-                                    .foregroundStyle(.white)
-                                    .font(.system(size: 15).monospaced())
-                                    .offset(x: 0.5)
+                                HStack(spacing: 4) {
+                                    if recordCameraWithScreen && SCContext.recordCam != "" {
+                                        Image(systemName: "video.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.system(size: 12))
+                                    }
+                                    Text(recordingLength)
+                                        .foregroundStyle(.white)
+                                        .font(.system(size: 15).monospaced())
+                                        .offset(x: 0.5)
+                                }
                             }
                         }
                     }

@@ -12,7 +12,7 @@ import UserNotifications
 extension AppDelegate {
     func recordingCamera(with device: AVCaptureDevice) {
         SCContext.captureSession = AVCaptureSession()
-        
+
         guard let input = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input) else {
             print("Failed to set up camera")
@@ -20,18 +20,18 @@ extension AppDelegate {
             return
         }
         SCContext.captureSession.addInput(input)
-        
+
         let videoOutput = AVCaptureVideoDataOutput()
         videoOutput.setSampleBufferDelegate(self, queue: .global())
-        
+
         if SCContext.captureSession.canAddOutput(videoOutput) {
             SCContext.captureSession.addOutput(videoOutput)
         }
-        
+
         SCContext.captureSession.startRunning()
         DispatchQueue.main.async { self.startCameraOverlayer() }
     }
-    
+
     func closeCamera() {
         if SCContext.isCameraRunning() {
             //SCContext.previewType = nil
@@ -39,8 +39,29 @@ extension AppDelegate {
             SCContext.captureSession.stopRunning()
         }
     }
-    
+
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        // Handle camera frames for recording
+        if recordCameraWithScreen &&
+           SCContext.streamType != nil &&
+           !SCContext.isPaused &&
+           sampleBuffer.isValid {
+
+            // Get the image buffer from the sample buffer
+            guard let imageBuffer = sampleBuffer.imageBuffer else {
+                return
+            }
+
+            // Store the latest camera frame
+            SCContext.latestCameraFrame = imageBuffer
+
+            // Store the presentation time
+            if SCContext.startTime != nil {
+                let currentTime = Date().timeIntervalSince(SCContext.startTime!)
+                SCContext.cameraFrameTime = CMTimeMakeWithSeconds(currentTime, preferredTimescale: 600)
+            }
+        }
+
         /* 保留后续以作他用
         if !SCContext.isPaused && ud.string(forKey: "recordCam") != "" {
             if sampleBuffer.isValid { SCContext.isCameraReady = true }
@@ -54,11 +75,11 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
     var output: AVCaptureMovieFileOutput!
     var dataOutput: AVCaptureVideoDataOutput!
     //var captureSession: AVCaptureSession!
-    
+
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         //print(sampleBuffer.nsImage?.size)
     }
-    
+
     public func startRecording(with device: AVCaptureDevice, mute: Bool = false, preset: AVCaptureSession.Preset = .high, didOutput: Bool = true) {
         output = AVCaptureMovieFileOutput()
         dataOutput = AVCaptureVideoDataOutput()
@@ -67,7 +88,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
         SCContext.previewSession = AVCaptureSession()
         SCContext.captureSession.sessionPreset = preset
         SCContext.previewSession.sessionPreset = preset
-        
+
         guard let input = try? AVCaptureDeviceInput(device: device),
               let preview = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input),
@@ -78,12 +99,12 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             SCContext.requestCameraPermission()
             return
         }
-        
+
         SCContext.captureSession.addInput(input)
         SCContext.captureSession.addOutput(output)
         SCContext.previewSession.addInput(preview)
         SCContext.previewSession.addOutput(dataOutput)
-        
+
         if mute {
             if let audioConnection = output.connection(with: .audio) {
                 SCContext.captureSession.removeConnection(audioConnection)
@@ -95,7 +116,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
                 }*/
             }
         }
-        
+
         if didOutput {
             let encoderIsH265 = ud.string(forKey: "encoder") == Encoder.h265.rawValue
             let videoSettings: [String: Any] = [ AVVideoCodecKey: encoderIsH265 ? AVVideoCodecType.hevc : AVVideoCodecType.h264 ]
@@ -108,7 +129,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             SCContext.streamType = StreamType.idevice
             SCContext.startTime = Date.now
         }
-        
+
         SCContext.previewSession.startRunning()
         DispatchQueue.main.async {
             closeAllWindow(except: "Area Overlayer".local)
@@ -131,7 +152,7 @@ class AVOutputClass: NSObject, AVCaptureFileOutputRecordingDelegate, AVCaptureVi
             }
         }
     }
-    
+
     func closePreview() {
         if SCContext.isCameraRunning() {
             //SCContext.previewType = nil
