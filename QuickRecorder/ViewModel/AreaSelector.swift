@@ -97,7 +97,7 @@ struct AreaSelector: View {
                         appDelegate.stopGlobalMouseMonitor()
                         WindowHighlighter.shared.registerMouseMonitor(mode: 2)
                     }, label: {
-                        VStack{
+                        VStack(spacing:0){
                             ZStack {
                                 Image(systemName: "circle.fill")
                                     .font(.system(size: 36))
@@ -108,7 +108,9 @@ struct AreaSelector: View {
                                     .frame(width: 27)
                                     .offset(y: 0.5)
                                     .blendMode(.destinationOut)
-                            }.compositingGroup()
+                            }
+                            .compositingGroup()
+                            .frame(width: 42, height: 41)
                             Text("Window Area")
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 12))

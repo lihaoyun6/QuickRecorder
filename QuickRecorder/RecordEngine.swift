@@ -393,7 +393,7 @@ extension AppDelegate {
         let h265Level = "HEVC_Main44410_AutoLevel"
         
 //        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
-        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier*8
+        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier * (recordHDR ? 2 : 1)
         print("framerate set in app: \(frameRate)")
         print("target bitrate: \(targetBitrate/1000000)")
         // target bitrate: 115.81056 for 3.5K30 High
@@ -499,24 +499,27 @@ extension AppDelegate {
             
             var ciImage = CIImage(cvPixelBuffer: imageBuffer)
             let url = "\(SCContext.getFilePath(capture: true)).png".url
-            let context = CIContext()
-
-            // Create the HEIF destination with the correct UTI
-//            if let destination = url? {
-                // Specify format and color space (assuming default settings here)
-//                let format = CIFormat.rgb10
-                let colorSpace = CGColorSpace(name: CGColorSpace.itur_2100_PQ) ?? CGColorSpaceCreateDeviceRGB()
-
-                // let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
-            
-            // Image exposure needs to be increased by one stop to match the original
-             ciImage = ciImage.applyingFilter("CIExposureAdjust", parameters: ["inputEV": 1.0])
-
-            
-            
-
+            if !recordHDR {
+                sampleBuffer.nsImage?.saveToFile(url)
+            } else {
+                let context = CIContext()
                 
-//                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
+                // Create the HEIF destination with the correct UTI
+                //            if let destination = url? {
+                // Specify format and color space (assuming default settings here)
+                //                let format = CIFormat.rgb10
+                let colorSpace = CGColorSpace(name: CGColorSpace.itur_2100_PQ) ?? CGColorSpaceCreateDeviceRGB()
+                
+                // let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
+                
+                // Image exposure needs to be increased by one stop to match the original
+                ciImage = ciImage.applyingFilter("CIExposureAdjust", parameters: ["inputEV": 1.0])
+                
+                
+                
+                
+                
+                //                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
                 do{
                     // try context.writeHEIF10Representation(of:ciImage,
                     //                                       to:url,
@@ -537,12 +540,13 @@ extension AppDelegate {
                                                            format: .RGBA8,
                                                            colorSpace:colorSpace)
                     }
-            //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
+                    //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
                 } catch let error {
                     // Handle the error case
                     print("Error: \(error)")
                 }
-//                CGImageDestinationFinalize(destination)
+                //                CGImageDestinationFinalize(destination)
+            }
             
         }
         if SCContext.isPaused { return }
