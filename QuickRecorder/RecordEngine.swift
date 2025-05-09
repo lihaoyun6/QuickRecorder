@@ -148,6 +148,11 @@ extension AppDelegate {
 #if compiler(>=6.0)
         if recordHDR {
             if #available(macOS 15, *) {
+                // TODO change here. https://developer.apple.com/videos/play/wwdc2024/10088/?time=191
+                // For canonical display, it means you are capturing HDR content that is optimized for sharing with other HDR devices.
+                // hdrLocalDisplay or hdrCanonicalDisplay
+
+
                 conf = SCStreamConfiguration(preset: .captureHDRStreamLocalDisplay)
             } else { conf = SCStreamConfiguration() }
         } else { conf = SCStreamConfiguration() }
@@ -181,13 +186,30 @@ extension AppDelegate {
                 conf.width = conf.width * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
                 conf.height = conf.height * (highRes == 2 ? Int(pointPixelScaleOld) : 1)
             }
+            
+            if fastStart{
+                conf.showsCursor = false
+            } else{
+                conf.showsCursor = showMouse
+            }
+                    
 
-            conf.showsCursor = showMouse || fastStart
             if background.rawValue != BackgroundType.wallpaper.rawValue { conf.backgroundColor = SCContext.getBackgroundColor() }
             if !recordHDR {
                 conf.pixelFormat = kCVPixelFormatType_32BGRA
                 conf.colorSpaceName = CGColorSpace.sRGB
                 //if withAlpha { conf.pixelFormat = kCVPixelFormatType_32BGRA }
+            } else {
+                // For recording HDR in a BT2020 PQ container
+                conf.colorSpaceName = CGColorSpace.itur_2100_PQ
+//                https://developer.apple.com/videos/play/wwdc2022/10155/ guide on how to record 4k60
+//                streamConfiguration.pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+    
+// Note: 420 encoding causes color bleed at edges, e.g. youtube settings icon with red logo
+                // conf.pixelFormat = kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+//              dont exceed 8 frames  https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/queuedepth
+//                lower queuedepth has more stutter, dont go below 4 https://github.com/nonstrict-hq/ScreenCaptureKit-Recording-example/blob/main/Sources/sckrecording/main.swift
+                conf.queueDepth = 8
             }
         }
         
@@ -197,7 +219,25 @@ extension AppDelegate {
             conf.channelCount = 2
         }
         
-        conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
+
+        //  conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
+         conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : (frameRate >= 60 ? 0 : CMTimeScale(frameRate)))
+
+//        CMTimeScale is the denominator in the fraction
+//        conf.minimumFrameInterval = CMTime(seconds: audioOnly ? Double(CMTimeScale.max) : Double(1)/Double(frameRate), preferredTimescale: 10000)
+
+        // note: ScreenCaptureKit only delivers frames when something changes
+        // https://www.reddit.com/r/swift/comments/158n4c9/comment/ju847rm/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+
+        //blog post from the reddit comment https://nonstrict.eu/blog/2023/recording-to-disk-with-screencapturekit/
+
+        //https://github.com/nonstrict-hq/ScreenCaptureKit-Recording-example
+
+        // https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/minimumframeinterval
+        //minimumFrameInterval: Use this value to throttle the rate at which you receive updates. The default value is 0, which indicates that the system uses the maximum supported frame rate.
+
+        print("Frame interval passed to ScreenCaptureKit. (timescale is FPS. 0 means no throttling): \(conf.minimumFrameInterval)")
+        
 
         if SCContext.streamType == .screenarea {
             if let nsRect = SCContext.screenArea {
@@ -348,8 +388,16 @@ extension AppDelegate {
             default: qualityMultiplier = 1.0
         }
         let h264Level = AVVideoProfileLevelH264HighAutoLevel
-        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
-        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
+        // let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main42210_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
+//        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
+        let h265Level = "HEVC_Main44410_AutoLevel"
+        
+//        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
+        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier*8
+        print("framerate set in app: \(frameRate)")
+        print("target bitrate: \(targetBitrate/1000000)")
+        // target bitrate: 115.81056 for 3.5K30 High
+
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((withAlpha && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
             // yes, not ideal if we want more than these encoders in the future, but it's ok for now
@@ -358,7 +406,9 @@ extension AppDelegate {
             AVVideoCompressionPropertiesKey: [
                 AVVideoProfileLevelKey: encoderIsH265 ? h265Level : h264Level,
                 AVVideoAverageBitRateKey: max(200000, Int(targetBitrate)),
-                AVVideoExpectedSourceFrameRateKey: frameRate
+                AVVideoExpectedSourceFrameRateKey: frameRate,
+                AVVideoQualityKey: 0.99 //quality 1.0 will overide target average bitrate, but quality is excellent. 3.5K30 is 580 Mbps
+                // 0.99 quality plus 115mbps target bitrate has good quality
             ] as [String : Any]
         ]
         
@@ -444,10 +494,56 @@ extension AppDelegate {
     }
     
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
-        if SCContext.saveFrame && sampleBuffer.imageBuffer != nil {
+        if SCContext.saveFrame, let imageBuffer = sampleBuffer.imageBuffer {
             SCContext.saveFrame = false
+            
+            var ciImage = CIImage(cvPixelBuffer: imageBuffer)
             let url = "\(SCContext.getFilePath(capture: true)).png".url
-            sampleBuffer.nsImage?.saveToFile(url)
+            let context = CIContext()
+
+            // Create the HEIF destination with the correct UTI
+//            if let destination = url? {
+                // Specify format and color space (assuming default settings here)
+//                let format = CIFormat.rgb10
+                let colorSpace = CGColorSpace(name: CGColorSpace.itur_2100_PQ) ?? CGColorSpaceCreateDeviceRGB()
+
+                // let colorSpace = ciImage.colorSpace ?? CGColorSpaceCreateDeviceRGB()
+            
+            // Image exposure needs to be increased by one stop to match the original
+             ciImage = ciImage.applyingFilter("CIExposureAdjust", parameters: ["inputEV": 1.0])
+
+            
+            
+
+                
+//                context.writeHEIF10Representation(of: ciImage, to: destination as! URL, colorSpace: colorSpace)
+                do{
+                    // try context.writeHEIF10Representation(of:ciImage,
+                    //                                       to:url,
+                    //                                       colorSpace:colorSpace,
+                    //                                       options: [
+                    //     kCGImageDestinationLossyCompressionQuality as CIImageRepresentationOption: 1.0
+                    if #available(macOS 14.0, *) {
+                        try context.writePNGRepresentation(of:ciImage,
+                                                           to:url,
+                                                           format: .RGB10,
+                                                           colorSpace:colorSpace
+                        )
+                    } else {
+                        // Fallback on earlier versions
+                        print("RGB10 PNG not supported on this macOS version")
+                        try context.writePNGRepresentation(of:ciImage,
+                                                           to:url,
+                                                           format: .RGBA8,
+                                                           colorSpace:colorSpace)
+                    }
+            //        try context.writePNGRepresentation(of:outImage, to:outURL, format: .RGBA16,colorSpace:colorSpace,options:[:])
+                } catch let error {
+                    // Handle the error case
+                    print("Error: \(error)")
+                }
+//                CGImageDestinationFinalize(destination)
+            
         }
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }
