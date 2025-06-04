@@ -3,6 +3,29 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.7</title>
+            <pubDate>Wed, 04 Jun 2025 17:39:45 +0800</pubDate>
+            <sparkle:version>167</sparkle:version>
+            <sparkle:shortVersionString>1.6.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了使用快捷键暂停时, 菜单栏指示器按钮不变的问题.</li>
+                <li><b style="color: orange">我的免费开发者证书将在6月14日过期, 请收藏此App的<a href="https://lihaoyun6.github.io/airbattery/">主页</a>以随时下载更新</b></li>
+                </ul><ul>
+                <li>Fixed: When pausing via hotkey, the indicator button doesn't change.</li>
+                <li><b style="color: orange">My certificate will expire on June 14, please bookmark this <a href="https://lihaoyun6.github.io/airbattery/">page</a> to download the latest version at any time.
+                </b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.7/QuickRecorder_v1.6.7.dmg" length="4672786" type="application/octet-stream" sparkle:edSignature="VNTubJ1ieurSsywMV2F2dpqqBMCwLc73cmNf/4MZsUizqK0zE4AvliSFX3+CWyrtufyGSC/A1GaH+UzKnXIoAQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.7/Update167-166.delta" sparkle:deltaFrom="166" length="426958" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="GNWdeh2Kjsd8fvndviXSggArPRbeYpIqWrpXS9ruvxFvm5mkb9SPj+xdJFG3jGCriQQ1Y9h1cqIAPax9M1f2Bw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.7/Update167-165.delta" sparkle:deltaFrom="165" length="587246" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="CrCLFeHwFMm6enVRntLnidLJ1xv+Lk+KJB6QkUPUU75Gd4aMa4PaofZGCb+UPkW3ajEZFAVjmHJlQPLuMynlAA=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.7/Update167-164.delta" sparkle:deltaFrom="164" length="599502" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="h3DQHpW3bYuf5VhzOpu1Lx3jTjoaFekz+vheYEJW1oOzqfl4Z2GrTLz8C5lJxgAHBHpwOwS9ROoeZiYgwGmECQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.6</title>
             <pubDate>Tue, 29 Apr 2025 14:52:47 +0800</pubDate>
             <sparkle:version>166</sparkle:version>
