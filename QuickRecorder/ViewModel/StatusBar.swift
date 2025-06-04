@@ -10,6 +10,7 @@ import SwiftUI
 class PopoverState: ObservableObject {
     static let shared = PopoverState()
     @Published var isShowing: Bool = false
+    @Published var isPaused: Bool = false
 }
 
 struct StatusBarItem: View {
@@ -17,7 +18,7 @@ struct StatusBarItem: View {
     @State private var isMainMenuShowing = false
     @State private var isHovering = false
     @State private var recordingLength = "00:00"
-    @State private var isPassed = SCContext.isPaused
+    //@State private var isPassed = SCContext.isPaused
     @StateObject private var popoverState = PopoverState.shared
     //@NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("miniStatusBar") private var miniStatusBar: Bool = false
@@ -56,9 +57,8 @@ struct StatusBarItem: View {
                                 if SCContext.streamType != .idevice {
                                     Button(action: {
                                         SCContext.pauseRecording()
-                                        isPassed = SCContext.isPaused
                                     }, label: {
-                                        Image(systemName: isPassed ? "play.circle.fill" : "pause.circle.fill")
+                                        Image(systemName: popoverState.isPaused ? "play.circle.fill" : "pause.circle.fill")
                                             .font(.system(size: 16))
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)
@@ -116,9 +116,8 @@ struct StatusBarItem: View {
                                 if SCContext.streamType != .idevice {//&& SCContext.streamType != .systemaudio {
                                     Button(action: {
                                         SCContext.pauseRecording()
-                                        isPassed = SCContext.isPaused
                                     }, label: {
-                                        Image(systemName: isPassed ? "play.circle.fill" : "pause.circle.fill")
+                                        Image(systemName: popoverState.isPaused ? "play.circle.fill" : "pause.circle.fill")
                                             .font(.system(size: 16))
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)

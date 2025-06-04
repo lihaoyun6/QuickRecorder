@@ -319,6 +319,7 @@ class SCContext {
     
     static func pauseRecording() {
         isPaused.toggle()
+        PopoverState.shared.isPaused = isPaused
         if !isPaused {
             isResume = true
             startTime = Date.now.addingTimeInterval(-1) - SCContext.timePassed
