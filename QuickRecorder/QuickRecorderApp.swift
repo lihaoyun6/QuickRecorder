@@ -122,7 +122,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     @AppStorage("remuxAudio")       var remuxAudio: Bool = true
     @AppStorage("recordWinSound")   var recordWinSound: Bool = true
     @AppStorage("recordHDR")        var recordHDR: Bool = false
-    @AppStorage("encoder")          var encoder: Encoder = .h264
+    @AppStorage("encoder")          var encoder: Encoder = .h265
     @AppStorage("highRes")          var highRes: Int = 2
     @AppStorage("AECLevel")         var AECLevel: String = "mid"
     @AppStorage("withAlpha")        var withAlpha: Bool = false
@@ -348,6 +348,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         closeAllWindow()
         if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
+        if encoder == .h264 {
+            let button = createAlert(
+                level: .informational,
+                title: Bundle.main.appName + " Tips".local,
+                message: "Would you like to use H.265 format for better video quality and smaller file size?",
+                button1: "Use H.265",
+                button2: "Don't remind me again"
+            ).runModal()
+            if button == .alertFirstButtonReturn { encoder = .h265 }
+        }
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

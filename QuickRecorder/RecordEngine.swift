@@ -273,13 +273,13 @@ extension AppDelegate {
             if status != noErr {
                 let button = showAlertSyncOnMainThread(
                     level: .critical,
-                    title: "Encoder Warning".local,
+                    title: "Encoder Warning",
                     message: "VideoToolbox H.264 hardware encoder doesn't support the current resolution.\nContinue with a software encoder will significantly increase the CPU usage.\n\nWould you like to use H.265 instead?".local,
-                    button1: "Use H.265".local,
-                    button2: "Continue with H.264".local
+                    button1: "Use H.265",
+                    button2: "Continue with H.264"
                 )
 
-                if button == .alertFirstButtonReturn { self.encoder = .h265 }
+                if button == .alertFirstButtonReturn { encoder = .h265 }
             }
         }
         
@@ -388,15 +388,11 @@ extension AppDelegate {
             default: qualityMultiplier = 1.0
         }
         let h264Level = AVVideoProfileLevelH264HighAutoLevel
-        // let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main42210_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
-//        let h265Level = (recordHDR ? kVTProfileLevel_HEVC_Main10_AutoLevel : kVTProfileLevel_HEVC_Main_AutoLevel) as String
         let h265Level = "HEVC_Main44410_AutoLevel"
-        
-//        let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier
+
         let targetBitrate = resolution * fpsMultiplier * encoderMultiplier * qualityMultiplier * (recordHDR ? 2 : 1)
         print("framerate set in app: \(frameRate)")
         print("target bitrate: \(targetBitrate/1000000)")
-        // target bitrate: 115.81056 for 3.5K30 High
 
         var videoSettings: [String: Any] = [
             AVVideoCodecKey: encoderIsH265 ? ((withAlpha && !recordHDR) ? AVVideoCodecType.hevcWithAlpha : AVVideoCodecType.hevc) : AVVideoCodecType.h264,
@@ -407,8 +403,6 @@ extension AppDelegate {
                 AVVideoProfileLevelKey: encoderIsH265 ? h265Level : h264Level,
                 AVVideoAverageBitRateKey: max(200000, Int(targetBitrate)),
                 AVVideoExpectedSourceFrameRateKey: frameRate,
-                AVVideoQualityKey: 0.99 //quality 1.0 will overide target average bitrate, but quality is excellent. 3.5K30 is 580 Mbps
-                // 0.99 quality plus 115mbps target bitrate has good quality
             ] as [String : Any]
         ]
         
@@ -547,7 +541,6 @@ extension AppDelegate {
                 }
                 //                CGImageDestinationFinalize(destination)
             }
-            
         }
         if SCContext.isPaused { return }
         guard sampleBuffer.isValid else { return }

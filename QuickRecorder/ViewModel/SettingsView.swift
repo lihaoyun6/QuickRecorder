@@ -156,7 +156,7 @@ struct RecorderView: View {
 }
 
 struct OutputView: View {
-    @AppStorage("encoder")          private var encoder: Encoder = .h264
+    @AppStorage("encoder")          private var encoder: Encoder = .h265
     @AppStorage("videoFormat")      private var videoFormat: VideoFormat = .mp4
     @AppStorage("audioFormat")      private var audioFormat: AudioFormat = .aac
     @AppStorage("audioQuality")     private var audioQuality: AudioQuality = .high
