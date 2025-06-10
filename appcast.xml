@@ -16,7 +16,7 @@
                 <li>Fixed: Crash during recording.</li>
                 <li><b style="color: red">My certificate will expire on June 14, bookmark this <a href="https://lihaoyun6.github.io/quickrecorder/">page</a> to download QuickRecorder at any time!
                 </b></li>
-                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="280"/>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="270"/>
             ]]></description>
             <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.8/QuickRecorder_v1.6.8.dmg" length="4635571" type="application/octet-stream" sparkle:edSignature="hPQB1x9ZJhheSqpD6n5WZ7bzYQ5DCk7v5anJvjhndZdmNflL1llt0RnRQP2lVKv3iGNh7Ksxgy+qdULNUt1mAw=="/>
             <sparkle:deltas>
