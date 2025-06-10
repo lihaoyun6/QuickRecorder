@@ -3,6 +3,29 @@
     <channel>
         <title>QuickRecorder</title>
         <item>
+            <title>v1.6.8</title>
+            <pubDate>Tue, 10 Jun 2025 15:34:04 +0800</pubDate>
+            <sparkle:version>168</sparkle:version>
+            <sparkle:shortVersionString>1.6.8</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>12.3</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+                <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
+                <li>修复了部分录制场景下 App 闪退的问题.</li>
+                <li><b style="color: red">我的免费开发者证书将在6月14日过期, 请收藏 QuickRecorder 的<a href="https://lihaoyun6.github.io/quickrecorder/">主页</a>以随时下载最新版本!</b></li>
+                </ul><ul>
+                <li>Fixed: Crash during recording.</li>
+                <li><b style="color: red">My certificate will expire on June 14, bookmark this <a href="https://lihaoyun6.github.io/quickrecorder/">page</a> to download QuickRecorder at any time!
+                </b></li>
+                </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="280"/>
+            ]]></description>
+            <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.8/QuickRecorder_v1.6.8.dmg" length="4635571" type="application/octet-stream" sparkle:edSignature="hPQB1x9ZJhheSqpD6n5WZ7bzYQ5DCk7v5anJvjhndZdmNflL1llt0RnRQP2lVKv3iGNh7Ksxgy+qdULNUt1mAw=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.8/Update168-167.delta" sparkle:deltaFrom="167" length="629682" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="uqDSKJGq8hntsqagTrqK1IqHGZyo7HaOEzQ3VA/ksFkSeWL18RtktN2O3TT4/hc2H54pxWbhowqOdhMkHH1+Cw=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.8/Update168-166.delta" sparkle:deltaFrom="166" length="851854" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="Z17UHGPrmFrmSdpKjoSFdHnwr/RB+AuNw7c2oYyxLCo02Wr2wfZUSsPmf7L43oA5Ci1J8qPRhdcP8krfC0RdCQ=="/>
+                <enclosure url="https://github.com/lihaoyun6/QuickRecorder/releases/download/1.6.8/Update168-165.delta" sparkle:deltaFrom="165" length="1015506" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="864896" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,en" sparkle:edSignature="poQvVl0sCJykwIk3E0Z8vKWQqUaoP/wpoqWab8/qttJILJf0TVM3znAj6elZS5T9UnfmcdmlCFDH4X6IjtoOCw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>v1.6.7</title>
             <pubDate>Wed, 04 Jun 2025 17:39:45 +0800</pubDate>
             <sparkle:version>167</sparkle:version>
@@ -11,10 +34,10 @@
             <description><![CDATA[
                 <style>ul{margin-top: 0;margin-bottom: 7;padding-left: 18;}</style><ul>
                 <li>修复了使用快捷键暂停时, 菜单栏指示器按钮不变的问题.</li>
-                <li><b style="color: orange">我的免费开发者证书将在6月14日过期, 请收藏此App的<a href="https://lihaoyun6.github.io/airbattery/">主页</a>以随时下载更新</b></li>
+                <li><b style="color: orange">我的免费开发者证书将在6月14日过期, 请收藏此App的<a href="https://lihaoyun6.github.io/quickrecorder/">主页</a>以随时下载更新</b></li>
                 </ul><ul>
                 <li>Fixed: When pausing via hotkey, the indicator button doesn't change.</li>
-                <li><b style="color: orange">My certificate will expire on June 14, please bookmark this <a href="https://lihaoyun6.github.io/airbattery/">page</a> to download the latest version at any time.
+                <li><b style="color: orange">My certificate will expire on June 14, please bookmark this <a href="https://lihaoyun6.github.io/quickrecorder/">page</a> to download the latest version at any time.
                 </b></li>
                 </ul><img src="https://github.com/lihaoyun6/QuickRecorder/raw/main/img/donate.png" width="250"/>
             ]]></description>
