@@ -348,15 +348,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         closeAllWindow()
         if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
-        if encoder == .h264 {
-            let button = createAlert(
-                level: .informational,
-                title: Bundle.main.appName + " Tips".local,
-                message: "Would you like to use H.265 format for better video quality and smaller file size?",
-                button1: "Use H.265",
-                button2: "Don't remind me again"
-            ).runModal()
-            if button == .alertFirstButtonReturn { encoder = .h265 }
+        tips("Would you like to use H.265 format for better video quality and smaller file size?",
+             id: "qr.switch-to-h265.note", buttonTitle: "Use H.265", switchButton: true) {
+            ud.setValue(Encoder.h265.rawValue, forKey: "encoder")
         }
     }
     
@@ -478,15 +472,15 @@ func process(path: String, arguments: [String]) -> String? {
     return output.trimmingCharacters(in: .newlines)
 }
 
-func tips(_ message: String, title: String? = nil, id: String, switchButton: Bool = false, width: Int? = nil, action: (() -> Void)? = nil) {
+func tips(_ message: String, title: String? = nil, id: String, buttonTitle: String = "OK", switchButton: Bool = false, width: Int? = nil, action: (() -> Void)? = nil) {
     let never = (ud.object(forKey: "neverRemindMe") as? [String]) ?? []
     if !never.contains(id) {
         if switchButton {
-            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: "OK", button2: "Don't remind me again", width: width).runModal()
+            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: buttonTitle, button2: "Don't remind me again", width: width).runModal()
             if alert == .alertSecondButtonReturn { ud.setValue(never + [id], forKey: "neverRemindMe") }
             if alert == .alertFirstButtonReturn { action?() }
         } else {
-            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: "Don't remind me again", button2: "OK", width: width).runModal()
+            let alert = createAlert(title: title ?? Bundle.main.appName + " Tips".local, message: message, button1: "Don't remind me again", button2: buttonTitle, width: width).runModal()
             if alert == .alertFirstButtonReturn { ud.setValue(never + [id], forKey: "neverRemindMe") }
             if alert == .alertSecondButtonReturn { action?() }
         }
