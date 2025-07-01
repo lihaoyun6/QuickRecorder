@@ -257,6 +257,8 @@ struct HotkeyView: View {
                 SItem(label: "Stop Recording") { KeyboardShortcuts.Recorder("", name: .stop) }
                 SDivider()
                 SItem(label: "Pause / Resume") { KeyboardShortcuts.Recorder("", name: .pauseResume) }
+                SDivider()
+                SItem(label: "Toggle Microphone Mute") { KeyboardShortcuts.Recorder("", name: .toggleMicMute) }
             }
             SGroupBox {
                 SItem(label: "Record System Audio") { KeyboardShortcuts.Recorder("", name: .startWithAudio) }
@@ -332,6 +334,7 @@ extension KeyboardShortcuts.Name {
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
     static let showPanel = Self("showPanel")
+    static let toggleMicMute = Self("toggleMicMute")
 }
 
 extension AppDelegate {

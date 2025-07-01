@@ -317,6 +317,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { if SCContext.stream != nil { SCContext.isMagnifierEnabled.toggle() }}
         KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
         KeyboardShortcuts.onKeyDown(for: .pauseResume) { if SCContext.stream != nil { SCContext.pauseRecording() }}
+        KeyboardShortcuts.onKeyDown(for: .toggleMicMute) { 
+            if SCContext.stream != nil && ud.bool(forKey: "recordMic") {
+                SCContext.toggleMicrophoneMute()
+            }
+        }
         KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in
             if SCContext.streamType != nil { return }
             closeAllWindow()
@@ -439,6 +444,9 @@ func getStatusBarWidth() -> CGFloat {
     case .idevice: width = miniStatusBar ? 68.0 : 138.0
     case .systemaudio: width = miniStatusBar ? 68.0 : 114.0
     default: width = miniStatusBar ? 78.0 : 158.0
+    }
+    if SCContext.streamType != nil && ud.bool(forKey: "recordMic") && SCContext.streamType != .idevice {
+        width += 20.0
     }
     return width
 }

@@ -11,6 +11,7 @@ class PopoverState: ObservableObject {
     static let shared = PopoverState()
     @Published var isShowing: Bool = false
     @Published var isPaused: Bool = false
+    @Published var isMicMuted: Bool = false
 }
 
 struct StatusBarItem: View {
@@ -63,6 +64,18 @@ struct StatusBarItem: View {
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)
                                     }).buttonStyle(.plain)
+                                    
+                                    // Add microphone toggle button for audio recording with mic
+                                    if ud.bool(forKey: "recordMic") && SCContext.streamType != .idevice {
+                                        Button(action: {
+                                            SCContext.toggleMicrophoneMute()
+                                        }, label: {
+                                            Image(systemName: popoverState.isMicMuted ? "mic.slash.circle.fill" : "mic.circle.fill")
+                                                .font(.system(size: 16))
+                                                .foregroundStyle(popoverState.isMicMuted ? .red : .white)
+                                                .frame(width: 16, alignment: .center)
+                                        }).buttonStyle(.plain)
+                                    }
                                 } else {
                                     Button(action:{
                                         DispatchQueue.main.async {
@@ -122,6 +135,18 @@ struct StatusBarItem: View {
                                             .foregroundStyle(.white)
                                             .frame(width: 16, alignment: .center)
                                     }).buttonStyle(.plain)
+                                    
+                                    // Add microphone toggle button for audio recording with mic
+                                    if ud.bool(forKey: "recordMic") && SCContext.streamType != .idevice {
+                                        Button(action: {
+                                            SCContext.toggleMicrophoneMute()
+                                        }, label: {
+                                            Image(systemName: popoverState.isMicMuted ? "mic.slash.circle.fill" : "mic.circle.fill")
+                                                .font(.system(size: 16))
+                                                .foregroundStyle(popoverState.isMicMuted ? .red : .white)
+                                                .frame(width: 16, alignment: .center)
+                                        }).buttonStyle(.plain)
+                                    }
                                 }
                                 Text(recordingLength)
                                     .foregroundStyle(.white)
