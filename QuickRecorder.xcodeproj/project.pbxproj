@@ -24,6 +24,7 @@
 		18A551F72D0749C3008FC5F6 /* GroupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551EF2D0749C3008FC5F6 /* GroupForm.swift */; };
                 18A551F82D0749C3008FC5F6 /* SleepPreventer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */; };
                 19B0C0DE2D8F000100123456 /* ReplayBufferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B0C0DD2D8F000100123456 /* ReplayBufferService.swift */; };
+                19B0C0EF2D8F0A2E00123456 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B0C0EE2D8F0A2E00123456 /* HotkeyManager.swift */; };
                 18A551F92D0749C3008FC5F6 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F22D0749C3008FC5F6 /* Sparkle.swift */; };
 		18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */; };
 		18A551FB2D0749C3008FC5F6 /* WindowHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */; };
@@ -45,8 +46,19 @@
 		18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDA92BCF8200003F09BC /* RecordEngine.swift */; };
 		18FEBDAC2BD01E82003F09BC /* WinSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAB2BD01E82003F09BC /* WinSelector.swift */; };
 		18FEBDAE2BD10ED1003F09BC /* ScreenSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAD2BD10ED1003F09BC /* ScreenSelector.swift */; };
-		18FEBDB02BD2C0D1003F09BC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */; };
+                18FEBDB02BD2C0D1003F09BC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FEBDAF2BD2C0D1003F09BC /* SettingsView.swift */; };
+                19B0C0F92D8F0D4300123456 /* ReplayBufferTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B0C0F72D8F0D4300123456 /* ReplayBufferTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+                19B0C1022D8F0D8D00123456 /* PBXContainerItemProxy */ = {
+                        isa = PBXContainerItemProxy;
+                        containerPortal = 18D3BDDF2BCE5DC1006CFFC0 /* Project object */;
+                        proxyType = 1;
+                        remoteGlobalIDString = 18D3BDE62BCE5DC1006CFFC0;
+                        remoteInfo = QuickRecorder;
+                };
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1821F2E72CF4B226004A2EC0 /* ContentViewNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewNew.swift; sourceTree = "<group>"; };
@@ -54,11 +66,15 @@
 		184CAEC82BDDEC6800D61D57 /* AppBlockSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBlockSelector.swift; sourceTree = "<group>"; };
 		1862BF902BD5494F003ED522 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = "zh-Hans"; path = "zh-Hans.lproj/Credits.rtf"; sourceTree = "<group>"; };
 		1862BF912BD5495D003ED522 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Base; path = Base.lproj/Credits.rtf; sourceTree = "<group>"; };
-		18775C1F2BE21F38008333EF /* iDeviceSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iDeviceSelector.swift; sourceTree = "<group>"; };
-		187966F92BD5639D003DB1B2 /* MousePointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MousePointer.swift; sourceTree = "<group>"; };
-		18944C632D0AD36C00B6C811 /* SurpriseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurpriseView.swift; sourceTree = "<group>"; };
-		189BD5E72BDE34B80056D06C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
-		189BD5EC2BDE971B0056D06C /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
+                18775C1F2BE21F38008333EF /* iDeviceSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iDeviceSelector.swift; sourceTree = "<group>"; };
+                187966F92BD5639D003DB1B2 /* MousePointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MousePointer.swift; sourceTree = "<group>"; };
+                18944C632D0AD36C00B6C811 /* SurpriseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurpriseView.swift; sourceTree = "<group>"; };
+                19B0C0EE2D8F0A2E00123456 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+                189BD5E72BDE34B80056D06C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+                19B0C0F72D8F0D4300123456 /* ReplayBufferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplayBufferTests.swift; sourceTree = "<group>"; };
+                19B0C0F82D8F0D4300123456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+                19B0C0FB2D8F0D8D00123456 /* QuickRecorderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuickRecorderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+                189BD5EC2BDE971B0056D06C /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 		189BD5F42BDF8A800056D06C /* CameraOverlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOverlayer.swift; sourceTree = "<group>"; };
 		189BD5F62BDFDF200056D06C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		18A551EE2D0749C3008FC5F6 /* AppleScript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleScript.swift; sourceTree = "<group>"; };
@@ -96,18 +112,25 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		18D3BDE42BCE5DC1006CFFC0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+                18D3BDE42BCE5DC1006CFFC0 /* Frameworks */ = {
+                        isa = PBXFrameworksBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
 				184506CE2C69213400AFDA45 /* MatrixColorSelector in Frameworks */,
 				181724052BE3BEA600F5F539 /* Sparkle in Frameworks */,
 				18AFF77B2D5F91F800C795A1 /* KeyboardShortcuts in Frameworks */,
 				18F40B492BFB988A00F0AC70 /* SwiftLAME in Frameworks */,
 				185582A62D1D1CC100F0CF47 /* AECAudioStream in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+                19B0C0FE2D8F0D8D00123456 /* Frameworks */ = {
+                        isa = PBXFrameworksBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -132,23 +155,34 @@
 			path = Supports;
 			sourceTree = "<group>";
 		};
-		18D3BDDE2BCE5DC1006CFFC0 = {
-			isa = PBXGroup;
-			children = (
-				18D3BDE92BCE5DC1006CFFC0 /* QuickRecorder */,
-				18D3BDE82BCE5DC1006CFFC0 /* Products */,
-				181724062BE3BF2000F5F539 /* Frameworks */,
-			);
-			sourceTree = "<group>";
-		};
-		18D3BDE82BCE5DC1006CFFC0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
+                18D3BDDE2BCE5DC1006CFFC0 = {
+                        isa = PBXGroup;
+                        children = (
+                                18D3BDE92BCE5DC1006CFFC0 /* QuickRecorder */,
+                                18D3BDE82BCE5DC1006CFFC0 /* Products */,
+                                181724062BE3BF2000F5F539 /* Frameworks */,
+                                19B0C0F62D8F0D4300123456 /* QuickRecorderTests */,
+                        );
+                        sourceTree = "<group>";
+                };
+                18D3BDE82BCE5DC1006CFFC0 /* Products */ = {
+                        isa = PBXGroup;
+                        children = (
+                                18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */,
+                                19B0C0FB2D8F0D8D00123456 /* QuickRecorderTests.xctest */,
+                        );
+                        name = Products;
+                        sourceTree = "<group>";
+                };
+                19B0C0F62D8F0D4300123456 /* QuickRecorderTests */ = {
+                        isa = PBXGroup;
+                        children = (
+                                19B0C0F72D8F0D4300123456 /* ReplayBufferTests.swift */,
+                                19B0C0F82D8F0D4300123456 /* Info.plist */,
+                        );
+                        path = QuickRecorderTests;
+                        sourceTree = "<group>";
+                };
 		18D3BDE92BCE5DC1006CFFC0 /* QuickRecorder */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,6 +190,7 @@
 				189BD5F62BDFDF200056D06C /* Info.plist */,
 				18D3BDEA2BCE5DC1006CFFC0 /* QuickRecorderApp.swift */,
                                 18FEBDA92BCF8200003F09BC /* RecordEngine.swift */,
+                                19B0C0EE2D8F0A2E00123456 /* HotkeyManager.swift */,
                                 19B0C0DD2D8F000100123456 /* ReplayBufferService.swift */,
                                 18D3BE032BCEC847006CFFC0 /* SCContext.swift */,
 				184CAEC62BDCCC2300D61D57 /* AVContext.swift */,
@@ -205,9 +240,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */;
+                18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */ = {
+                        isa = PBXNativeTarget;
+                        buildConfigurationList = 18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */;
 			buildPhases = (
 				18D3BDE32BCE5DC1006CFFC0 /* Sources */,
 				18D3BDE42BCE5DC1006CFFC0 /* Frameworks */,
@@ -225,10 +260,28 @@
 				185582A52D1D1CC100F0CF47 /* AECAudioStream */,
 				18AFF77A2D5F91F800C795A1 /* KeyboardShortcuts */,
 			);
-			productName = QuickRecorder;
-			productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
-			productType = "com.apple.product-type.application";
-		};
+                        productName = QuickRecorder;
+                        productReference = 18D3BDE72BCE5DC1006CFFC0 /* QuickRecorder.app */;
+                        productType = "com.apple.product-type.application";
+                };
+                19B0C0FC2D8F0D8D00123456 /* QuickRecorderTests */ = {
+                        isa = PBXNativeTarget;
+                        buildConfigurationList = 19B0C1002D8F0D8D00123456 /* Build configuration list for PBXNativeTarget "QuickRecorderTests" */;
+                        buildPhases = (
+                                19B0C0FD2D8F0D8D00123456 /* Sources */,
+                                19B0C0FE2D8F0D8D00123456 /* Frameworks */,
+                                19B0C0FF2D8F0D8D00123456 /* Resources */,
+                        );
+                        buildRules = (
+                        );
+                        dependencies = (
+                                19B0C1032D8F0D8D00123456 /* PBXTargetDependency */, 
+                        );
+                        name = QuickRecorderTests;
+                        productName = QuickRecorderTests;
+                        productReference = 19B0C0FB2D8F0D8D00123456 /* QuickRecorderTests.xctest */;
+                        productType = "com.apple.product-type.bundle.unit-test";
+                };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -266,33 +319,45 @@
 			productRefGroup = 18D3BDE82BCE5DC1006CFFC0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (
-				18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */,
-			);
-		};
+                        targets = (
+                                18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */,
+                                19B0C0FC2D8F0D8D00123456 /* QuickRecorderTests */,
+                        );
+                };
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		18D3BDE52BCE5DC1006CFFC0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+                18D3BDE52BCE5DC1006CFFC0 /* Resources */ = {
+                        isa = PBXResourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
 				18D3BDF22BCE5DC2006CFFC0 /* Preview Assets.xcassets in Resources */,
 				18D3BDFB2BCE5DF5006CFFC0 /* Localizable.strings in Resources */,
 				18A551FC2D0749C3008FC5F6 /* Scriptable.sdef in Resources */,
 				18D3BDEF2BCE5DC2006CFFC0 /* Assets.xcassets in Resources */,
 				1862BF8D2BD5494E003ED522 /* Credits.rtf in Resources */,
 				189BD5E62BDE34B80056D06C /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+                19B0C0FF2D8F0D8D00123456 /* Resources */ = {
+                        isa = PBXResourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+                19B0C1032D8F0D8D00123456 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 18D3BDE62BCE5DC1006CFFC0 /* QuickRecorder */; targetProxy = 19B0C1022D8F0D8D00123456 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
 /* Begin PBXSourcesBuildPhase section */
-		18D3BDE32BCE5DC1006CFFC0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+                18D3BDE32BCE5DC1006CFFC0 /* Sources */ = {
+                        isa = PBXSourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
 				18FEBDAE2BD10ED1003F09BC /* ScreenSelector.swift in Sources */,
 				189BD5ED2BDE971B0056D06C /* VideoEditor.swift in Sources */,
 				189BD5F52BDF8A800056D06C /* CameraOverlayer.swift in Sources */,
@@ -316,14 +381,23 @@
 				18D3BDED2BCE5DC1006CFFC0 /* ContentView.swift in Sources */,
                                 18D3BE012BCEB1BF006CFFC0 /* AppSelector.swift in Sources */,
                                 18FEBDAA2BCF8200003F09BC /* RecordEngine.swift in Sources */,
+                                19B0C0EF2D8F0A2E00123456 /* HotkeyManager.swift in Sources */,
                                 19B0C0DE2D8F000100123456 /* ReplayBufferService.swift in Sources */,
                                 18FEBDB02BD2C0D1003F09BC /* SettingsView.swift in Sources */,
 				18E6F11A2C2E74DF00249DB1 /* QmaPlayer.swift in Sources */,
 				18D3BDEB2BCE5DC1006CFFC0 /* QuickRecorderApp.swift in Sources */,
 				18FEBDAC2BD01E82003F09BC /* WinSelector.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
+                19B0C0FD2D8F0D8D00123456 /* Sources */ = {
+                        isa = PBXSourcesBuildPhase;
+                        buildActionMask = 2147483647;
+                        files = (
+                                19B0C0F92D8F0D4300123456 /* ReplayBufferTests.swift in Sources */,
+                        );
+                        runOnlyForDeploymentPostprocessing = 0;
+                };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -520,9 +594,9 @@
 			};
 			name = Debug;
 		};
-		18D3BDF82BCE5DC2006CFFC0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
+                18D3BDF82BCE5DC2006CFFC0 /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = QuickRecorder/QuickRecorder.entitlements;
@@ -554,9 +628,45 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
+                        };
+                        name = Release;
+                };
+                19B0C1042D8F0D8D00123456 /* Debug */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+                                BUNDLE_LOADER = "$(TEST_HOST)";
+                                CODE_SIGN_STYLE = Automatic;
+                                DEVELOPMENT_TEAM = "";
+                                INFOPLIST_FILE = QuickRecorderTests/Info.plist;
+                                LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+                                MACOSX_DEPLOYMENT_TARGET = 12.3;
+                                PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorderTests;
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuickRecorder.app/Contents/MacOS/QuickRecorder";
+                        };
+                        name = Debug;
+                };
+                19B0C1052D8F0D8D00123456 /* Release */ = {
+                        isa = XCBuildConfiguration;
+                        buildSettings = {
+                                ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+                                BUNDLE_LOADER = "$(TEST_HOST)";
+                                CODE_SIGN_STYLE = Automatic;
+                                DEVELOPMENT_TEAM = "";
+                                INFOPLIST_FILE = QuickRecorderTests/Info.plist;
+                                LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+                                MACOSX_DEPLOYMENT_TARGET = 12.3;
+                                PRODUCT_BUNDLE_IDENTIFIER = com.lihaoyun6.QuickRecorderTests;
+                                PRODUCT_NAME = "$(TARGET_NAME)";
+                                SWIFT_VERSION = 5.0;
+                                TARGETED_DEVICE_FAMILY = "1,2";
+                                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuickRecorder.app/Contents/MacOS/QuickRecorder";
+                        };
+                        name = Release;
+                };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -569,15 +679,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				18D3BDF72BCE5DC2006CFFC0 /* Debug */,
-				18D3BDF82BCE5DC2006CFFC0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
+                18D3BDF62BCE5DC2006CFFC0 /* Build configuration list for PBXNativeTarget "QuickRecorder" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                18D3BDF72BCE5DC2006CFFC0 /* Debug */,
+                                18D3BDF82BCE5DC2006CFFC0 /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
+                19B0C1002D8F0D8D00123456 /* Build configuration list for PBXNativeTarget "QuickRecorderTests" */ = {
+                        isa = XCConfigurationList;
+                        buildConfigurations = (
+                                19B0C1042D8F0D8D00123456 /* Debug */,
+                                19B0C1052D8F0D8D00123456 /* Release */,
+                        );
+                        defaultConfigurationIsVisible = 0;
+                        defaultConfigurationName = Release;
+                };
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */

@@ -3,7 +3,7 @@ import AVFoundation
 import ScreenCaptureKit
 import AppKit
 
-final class ReplayBufferService: NSObject, SCStreamDelegate, SCStreamOutput {
+final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, SCStreamOutput {
     enum HealthState: String {
         case running
         case paused
@@ -28,8 +28,8 @@ final class ReplayBufferService: NSObject, SCStreamDelegate, SCStreamOutput {
     private var segments = [ReplaySegment]()
     private var failureCount = 0
 
-    var health: HealthState = .paused
-    var statusText: String = "Idle".local
+    @Published var health: HealthState = .paused
+    @Published var statusText: String = "Idle".local
 
     var bufferDuration: TimeInterval {
         max(TimeInterval(UserDefaults.standard.integer(forKey: "replayDuration")), 15)
@@ -120,8 +120,7 @@ final class ReplayBufferService: NSObject, SCStreamDelegate, SCStreamOutput {
 
     private func handleError(_ error: Error) {
         print("Replay buffer error", error.localizedDescription)
-        failureCount += 1
-        health = failureCount > 3 ? .disabled : .error
+        updateHealthAfterFailure()
         statusText = error.localizedDescription
         if health != .disabled {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -281,6 +280,13 @@ final class ReplayBufferService: NSObject, SCStreamDelegate, SCStreamOutput {
         semaphore.wait()
         return snapshot
     }
+
+    func updateHealthAfterFailure() {
+        failureCount += 1
+        DispatchQueue.main.async {
+            self.health = self.failureCount > 3 ? .disabled : .error
+        }
+    }
 }
 
 struct ReplaySegment {
@@ -289,6 +295,11 @@ struct ReplaySegment {
 }
 
 final class ClipExporter {
+    struct ClipMetadata {
+        let url: URL
+        let duration: TimeInterval
+    }
+
     func exportLast(seconds: TimeInterval, service: ReplayBufferService = .shared, completion: @escaping (Result<URL, Error>) -> Void) {
         let segments = service.snapshotSegmentsForExport()
         let requested = max(seconds, 1)
@@ -311,7 +322,7 @@ final class ClipExporter {
         exportLast(seconds: 5, service: service, completion: completion)
     }
 
-    private func slice(segments: [ReplaySegment], seconds: TimeInterval) -> [ReplaySegment] {
+    func slice(segments: [ReplaySegment], seconds: TimeInterval) -> [ReplaySegment] {
         var remaining = seconds
         var picked = [ReplaySegment]()
         for segment in segments.reversed() {
@@ -347,8 +358,8 @@ final class ClipExporter {
         }
         let formatter = DateFormatter()
         formatter.dateFormat = "y-MM-dd HH.mm.ss"
-        let directory = (UserDefaults.standard.string(forKey: "saveDirectory") ?? FileManager.default.urls(for: .moviesDirectory, in: .userDomainMask).first!.path)
-        let url = URL(fileURLWithPath: directory).appendingPathComponent("Clip \(formatter.string(from: Date())).mp4")
+        let sanitizedDuration = Int(totalDuration)
+        let url = clipDirectory().appendingPathComponent("clip_\(formatter.string(from: Date()))_last\(sanitizedDuration)s.mp4")
         let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) ?? AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetPassthrough)!
         export.outputURL = url
         export.outputFileType = .mp4
@@ -361,5 +372,12 @@ final class ClipExporter {
                 }
             }
         }
+    }
+
+    func clipDirectory() -> URL {
+        let baseDirectory = UserDefaults.standard.string(forKey: "saveDirectory") ?? FileManager.default.urls(for: .moviesDirectory, in: .userDomainMask).first!.path
+        let target = URL(fileURLWithPath: baseDirectory).appendingPathComponent("Clips", isDirectory: true)
+        try? FileManager.default.createDirectory(at: target, withIntermediateDirectories: true)
+        return target
     }
 }

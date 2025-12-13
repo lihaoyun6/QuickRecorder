@@ -312,49 +312,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         previewWindow.isReleasedWhenClosed = false
         previewWindow.backgroundColor = .clear
 
-        KeyboardShortcuts.onKeyDown(for: .showPanel) {
-            _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
-            if SCContext.stream == nil { NSApp.activate(ignoringOtherApps: true) }
-        }
-        KeyboardShortcuts.onKeyDown(for: .saveFrame) { if SCContext.stream != nil { SCContext.saveFrame = true }}
-        KeyboardShortcuts.onKeyDown(for: .screenMagnifier) { if SCContext.stream != nil { SCContext.isMagnifierEnabled.toggle() }}
-        KeyboardShortcuts.onKeyDown(for: .stop) { if SCContext.stream != nil { SCContext.stopRecording() }}
-        KeyboardShortcuts.onKeyDown(for: .pauseResume) { if SCContext.stream != nil { SCContext.pauseRecording() }}
-        KeyboardShortcuts.onKeyDown(for: .startWithAudio) {[self] in
-            if SCContext.streamType != nil { return }
-            closeAllWindow()
-            prepRecord(type: "audio", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
-        }
-        KeyboardShortcuts.onKeyDown(for: .startWithScreen) {[self] in
-            if SCContext.stream != nil { return }
-            closeAllWindow()
-            prepRecord(type: "display", screens: SCContext.getSCDisplayWithMouse(), windows: nil, applications: nil, fastStart: true)
-        }
-        KeyboardShortcuts.onKeyDown(for: .startWithArea) {[self] in
-            if SCContext.stream != nil { return }
-            closeAllWindow()
-            showAreaSelector(size: NSSize(width: 600, height: 450))
-        }
-        KeyboardShortcuts.onKeyDown(for: .startWithWindow) { [self] in
-            if SCContext.stream != nil { return }
-            closeAllWindow()
-            let frontmostApp = NSWorkspace.shared.frontmostApplication
-            if let pid = frontmostApp?.processIdentifier {
-                guard let scWindow = SCContext.getWindows().first(where: { $0.owningApplication?.processID == pid && $0.title != "" && $0.isOnScreen }) else { return }
-                prepRecord(type: "window", screens: SCContext.getSCDisplayWithMouse(), windows: [scWindow], applications: nil, fastStart: true)
-                return
-            }
-        }
-        KeyboardShortcuts.onKeyDown(for: .saveReplay) {
-            let seconds = Double(self.replayDuration)
-            ReplayBufferService.shared.exporter.exportLast(seconds: seconds) { result in
-                self.handleReplayResult(result)
-            }
-        }
-        KeyboardShortcuts.onKeyDown(for: .saveReplayQuick) {
-            ReplayBufferService.shared.exporter.quickFive { result in
-                self.handleReplayResult(result)
-            }
+        HotkeyManager.shared.registerAllShortcuts(appDelegate: self)
+        HotkeyManager.shared.registerReplayHotkeys(durationProvider: { Double(self.replayDuration) }) { result in
+            self.handleReplayResult(result)
         }
         updateStatusBar()
     }

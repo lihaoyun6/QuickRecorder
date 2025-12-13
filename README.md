@@ -28,9 +28,10 @@ brew install lihaoyun6/tap/quickrecorder
 ### Features/Usage:
 - You can use QuickRecorder to record your screens / windows / applications / mobile devices... etc.
 
-- QuickRecorder supports driver-free audio loopback recording, mouse highlighting, screen magnifier and many more useful features.  
-- The new **"[Presenter Overlay](https://support.apple.com/guide/facetime/presenter-overlay-video-conferencing-fctm6333f4bd/mac)"** in macOS 14 was fully supported by QuickRecorder, which can overlay the camera in real time on your recording *(macOS 12/13 can only use camera floating window)*  
-- QuickRecorder is able to record `HEVC with Alpha` video format, that can contain alpha channel in the output file *(currently only iMovie and FCPX support this feature)*  
+- QuickRecorder supports driver-free audio loopback recording, mouse highlighting, screen magnifier and many more useful features.
+- The new **"[Presenter Overlay](https://support.apple.com/guide/facetime/presenter-overlay-video-conferencing-fctm6333f4bd/mac)"** in macOS 14 was fully supported by QuickRecorder, which can overlay the camera in real time on your recording *(macOS 12/13 can only use camera floating window)*
+- QuickRecorder is able to record `HEVC with Alpha` video format, that can contain alpha channel in the output file *(currently only iMovie and FCPX support this feature)*
+- Instant Clip / Replay Buffer: enable it from **Settings → Hotkey → Replay Buffer**, choose the buffer length and audio options, then press your configured hotkey to save the last N seconds (or last 5 seconds) to the Clips folder inside your chosen output directory. Recent clips can be reviewed and revealed in the **Settings → Clips** list.
 
 ## Q&A
 **1. Where can I reopen the main panel after closing it?**

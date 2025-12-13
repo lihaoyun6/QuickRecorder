@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import AVFoundation
+import AppKit
 import Sparkle
 import ServiceManagement
 import KeyboardShortcuts
@@ -25,6 +27,9 @@ struct SettingsView: View {
                 }
                 NavigationLink(destination: OutputView(), tag: "Output", selection: $selectedItem) {
                     Label("Output", image: "film")
+                }
+                NavigationLink(destination: ClipsView(), tag: "Clips", selection: $selectedItem) {
+                    Label("Clips", image: "film")
                 }
                 NavigationLink(destination: HotkeyView(), tag: "Hotkey", selection: $selectedItem) {
                     Label("Hotkey", image: "hotkey")
@@ -251,6 +256,7 @@ struct HotkeyView: View {
     @AppStorage("replayEnabled") private var replayEnabled: Bool = true
     @AppStorage("replayDuration") private var replayDuration: Int = 30
     @AppStorage("replayAudio") private var replayAudio: Bool = true
+    @ObservedObject private var replayService = ReplayBufferService.shared
 
     var body: some View {
         SForm(spacing: 10) {
@@ -268,6 +274,22 @@ struct HotkeyView: View {
                 .onChange(of: replayDuration) { _ in ReplayBufferService.shared.restartCapture() }
                 SToggle("Capture Audio", isOn: $replayAudio)
                     .onChange(of: replayAudio) { _ in ReplayBufferService.shared.restartCapture() }
+                SDivider()
+                SItem(label: "Buffer Health") {
+                    HStack {
+                        Circle()
+                            .fill(color(for: replayService.health))
+                            .frame(width: 10, height: 10)
+                        Text(replayService.statusText)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                SItem(label: "Actions") {
+                    HStack {
+                        Button("Restart") { ReplayBufferService.shared.restartCapture() }
+                        Button("Disable") { ReplayBufferService.shared.health = .disabled; ReplayBufferService.shared.stop() }
+                    }
+                }
             }
             SGroupBox(label: "Hotkey") {
                 SItem(label: "Open Main Panel") { KeyboardShortcuts.Recorder("", name: .showPanel) }
@@ -286,7 +308,7 @@ struct HotkeyView: View {
                 SDivider()
                 SItem(label: "Select Area to Record") { KeyboardShortcuts.Recorder("", name: .startWithArea) }
             }
-            SGroupBox {
+            SGroupBox { 
                 SItem(label: "Save Current Frame") { KeyboardShortcuts.Recorder("", name: .saveFrame) }
                 SDivider()
                 SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
@@ -295,6 +317,15 @@ struct HotkeyView: View {
                 SDivider()
                 SItem(label: "Quick 5s Clip") { KeyboardShortcuts.Recorder("", name: .saveReplayQuick) }
             }
+        }
+    }
+
+    private func color(for state: ReplayBufferService.HealthState) -> Color {
+        switch state {
+        case .running: return .green
+        case .paused: return .yellow
+        case .error: return .orange
+        case .disabled: return .red
         }
     }
 }
@@ -311,6 +342,80 @@ struct BlocklistView: View {
             }
         }
     }
+}
+
+struct ClipsView: View {
+    @State private var clips: [ClipItem] = []
+    @State private var isLoading = false
+
+    var body: some View {
+        SForm(spacing: 10, noSpacer: true) {
+            SGroupBox(label: "Recent Clips") {
+                if isLoading {
+                    ProgressView().progressViewStyle(.linear)
+                }
+                List(clips) { clip in
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text(clip.url.lastPathComponent)
+                                .font(.headline)
+                                .lineLimit(1)
+                            Text("Duration: \(Int(clip.duration))s")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(clip.created.formatted(date: .abbreviated, time: .standard))
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        VStack {
+                            Button("Reveal") { NSWorkspace.shared.activateFileViewerSelecting([clip.url]) }
+                            Button(role: .destructive, action: { delete(clip) }) { Text("Delete") }
+                        }
+                    }
+                }
+                .frame(minHeight: 200)
+                Button("Refresh", action: loadClips)
+            }
+        }
+        .onAppear(perform: loadClips)
+    }
+
+    private func loadClips() {
+        isLoading = true
+        DispatchQueue.global().async {
+            let directory = ReplayBufferService.shared.exporter.clipDirectory()
+            let urls = (try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.contentModificationDateKey, .creationDateKey, .fileSizeKey], options: .skipsHiddenFiles)) ?? []
+            let mp4s = urls.filter { $0.pathExtension.lowercased() == "mp4" }
+            let sorted = mp4s.sorted { (lhs, rhs) -> Bool in
+                let lDate = (try? lhs.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
+                let rDate = (try? rhs.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
+                return lDate > rDate
+            }
+            let assets = sorted.prefix(50).compactMap { url -> ClipItem? in
+                let asset = AVAsset(url: url)
+                let duration = CMTimeGetSeconds(asset.duration)
+                let created = (try? url.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date()
+                return ClipItem(url: url, duration: duration, created: created)
+            }
+            DispatchQueue.main.async {
+                self.clips = assets
+                self.isLoading = false
+            }
+        }
+    }
+
+    private func delete(_ clip: ClipItem) {
+        try? FileManager.default.removeItem(at: clip.url)
+        loadClips()
+    }
+}
+
+struct ClipItem: Identifiable {
+    let id = UUID()
+    let url: URL
+    let duration: TimeInterval
+    let created: Date
 }
 
 extension UserDefaults {
