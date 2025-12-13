@@ -248,8 +248,27 @@ struct OutputView: View {
 }
 
 struct HotkeyView: View {
+    @AppStorage("replayEnabled") private var replayEnabled: Bool = true
+    @AppStorage("replayDuration") private var replayDuration: Int = 30
+    @AppStorage("replayAudio") private var replayAudio: Bool = true
+
     var body: some View {
         SForm(spacing: 10) {
+            SGroupBox(label: "Replay Buffer") {
+                SToggle("Enable Replay Buffer", isOn: $replayEnabled)
+                    .onChange(of: replayEnabled) { _ in
+                        replayEnabled ? ReplayBufferService.shared.start() : ReplayBufferService.shared.stop()
+                    }
+                Picker("Buffer Length", selection: $replayDuration) {
+                    Text("15s").tag(15)
+                    Text("30s").tag(30)
+                    Text("60s").tag(60)
+                    Text("120s").tag(120)
+                }
+                .onChange(of: replayDuration) { _ in ReplayBufferService.shared.restartCapture() }
+                SToggle("Capture Audio", isOn: $replayAudio)
+                    .onChange(of: replayAudio) { _ in ReplayBufferService.shared.restartCapture() }
+            }
             SGroupBox(label: "Hotkey") {
                 SItem(label: "Open Main Panel") { KeyboardShortcuts.Recorder("", name: .showPanel) }
             }
@@ -271,6 +290,10 @@ struct HotkeyView: View {
                 SItem(label: "Save Current Frame") { KeyboardShortcuts.Recorder("", name: .saveFrame) }
                 SDivider()
                 SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
+                SDivider()
+                SItem(label: "Save Last N Seconds") { KeyboardShortcuts.Recorder("", name: .saveReplay) }
+                SDivider()
+                SItem(label: "Quick 5s Clip") { KeyboardShortcuts.Recorder("", name: .saveReplayQuick) }
             }
         }
     }
@@ -332,6 +355,8 @@ extension KeyboardShortcuts.Name {
     static let pauseResume = Self("pauseResume")
     static let stop = Self("stop")
     static let showPanel = Self("showPanel")
+    static let saveReplay = Self("saveReplay")
+    static let saveReplayQuick = Self("saveReplayQuick")
 }
 
 extension AppDelegate {

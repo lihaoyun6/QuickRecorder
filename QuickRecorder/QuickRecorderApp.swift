@@ -146,6 +146,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     @AppStorage("audioQuality")     var audioQuality: AudioQuality = .high
     @AppStorage("pixelFormat")      var pixelFormat: PixFormat = .delault
     @AppStorage("hideCCenter")      var hideCCenter: Bool = false
+    @AppStorage("replayEnabled")    var replayEnabled: Bool = true
+    @AppStorage("replayDuration")   var replayDuration: Int = 30
+    @AppStorage("replayAudio")      var replayAudio: Bool = true
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -308,7 +311,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         previewWindow.titleVisibility = .hidden
         previewWindow.isReleasedWhenClosed = false
         previewWindow.backgroundColor = .clear
-        
+
         KeyboardShortcuts.onKeyDown(for: .showPanel) {
             _ = self.applicationShouldHandleReopen(NSApp, hasVisibleWindows: true)
             if SCContext.stream == nil { NSApp.activate(ignoringOtherApps: true) }
@@ -342,6 +345,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 return
             }
         }
+        KeyboardShortcuts.onKeyDown(for: .saveReplay) {
+            let seconds = Double(self.replayDuration)
+            ReplayBufferService.shared.exporter.exportLast(seconds: seconds) { result in
+                self.handleReplayResult(result)
+            }
+        }
+        KeyboardShortcuts.onKeyDown(for: .saveReplayQuick) {
+            ReplayBufferService.shared.exporter.quickFive { result in
+                self.handleReplayResult(result)
+            }
+        }
         updateStatusBar()
     }
     
@@ -351,6 +365,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         tips("Would you like to use H.265 format for better video quality and smaller file size?",
              id: "qr.switch-to-h265.note", buttonTitle: "Use H.265", switchButton: true) {
             ud.setValue(Encoder.h265.rawValue, forKey: "encoder")
+        }
+        if replayEnabled {
+            ReplayBufferService.shared.start()
         }
     }
     
@@ -546,6 +563,27 @@ extension NSMenuItem {
     }
 }
 
+extension AppDelegate {
+    func handleReplayResult(_ result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            let content = UNMutableNotificationContent()
+            content.title = "Clip Saved".local
+            content.body = url.lastPathComponent
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request)
+        case .failure(let error):
+            let content = UNMutableNotificationContent()
+            content.title = "Replay export failed".local
+            content.body = error.localizedDescription
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+            UNUserNotificationCenter.current().add(request)
+        }
+    }
+}
+
 extension NSImage {
     static func createScreenShot() -> NSImage? {
         let excludedAppBundleIDs = ["com.lihaoyun6.QuickRecorder"]
@@ -605,6 +643,7 @@ class NNSWindow: NSWindow {
     override var canBecomeKey: Bool {
         return true
     }
+
 }
 
 struct FixedLengthArray<T> {
