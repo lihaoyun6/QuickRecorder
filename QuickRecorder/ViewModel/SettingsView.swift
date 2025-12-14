@@ -256,6 +256,7 @@ struct HotkeyView: View {
     @AppStorage("replayEnabled") private var replayEnabled: Bool = true
     @AppStorage("replayDuration") private var replayDuration: Int = 30
     @AppStorage("replayAudio") private var replayAudio: Bool = true
+    @AppStorage("clipLength") private var clipLength: ClipLengthOption = .thirtySeconds
     @ObservedObject private var replayService = ReplayBufferService.shared
 
     var body: some View {
@@ -263,7 +264,7 @@ struct HotkeyView: View {
             SGroupBox(label: "Replay Buffer") {
                 SToggle("Enable Replay Buffer", isOn: $replayEnabled)
                     .onChange(of: replayEnabled) { _ in
-                        replayEnabled ? ReplayBufferService.shared.start() : ReplayBufferService.shared.stop()
+                        replayEnabled ? ReplayBufferService.shared.start() : ReplayBufferService.shared.stop(markDisabled: true)
                     }
                 Picker("Buffer Length", selection: $replayDuration) {
                     Text("15s").tag(15)
@@ -274,6 +275,11 @@ struct HotkeyView: View {
                 .onChange(of: replayDuration) { _ in ReplayBufferService.shared.restartCapture() }
                 SToggle("Capture Audio", isOn: $replayAudio)
                     .onChange(of: replayAudio) { _ in ReplayBufferService.shared.restartCapture() }
+                Picker("Clip Length", selection: $clipLength) {
+                    ForEach(ClipLengthOption.allCases) { option in
+                        Text(option.label).tag(option)
+                    }
+                }
                 SDivider()
                 SItem(label: "Buffer Health") {
                     HStack {
@@ -287,7 +293,10 @@ struct HotkeyView: View {
                 SItem(label: "Actions") {
                     HStack {
                         Button("Restart") { ReplayBufferService.shared.restartCapture() }
-                        Button("Disable") { ReplayBufferService.shared.health = .disabled; ReplayBufferService.shared.stop() }
+                        Button("Disable") {
+                            replayEnabled = false
+                            ReplayBufferService.shared.stop(markDisabled: true)
+                        }
                     }
                 }
             }
@@ -308,15 +317,18 @@ struct HotkeyView: View {
                 SDivider()
                 SItem(label: "Select Area to Record") { KeyboardShortcuts.Recorder("", name: .startWithArea) }
             }
-            SGroupBox { 
+            SGroupBox {
                 SItem(label: "Save Current Frame") { KeyboardShortcuts.Recorder("", name: .saveFrame) }
                 SDivider()
                 SItem(label: "Toggle Screen Magnifier") {KeyboardShortcuts.Recorder("", name: .screenMagnifier) }
                 SDivider()
-                SItem(label: "Save Last N Seconds") { KeyboardShortcuts.Recorder("", name: .saveReplay) }
+                SItem(label: "Save Clip (uses Clip Length)") { KeyboardShortcuts.Recorder("", name: .saveReplay) }
                 SDivider()
                 SItem(label: "Quick 5s Clip") { KeyboardShortcuts.Recorder("", name: .saveReplayQuick) }
             }
+        }
+        .onAppear {
+            replayEnabled ? ReplayBufferService.shared.start() : ReplayBufferService.shared.stop(markDisabled: true)
         }
     }
 
@@ -416,6 +428,26 @@ struct ClipItem: Identifiable {
     let url: URL
     let duration: TimeInterval
     let created: Date
+}
+
+enum ClipLengthOption: Int, CaseIterable, Identifiable {
+    case thirtySeconds = 30
+    case oneMinute = 60
+    case twoMinutes = 120
+    case fiveMinutes = 300
+
+    var id: Int { rawValue }
+
+    var label: String {
+        switch self {
+        case .thirtySeconds: return "30 seconds"
+        case .oneMinute: return "1 minute"
+        case .twoMinutes: return "2 minutes"
+        case .fiveMinutes: return "5 minutes"
+        }
+    }
+
+    var seconds: Int { rawValue }
 }
 
 extension UserDefaults {
