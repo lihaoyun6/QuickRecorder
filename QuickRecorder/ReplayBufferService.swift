@@ -32,7 +32,9 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
     @Published var statusText: String = "Idle".local
 
     var bufferDuration: TimeInterval {
-        max(TimeInterval(UserDefaults.standard.integer(forKey: "replayDuration")), 15)
+        let replayLength = TimeInterval(UserDefaults.standard.integer(forKey: "replayDuration"))
+        let clipLength = TimeInterval(UserDefaults.standard.integer(forKey: "clipLength"))
+        return max(max(replayLength, clipLength), 15)
     }
 
     var segmentLength: TimeInterval { 10 }
@@ -51,23 +53,22 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
     }
 
     func start() {
-        guard health != .disabled else { return }
         guard UserDefaults.standard.bool(forKey: "replayEnabled") else {
-            health = .paused
-            statusText = "Disabled".local
+            updateHealth(.disabled, status: "Disabled".local)
             return
         }
-        if health == .running { return }
+        if health == .running || stream != nil { return }
+        failureCount = 0
         prepareCapture()
     }
 
-    func stop() {
+    func stop(markDisabled: Bool = false, status: String = "Stopped".local) {
         captureQueue.async {
             self.stream?.stopCapture { _ in }
             self.stream = nil
             self.closeWriter()
-            self.health = .paused
-            self.statusText = "Stopped".local
+            if markDisabled { self.clearSegments() }
+            self.updateHealth(markDisabled ? .disabled : .paused, status: markDisabled ? "Disabled".local : status)
         }
     }
 
@@ -109,8 +110,7 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
                 }
                 try self.stream?.startCapture()
                 self.rotateSegment(force: true)
-                self.health = .running
-                self.statusText = "Running".local
+                self.updateHealth(.running, status: "Running".local)
                 self.failureCount = 0
             } catch {
                 self.handleError(error)
@@ -120,23 +120,23 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
 
     private func handleError(_ error: Error) {
         print("Replay buffer error", error.localizedDescription)
-        updateHealthAfterFailure()
-        statusText = error.localizedDescription
-        if health != .disabled {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        updateHealthAfterFailure(errorText: error.localizedDescription)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            if UserDefaults.standard.bool(forKey: "replayEnabled") {
                 self.prepareCapture()
             }
         }
     }
 
     @objc private func willSleep() {
-        health = .paused
-        statusText = "Paused for sleep".local
-        stop()
+        updateHealth(.paused, status: "Paused for sleep".local)
+        stop(status: "Paused for sleep".local)
     }
 
     @objc private func didWake() {
-        if health != .disabled { start() }
+        if UserDefaults.standard.bool(forKey: "replayEnabled") {
+            start()
+        }
     }
 
     @objc private func displayChanged() {
@@ -144,8 +144,15 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
     }
 
     func restartCapture() {
-        stop()
-        start()
+        captureQueue.async {
+            self.stream?.stopCapture { _ in }
+            self.stream = nil
+            self.closeWriter()
+            self.updateHealth(.paused, status: "Restarting".local)
+            DispatchQueue.main.async {
+                self.start()
+            }
+        }
     }
 
     private func rotateSegment(force: Bool = false) {
@@ -281,10 +288,24 @@ final class ReplayBufferService: NSObject, ObservableObject, SCStreamDelegate, S
         return snapshot
     }
 
-    func updateHealthAfterFailure() {
+    func updateHealthAfterFailure(errorText: String? = nil) {
         failureCount += 1
+        let state: HealthState = failureCount > 3 ? .disabled : .error
+        let status = errorText ?? statusText
+        updateHealth(state, status: status)
+    }
+
+    private func updateHealth(_ state: HealthState, status: String) {
         DispatchQueue.main.async {
-            self.health = self.failureCount > 3 ? .disabled : .error
+            self.health = state
+            self.statusText = status
+        }
+    }
+
+    private func clearSegments() {
+        writerQueue.sync {
+            segments.forEach { try? FileManager.default.removeItem(at: $0.url) }
+            segments.removeAll()
         }
     }
 }

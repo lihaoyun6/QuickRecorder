@@ -149,6 +149,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     @AppStorage("replayEnabled")    var replayEnabled: Bool = true
     @AppStorage("replayDuration")   var replayDuration: Int = 30
     @AppStorage("replayAudio")      var replayAudio: Bool = true
+    @AppStorage("clipLength")       var clipLength: ClipLengthOption = .thirtySeconds
     
     func mousePointerReLocation(event: NSEvent) {
         if event.type == .scrollWheel { return }
@@ -313,8 +314,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         previewWindow.backgroundColor = .clear
 
         HotkeyManager.shared.registerAllShortcuts(appDelegate: self)
-        HotkeyManager.shared.registerReplayHotkeys(durationProvider: { Double(self.replayDuration) }) { result in
+        HotkeyManager.shared.registerReplayHotkeys(durationProvider: { Double(self.clipLength.seconds) }) { result in
             self.handleReplayResult(result)
+        } unavailableHandler: {
+            self.notifyReplayDisabled()
         }
         updateStatusBar()
     }
@@ -541,6 +544,15 @@ extension AppDelegate {
             let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
             UNUserNotificationCenter.current().add(request)
         }
+    }
+
+    func notifyReplayDisabled() {
+        let content = UNMutableNotificationContent()
+        content.title = "Replay Buffer is disabled".local
+        content.body = "Enable the buffer to save clips".local
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
     }
 }
 

@@ -47,14 +47,25 @@ final class HotkeyManager {
         }
     }
 
-    func registerReplayHotkeys(durationProvider: @escaping () -> Double, exporter: ClipExporter = ReplayBufferService.shared.exporter, resultHandler: @escaping (Result<URL, Error>) -> Void) {
+    func registerReplayHotkeys(durationProvider: @escaping () -> Double,
+                               exporter: ClipExporter = ReplayBufferService.shared.exporter,
+                               resultHandler: @escaping (Result<URL, Error>) -> Void,
+                               unavailableHandler: (() -> Void)? = nil) {
         saveReplayHandler = { [weak exporter] in
+            guard ReplayBufferService.shared.health == .running else {
+                unavailableHandler?()
+                return
+            }
             let seconds = durationProvider()
             exporter?.exportLast(seconds: seconds) { result in
                 resultHandler(result)
             }
         }
         quickClipHandler = { [weak exporter] in
+            guard ReplayBufferService.shared.health == .running else {
+                unavailableHandler?()
+                return
+            }
             exporter?.quickFive { result in
                 resultHandler(result)
             }
