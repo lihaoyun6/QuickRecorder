@@ -385,7 +385,17 @@ class SCContext {
             }
             dispatchGroup.wait()
         } else {
-            if ud.bool(forKey: "recordMic") { vW.finishWriting {} }
+            if ud.bool(forKey: "recordMic") {
+                let dispatchGroup = DispatchGroup()
+                dispatchGroup.enter()
+                vW.finishWriting {
+                    if vW.status != .completed {
+                        print("Mic writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
+                    }
+                    dispatchGroup.leave()
+                }
+                dispatchGroup.wait()
+            }
         }
         
         DispatchQueue.main.async {
