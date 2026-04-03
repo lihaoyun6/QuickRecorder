@@ -99,6 +99,8 @@
 "Recording Completed" = "录制结束";
 "Clip Saved" = "剪辑已保存";
 "File saved to: %@" = "文件已保存至: %@";
+"Audio Mix Failed" = "音频合并失败";
+"Recording saved (mic audio missing): %@" = "录制已保存（缺少麦克风音频）: %@";
 "File saved to folder: %@" = "文件已保存到: %@ 目录中";
 "Startup" = "启动设置";
 "Update" = "更新设置";

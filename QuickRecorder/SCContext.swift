@@ -377,6 +377,12 @@ class SCContext {
                                 }
                             case .failure(let error):
                                 print("Failed to export video: \(error.localizedDescription)")
+                                let tempURL = filePath.url
+                                let recoveredURL = tempURL.deletingPathExtension().deletingPathExtension()
+                                if !fd.fileExists(atPath: recoveredURL.path) {
+                                    try? fd.moveItem(at: tempURL, to: recoveredURL)
+                                }
+                                showNotification(title: "Audio Mix Failed".local, body: String(format: "Recording saved (mic audio missing): %@".local, recoveredURL.path), id: "quickrecorder.error.\(UUID().uuidString)")
                             }
                         }
                     }
