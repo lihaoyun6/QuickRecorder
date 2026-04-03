@@ -99,6 +99,8 @@
 "Recording Completed" = "錄製結束";
 "Clip Saved" = "剪輯已儲存";
 "File saved to: %@" = "檔案已儲存至: %@";
+"Audio Mix Failed" = "音訊合併失敗";
+"Recording saved (mic audio missing): %@" = "錄製已儲存（缺少麥克風音訊）: %@";
 "File saved to folder: %@" = "檔案已儲存到: %@ 目錄中";
 "Startup" = "啟動設定";
 "Update" = "更新設定";
