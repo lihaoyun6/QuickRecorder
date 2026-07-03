@@ -48,7 +48,11 @@ extension AppDelegate {
 
     func resizeCameraOverlayer(width: Double) {
         guard camWindow.isVisible else { return }
-        let frame = NSRect(x: camWindow.frame.origin.x, y: camWindow.frame.origin.y, width: width, height: width)
+        let screen = cameraOverlayerScreen(for: camWindow.frame)
+        let frame = clampedCameraOverlayerFrame(
+            NSRect(x: camWindow.frame.origin.x, y: camWindow.frame.origin.y, width: width, height: width),
+            on: screen
+        )
         camWindow.setFrame(frame, display: true)
         camWindow.contentView?.layer?.cornerRadius = width / 2
         saveCameraOverlayerPosition()
@@ -63,26 +67,53 @@ extension AppDelegate {
     func keepCameraOverlayerOnScreen() {
         guard camWindow.isVisible else { return }
         let frame = camWindow.frame
-        guard let screen = NSScreen.screens.first(where: { $0.frame.intersects(frame) }) ?? SCContext.getScreenWithMouse() else { return }
-        let visibleFrame = screen.visibleFrame
-        let x = min(max(frame.origin.x, visibleFrame.minX), visibleFrame.maxX - frame.width)
-        let y = min(max(frame.origin.y, visibleFrame.minY), visibleFrame.maxY - frame.height)
-        let origin = NSPoint(x: x, y: y)
-        if origin != frame.origin {
-            camWindow.setFrameOrigin(origin)
+        let clampedFrame = clampedCameraOverlayerFrame(frame, on: cameraOverlayerScreen(for: frame))
+        if clampedFrame.origin != frame.origin || clampedFrame.size != frame.size {
+            camWindow.setFrame(clampedFrame, display: true)
         }
+    }
+
+    private func cameraOverlayerScreen(for frame: NSRect) -> NSScreen? {
+        if let screen = camWindow.screen { return screen }
+        let anchor = NSPoint(x: frame.minX + 1, y: frame.midY)
+        return NSScreen.screens.first(where: { $0.visibleFrame.contains(anchor) })
+            ?? NSScreen.screens.first(where: { $0.frame.contains(anchor) })
+            ?? NSScreen.screens.max { lhs, rhs in
+                lhs.visibleFrame.intersection(frame).area < rhs.visibleFrame.intersection(frame).area
+            }
+            ?? SCContext.getScreenWithMouse()
+    }
+
+    private func clampedCameraOverlayerFrame(_ frame: NSRect, on screen: NSScreen?) -> NSRect {
+        guard let screen else { return frame }
+        let visibleFrame = screen.visibleFrame
+        let width = min(frame.width, visibleFrame.width)
+        let height = min(frame.height, visibleFrame.height)
+        let x = min(max(frame.origin.x, visibleFrame.minX), visibleFrame.maxX - width)
+        let y = min(max(frame.origin.y, visibleFrame.minY), visibleFrame.maxY - height)
+        return NSRect(x: x, y: y, width: width, height: height)
+    }
+}
+
+private extension NSRect {
+    var area: CGFloat {
+        guard width > 0, height > 0 else { return 0 }
+        return width * height
     }
 }
 
 struct CameraView: NSViewRepresentable {
     var type: StreamType!
+    var isMirrored = true
+
     func makeNSView(context: Context) -> CameraNSView {
         let cameraView = CameraNSView(frame: .zero, type: type)
+        cameraView.setMirrored(isMirrored)
         return cameraView
     }
 
     func updateNSView(_ nsView: CameraNSView, context: Context) {
-        // Update the view
+        nsView.setMirrored(isMirrored)
     }
 }
 
@@ -116,9 +147,13 @@ class CameraNSView: NSView {
         }
         if type == .camera {
             previewLayer!.videoGravity = AVLayerVideoGravity.resizeAspectFill
-            previewLayer!.setAffineTransform(CGAffineTransform(scaleX: -1, y: 1))
         }
         layer?.addSublayer(previewLayer!)
+    }
+
+    func setMirrored(_ isMirrored: Bool) {
+        guard type == .camera else { return }
+        previewLayer?.setAffineTransform(isMirrored ? CGAffineTransform(scaleX: -1, y: 1) : .identity)
     }
     
     override func layout() {
@@ -130,6 +165,7 @@ class CameraNSView: NSView {
 struct SwiftCameraView: View {
     var type: StreamType!
     var showsControls = true
+    @AppStorage("cameraMirrored") private var cameraMirrored = true
     @State private var hover = false
     @State private var isFlipped = false
     
@@ -142,7 +178,7 @@ struct SwiftCameraView: View {
                         .foregroundStyle(.white)
                 }
                 ZStack(alignment: Alignment(horizontal: .trailing, vertical: .bottom)) {
-                    CameraView(type: type)
+                    CameraView(type: type, isMirrored: cameraMirrored)
                         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
                     if showsControls {
                         Button(action: {
