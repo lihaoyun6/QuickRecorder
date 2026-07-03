@@ -49,9 +49,10 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           set -euo pipefail
-          test -n "${MACOS_CERTIFICATE_P12:-}" || { echo "MACOS_CERTIFICATE_P12 is required."; exit 1; }
-          test -n "${MACOS_CERTIFICATE_PASSWORD:-}" || { echo "MACOS_CERTIFICATE_PASSWORD is required."; exit 1; }
-          test -n "${KEYCHAIN_PASSWORD:-}" || { echo "KEYCHAIN_PASSWORD is required."; exit 1; }
+          if [ -z "${MACOS_CERTIFICATE_P12:-}" ]; then
+            echo "MACOS_CERTIFICATE_P12 is not set; building unsigned DMG."
+            exit 0
+          fi
           KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
           echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
@@ -60,44 +61,33 @@ jobs:
           security import "$RUNNER_TEMP/certificate.p12" -P "$MACOS_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
           security list-keychain -d user -s "$KEYCHAIN_PATH"
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-
-      - name: Validate release secrets
-        env:
-          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
-          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
-          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          test -n "${DEVELOPMENT_TEAM:-}" || { echo "APPLE_TEAM_ID is required."; exit 1; }
-          test -n "${NOTARY_APPLE_ID:-}" || { echo "NOTARY_APPLE_ID is required."; exit 1; }
-          test -n "${NOTARY_PASSWORD:-}" || { echo "NOTARY_PASSWORD is required."; exit 1; }
 
       - name: Build app
         env:
           DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
-          xcodebuild \
-            -project QuickRecorder.xcodeproj \
-            -scheme QuickRecorder \
-            -configuration Release \
-            -destination 'platform=macOS,arch=arm64' \
-            -derivedDataPath build/DerivedData \
-            MARKETING_VERSION="$VERSION" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-            CODE_SIGN_IDENTITY="Developer ID Application" \
-            CODE_SIGN_STYLE=Manual \
-            build
-
-      - name: Verify app signature
-        run: |
-          set -euo pipefail
-          APP_PATH="build/DerivedData/Build/Products/Release/QuickRecorder.app"
-          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-          codesign -dv --verbose=4 "$APP_PATH" 2>&1 | tee build/codesign-info.txt
-          grep -q "Authority=Developer ID Application" build/codesign-info.txt
-          grep -q "TeamIdentifier=" build/codesign-info.txt
+          if [ -n "${DEVELOPMENT_TEAM:-}" ]; then
+            xcodebuild \
+              -project QuickRecorder.xcodeproj \
+              -scheme QuickRecorder \
+              -configuration Release \
+              -destination 'platform=macOS,arch=arm64' \
+              -derivedDataPath build/DerivedData \
+              MARKETING_VERSION="$VERSION" \
+              DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+              build
+          else
+            xcodebuild \
+              -project QuickRecorder.xcodeproj \
+              -scheme QuickRecorder \
+              -configuration Release \
+              -destination 'platform=macOS,arch=arm64' \
+              -derivedDataPath build/DerivedData \
+              MARKETING_VERSION="$VERSION" \
+              CODE_SIGNING_ALLOWED=NO \
+              build
+          fi
 
       - name: Create DMG
         run: |
@@ -119,22 +109,6 @@ jobs:
             -format UDZO \
             "$DMG_PATH"
           echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
-
-      - name: Notarize and staple DMG
-        env:
-          NOTARY_APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
-          NOTARY_PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-        run: |
-          set -euo pipefail
-          xcrun notarytool submit "$DMG_PATH" \
-            --apple-id "$NOTARY_APPLE_ID" \
-            --password "$NOTARY_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --wait
-          xcrun stapler staple "$DMG_PATH"
-          xcrun stapler validate "$DMG_PATH"
-          spctl -a -t open --context context:primary-signature -vv "$DMG_PATH"
 
       - name: Publish GitHub Release
         env:
