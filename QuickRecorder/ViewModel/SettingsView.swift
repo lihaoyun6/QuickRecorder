@@ -34,8 +34,8 @@ struct SettingsView: View {
                 }
             }
             .listStyle(.sidebar)
-            .padding(.top, 9)
-        }.frame(width: 600, height: 512)
+            .padding(.top, 34)
+        }.frame(width: 700, height: 640)
     }
 }
 
@@ -106,8 +106,14 @@ struct RecorderView: View {
     @AppStorage("preventSleep")     private var preventSleep: Bool = true
     @AppStorage("showPreview")      private var showPreview: Bool = true
     @AppStorage("hideCCenter")      private var hideCCenter: Bool = false
+    @AppStorage("cameraMirrored")   private var cameraMirrored: Bool = true
+    @AppStorage("cameraOverlayWidth") private var cameraOverlayWidth: Double = 200.0
+    @AppStorage("recordCameraDevice") private var recordCameraDevice: String = ""
     
     @State private var userColor: Color = Color.black
+    @State private var cameras = SCContext.getCameras()
+    @State private var isCameraPreviewVisible = false
+    @State private var cameraStateVersion = 0
 
     var body: some View {
         SForm(spacing: 10) {
@@ -151,7 +157,97 @@ struct RecorderView: View {
                 SDivider()
                 SToggle("Exclude Files on Desktop", isOn: $hideDesktopFiles, tips: "If enabled, all files on the Desktop will be hidden from the video when recording.")
             }
-        }.onAppear{ userColor = ud.color(forKey: "userColor") ?? Color.black }
+            SGroupBox(label: "Camera") {
+                SToggle("Mirror Camera", isOn: $cameraMirrored)
+                SDivider()
+                SItem(label: "Camera Device") {
+                    Picker("", selection: $recordCameraDevice) {
+                        Text("Default".local).tag("")
+                        ForEach(cameras, id: \.uniqueID) { camera in
+                            Text(camera.localizedName).tag(camera.uniqueID)
+                        }
+                    }
+                    .frame(width: 180)
+                    .onAppear { normalizeSelectedCamera() }
+                    .onChange(of: recordCameraDevice) { _ in
+                        restartCameraIfNeeded()
+                    }
+                }
+                SDivider()
+                SItem(label: "Camera Position") {
+                    Button(cameraPositionButtonTitle.local) {
+                        if isCameraPreviewVisible {
+                            AppDelegate.shared.closeCameraPreviewForSettings()
+                            isCameraPreviewVisible = false
+                        } else {
+                            AppDelegate.shared.startCameraPreviewForSettings()
+                            DispatchQueue.main.async {
+                                isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+                            }
+                        }
+                    }
+                    .disabled(isRecordingCameraVisible)
+                }
+                SDivider()
+                SItem(label: "Camera Size") {
+                    HStack {
+                        Slider(value: $cameraOverlayWidth, in: 120...480, step: 10)
+                            .frame(width: 140)
+                            .onChange(of: cameraOverlayWidth) { newValue in
+                                AppDelegate.shared.resizeCameraOverlayer(width: newValue)
+                            }
+                        Text("\(Int(cameraOverlayWidth))")
+                            .foregroundStyle(.secondary)
+                            .frame(width: 38, alignment: .trailing)
+                    }
+                }
+            }
+        }
+        .onAppear{
+            userColor = ud.color(forKey: "userColor") ?? Color.black
+            normalizeSelectedCamera()
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+        }
+        .onDisappear {
+            AppDelegate.shared.closeCameraPreviewForSettings()
+            isCameraPreviewVisible = false
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .cameraSettingsPreviewDidChange)) { _ in
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+            cameraStateVersion += 1
+        }
+    }
+
+    private func normalizeSelectedCamera() {
+        cameras = SCContext.getCameras()
+        guard !recordCameraDevice.isEmpty,
+              !cameras.contains(where: { $0.uniqueID == recordCameraDevice }) else { return }
+        if let camera = cameras.first(where: { $0.localizedName == recordCameraDevice }) {
+            recordCameraDevice = camera.uniqueID
+        }
+    }
+
+    private var isRecordingCameraVisible: Bool {
+        _ = cameraStateVersion
+        return ud.bool(forKey: "recordCameraEnabled") && SCContext.stream != nil && !SCContext.isCameraSettingsPreview
+    }
+
+    private var cameraPositionButtonTitle: String {
+        if isRecordingCameraVisible { return "Recording" }
+        return isCameraPreviewVisible ? "Hide Preview" : "Show Preview to Adjust Position"
+    }
+
+    private func restartCameraIfNeeded() {
+        let shouldShowPreview = isCameraPreviewVisible
+        let shouldKeepRecordingCamera = ud.bool(forKey: "recordCameraEnabled")
+        guard shouldShowPreview || shouldKeepRecordingCamera || SCContext.isCameraRunning() else { return }
+        AppDelegate.shared.closeCamera()
+        if shouldShowPreview {
+            AppDelegate.shared.startCameraPreviewForSettings()
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+        } else if shouldKeepRecordingCamera {
+            AppDelegate.shared.ensureRecordingCameraRunning()
+        }
     }
 }
 

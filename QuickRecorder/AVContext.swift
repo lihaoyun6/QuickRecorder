@@ -9,19 +9,79 @@ import Foundation
 import AVFoundation
 import UserNotifications
 
+extension Notification.Name {
+    static let cameraSettingsPreviewDidChange = Notification.Name("cameraSettingsPreviewDidChange")
+}
+
 extension AppDelegate {
-    func recordingCamera(with device: AVCaptureDevice) {
+    private func selectedCamera(from cameras: [AVCaptureDevice]) -> AVCaptureDevice? {
+        let savedCamera = ud.string(forKey: "recordCameraDevice") ?? ""
+        return cameras.first(where: { $0.uniqueID == savedCamera })
+            ?? cameras.first(where: { $0.localizedName == savedCamera })
+            ?? cameras.first(where: { $0.localizedName == SCContext.recordCam })
+            ?? cameras.first
+    }
+
+    func startCameraPreviewForSettings() {
+        SCContext.isCameraSettingsPreview = true
+        NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
+        if SCContext.isCameraRunning() {
+            startCameraOverlayer(showsControls: false)
+            return
+        }
+        let cameras = SCContext.getCameras()
+        guard let camera = selectedCamera(from: cameras) else { return }
+        SCContext.recordCam = camera.localizedName
+        ud.set(camera.uniqueID, forKey: "recordCameraDevice")
+        recordingCamera(with: camera, showsControls: false)
+    }
+
+    func closeCameraPreviewForSettings() {
+        guard SCContext.isCameraSettingsPreview else { return }
+        SCContext.isCameraSettingsPreview = false
+        if SCContext.stream != nil {
+            NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
+            return
+        }
+        saveCameraOverlayerPosition()
+        if camWindow.isVisible { camWindow.close() }
+        if SCContext.isCameraRunning() {
+            SCContext.captureSession.stopRunning()
+            SCContext.cameraFrameQueue.sync { SCContext.cameraFrameCache = nil }
+        }
+        NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
+    }
+
+    func ensureRecordingCameraRunning(showOverlay: Bool = true) {
+        guard ud.bool(forKey: "recordCameraEnabled") else { return }
+        if SCContext.isCameraRunning() {
+            if showOverlay { startCameraOverlayer() }
+            return
+        }
+        let cameras = SCContext.getCameras()
+        guard let camera = selectedCamera(from: cameras) else {
+            ud.set(false, forKey: "recordCameraEnabled")
+            return
+        }
+        SCContext.recordCam = camera.localizedName
+        ud.set(camera.uniqueID, forKey: "recordCameraDevice")
+        recordingCamera(with: camera, showOverlay: showOverlay)
+    }
+
+    func recordingCamera(with device: AVCaptureDevice, showOverlay: Bool = true, showsControls: Bool = true) {
         SCContext.captureSession = AVCaptureSession()
         
         guard let input = try? AVCaptureDeviceInput(device: device),
               SCContext.captureSession.canAddInput(input) else {
             print("Failed to set up camera")
+            ud.set(false, forKey: "recordCameraEnabled")
             SCContext.requestCameraPermission()
             return
         }
         SCContext.captureSession.addInput(input)
         
         let videoOutput = AVCaptureVideoDataOutput()
+        videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         videoOutput.setSampleBufferDelegate(self, queue: .global())
         
         if SCContext.captureSession.canAddOutput(videoOutput) {
@@ -29,23 +89,29 @@ extension AppDelegate {
         }
         
         SCContext.captureSession.startRunning()
-        DispatchQueue.main.async { self.startCameraOverlayer() }
-    }
-    
-    func closeCamera() {
-        if SCContext.isCameraRunning() {
-            //SCContext.previewType = nil
-            if camWindow.isVisible { camWindow.close() }
-            SCContext.captureSession.stopRunning()
+        if showOverlay {
+            DispatchQueue.main.async { self.startCameraOverlayer(showsControls: showsControls) }
         }
     }
     
+    func closeCamera() {
+        SCContext.isCameraSettingsPreview = false
+        saveCameraOverlayerPosition()
+        if camWindow.isVisible { camWindow.close() }
+        if SCContext.isCameraRunning() {
+            //SCContext.previewType = nil
+            SCContext.captureSession.stopRunning()
+        }
+        SCContext.cameraFrameQueue.sync { SCContext.cameraFrameCache = nil }
+    }
+    
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        /* 保留后续以作他用
-        if !SCContext.isPaused && ud.string(forKey: "recordCam") != "" {
-            if sampleBuffer.isValid { SCContext.isCameraReady = true }
-            if sampleBuffer.imageBuffer != nil { SCContext.frameCache = sampleBuffer }
-        }*/
+        guard ud.bool(forKey: "recordCameraEnabled"), sampleBuffer.isValid,
+              let imageBuffer = sampleBuffer.imageBuffer else { return }
+        SCContext.cameraFrameQueue.sync {
+            SCContext.cameraFrameCache = imageBuffer
+        }
+        isCameraReady = true
     }
 }
 

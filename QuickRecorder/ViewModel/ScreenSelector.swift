@@ -54,6 +54,9 @@ struct ScreenSelector: View {
                                                         Image(nsImage: viewModel.screenThumbnails[index].image)
                                                             .resizable()
                                                             .aspectRatio(contentMode: .fit)
+                                                        CameraSelectionPreviewOverlay(diameter: count == 1 ? 86 : 44)
+                                                            .frame(width: count == 1 ? 672 : 320, height: count == 1 ? 378 : 180, alignment: .bottomTrailing)
+                                                            .padding(count == 1 ? 18 : 9)
                                                     }.frame(width: count == 1 ? 672 : 320, height: count == 1 ? 378 : 180, alignment: .center)
                                                     let screenName = NSScreen.screens.first(where: { $0.displayID == viewModel.screenThumbnails[index].screen.displayID })?.localizedName ?? "Display ".local + "\(viewModel.screenThumbnails[index].screen.displayID)"
                                                     Text(screenName)
@@ -91,7 +94,7 @@ struct ScreenSelector: View {
                 }
                 .frame(height: 445)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 14) {
                     Button(action: {
                         viewModel.setupStreams()
                     }, label: {

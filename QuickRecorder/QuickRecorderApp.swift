@@ -30,7 +30,7 @@ var hideScreenMagnifier = false
 let updateTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 let mousePointer = NSWindow(contentRect: NSRect(x: -70, y: -70, width: 70, height: 70), styleMask: [.borderless], backing: .buffered, defer: false)
 let screenMagnifier = NSWindow(contentRect: NSRect(x: -402, y: -402, width: 402, height: 348), styleMask: [.borderless], backing: .buffered, defer: false)
-let camWindow = NSPanel(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
+let camWindow = NSPanel(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .nonactivatingPanel], backing: .buffered, defer: false)
 let deviceWindow = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 200, height: 200), styleMask: [.fullSizeContentView, .resizable], backing: .buffered, defer: false)
 let controlPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 10, height: 10), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
 let countdownPanel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 120, height: 120), styleMask: [.fullSizeContentView], backing: .buffered, defer: false)
@@ -74,6 +74,10 @@ struct QuickRecorderApp: App {
                             if let w = w {
                                 //w.level = .floating
                                 w.titlebarSeparatorStyle = .none
+                                if let closeButton = w.standardWindowButton(.closeButton) {
+                                    closeButton.target = AppDelegate.shared
+                                    closeButton.action = #selector(AppDelegate.closeSettingsWindow(_:))
+                                }
                                 guard let nsSplitView = findNSSplitVIew(view: w.contentView),
                                       let controller = nsSplitView.delegate as? NSSplitViewController else { return }
                                 controller.splitViewItems.first?.canCollapse = false
@@ -113,6 +117,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isResizing = false
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
+
+    @objc func closeSettingsWindow(_ sender: Any?) {
+        closeCameraPreviewForSettings()
+        if let window = (sender as? NSView)?.window ?? NSApp.keyWindow {
+            window.close()
+        }
+    }
     
     @AppStorage("showOnDock")       var showOnDock: Bool = true
     @AppStorage("showMenubar")      var showMenubar: Bool = false
@@ -199,8 +210,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationWillFinishLaunching(_ notification: Notification) {
-        scPerm = SCContext.updateAvailableContentSync() != nil
-        
         let process = NSWorkspace.shared.runningApplications.filter({ $0.bundleIdentifier == "com.lihaoyun6.QuickRecorder" })
         if process.count > 1 {
             DispatchQueue.main.async {
@@ -346,12 +355,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(settingsWindowWillClose(_:)),
+            name: NSWindow.willCloseNotification,
+            object: nil
+        )
         closeAllWindow()
         if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
         tips("Would you like to use H.265 format for better video quality and smaller file size?",
              id: "qr.switch-to-h265.note", buttonTitle: "Use H.265", switchButton: true) {
             ud.setValue(Encoder.h265.rawValue, forKey: "encoder")
         }
+    }
+
+    @objc func settingsWindowWillClose(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              window.title.contains("QuickRecorder") || findNSSplitVIew(view: window.contentView) != nil else { return }
+        closeCameraPreviewForSettings()
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -416,6 +437,7 @@ func closeAllWindow(except: String = "") {
     for w in NSApp.windows.filter({
         $0.title != "Item-0" && $0.title != ""
         && !$0.title.lowercased().contains(".qma")
+        && $0.title != "Camera Overlayer".local
         && !$0.title.contains(except) }) { w.close() }
 }
 

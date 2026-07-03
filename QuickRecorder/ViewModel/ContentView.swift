@@ -198,16 +198,6 @@ struct ContentView: View {
                     }, label: {
                         SelectorView(title: "Window".local, symbol: "macwindow").cornerRadius(8)
                     }).buttonStyle(.plain)
-                    /*Divider().frame(height: 70)
-                    Button(action: {
-                        isPopoverShowing2 = true
-                    }, label: {
-                        SelectorView(title: "Camera".local, symbol: "camera").cornerRadius(8)
-                    })
-                    .buttonStyle(.plain)
-                    .popover(isPresented: $isPopoverShowing2, arrowEdge: .bottom) {
-                        CameraPopoverView(closePopover: { isPopoverShowing2 = false })
-                    }*/
                     Divider().frame(height: 70)
                     Button(action: {
                         isPopoverShowing = true

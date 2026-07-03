@@ -225,3 +225,13 @@
 "audio file writing issue" = "音频文件写入出错";
 "closing stream with error:\n" = "关闭流时发生错误:\n";
 "\nthis might be due to the window closing or the user stopping from the sonoma ui" = "\n这可能是有由于用户关闭了正在录制中的窗口, 或使用窗口上的附加按钮停止了录制.";
+"Camera" = "攝像頭";
+"Mirror Camera" = "開啟前置鏡像";
+"Camera Device" = "攝像頭裝置";
+"Camera Position" = "攝像頭位置";
+"Camera Size" = "攝像頭大小";
+"Position" = "位置";
+"Show Preview to Adjust Position" = "預覽";
+"Hide Preview" = "關閉預覽";
+"Recording" = "錄製中";
+"Enable Camera" = "開啟攝像頭";

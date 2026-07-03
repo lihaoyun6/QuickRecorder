@@ -42,6 +42,8 @@ extension AppDelegate {
             }
         }
         
+        ensureRecordingCameraRunning()
+
         // file preparation
         if let screens = screens {
             SCContext.screen = SCContext.availableContent!.displays.first(where: { $0 == screens })
@@ -76,7 +78,7 @@ extension AppDelegate {
             && $0.title == "" && $0.frame == screen.frame })
         let controlCenterWindow = SCContext.availableContent!.applications.filter({ $0.bundleIdentifier == "com.apple.controlcenter" })
         let mouseWindow = SCContext.availableContent!.windows.filter({ $0.title == "Mouse Pointer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
-        let camLayer = SCContext.availableContent!.windows.filter({ $0.title == "Camera Overlayer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
+        let cameraOverlayerWindow = SCContext.availableContent!.windows.filter({ $0.title == "Camera Overlayer".local && $0.owningApplication?.bundleIdentifier == Bundle.main.bundleIdentifier })
         var appBlackList = [String]()
         if let savedData = ud.data(forKey: "hiddenApps"),
            let decodedApps = try? JSONDecoder().decode([AppInfo].self, from: savedData) {
@@ -86,10 +88,11 @@ extension AppDelegate {
         
         if SCContext.streamType == .window || SCContext.streamType == .windows {
             if var includ = SCContext.window {
-                if includ.count > 1 {
+                if includ.count > 1 || ud.bool(forKey: "recordCameraEnabled") {
+                    if ud.bool(forKey: "recordCameraEnabled") { SCContext.streamType = .windows }
                     if highlightMouse { includ += mouseWindow }
                     if background.rawValue == BackgroundType.wallpaper.rawValue { if dockApp != nil { includ += wallpaper }}
-                    SCContext.filter = SCContentFilter(display: screen, including: includ + camLayer)
+                    SCContext.filter = SCContentFilter(display: screen, including: includ)
                     if #available(macOS 14.2, *) { SCContext.filter?.includeMenuBar = includeMenuBar }
                 } else {
                     SCContext.streamType = .window
@@ -109,6 +112,7 @@ extension AppDelegate {
                 excluded += excliudedApps
                 if hideCCenter { excluded += controlCenterWindow }
                 if hideSelf { if let qrWindows = qrWindows { except += qrWindows }}
+                except += cameraOverlayerWindow
                 if background.rawValue != BackgroundType.wallpaper.rawValue { if dockApp != nil {
                     except += wallpaper
                     except += desktop
@@ -124,6 +128,7 @@ extension AppDelegate {
                 let withFinder = includ.map{ $0.bundleIdentifier }.contains("com.apple.finder")
                 if withFinder && hideDesktopFiles { except += desktopFiles }
                 if hideSelf { if let qrWindows = qrWindows { except += qrWindows }}
+                except += cameraOverlayerWindow
                 //if ud.bool(forKey: "highlightMouse") { if let qrSelf = qrSelf { includ.append(qrSelf) }}
                 if background.rawValue == BackgroundType.wallpaper.rawValue { if let dock = dockApp { includ.append(dock); except += dockWindow}}
                 SCContext.filter = SCContentFilter(display: screen, including: includ, exceptingWindows: except)
@@ -414,6 +419,15 @@ extension AppDelegate {
         
         SCContext.vwInput = AVAssetWriterInput(mediaType: AVMediaType.video, outputSettings: videoSettings)
         SCContext.vwInput.expectsMediaDataInRealTime = true
+        SCContext.videoPixelBufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(
+            assetWriterInput: SCContext.vwInput,
+            sourcePixelBufferAttributes: [
+                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                kCVPixelBufferWidthKey as String: conf.width,
+                kCVPixelBufferHeightKey as String: conf.height,
+                kCVPixelBufferIOSurfacePropertiesKey as String: [:]
+            ]
+        )
         
         if SCContext.vW.canAdd(SCContext.vwInput) { SCContext.vW.add(SCContext.vwInput) }
 
@@ -468,7 +482,6 @@ extension AppDelegate {
     }
     
     func outputVideoEffectDidStart(for stream: SCStream) {
-        DispatchQueue.main.async { camWindow.close() }
         print("[Presenter Overlay ON]")
         isPresenterON = true
         DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(poSafeDelay)) {
@@ -595,7 +608,9 @@ extension AppDelegate {
                 }
                 if isPresenterON && !isCameraReady { break }
                 if SCContext.firstFrame == nil { SCContext.firstFrame = SampleBuffer }
-                SCContext.vwInput.append(SampleBuffer)
+                if !appendCameraCompositedSampleBuffer(SampleBuffer) {
+                    SCContext.vwInput.append(SampleBuffer)
+                }
             }
             break
         case .audio:
@@ -610,7 +625,9 @@ extension AppDelegate {
                 catch { assertionFailure("audio file writing issue".local) }
             } else {
                 if SCContext.lastPTS == nil { return }
-                if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
+                if SCContext.vW.status == .writing && SCContext.awInput.isReadyForMoreMediaData {
+                    SCContext.awInput.append(SampleBuffer)
+                }
             }
 #if compiler(>=6.0)
         case .microphone:
@@ -628,6 +645,111 @@ extension AppDelegate {
             SCContext.stream = nil
             SCContext.stopRecording()
         }
+    }
+
+    private func appendCameraCompositedSampleBuffer(_ sampleBuffer: CMSampleBuffer) -> Bool {
+        guard ud.bool(forKey: "recordCameraEnabled"),
+              let screenPixelBuffer = sampleBuffer.imageBuffer,
+              let adaptor = SCContext.videoPixelBufferAdaptor,
+              let pixelBufferPool = adaptor.pixelBufferPool else { return false }
+
+        let cameraPixelBuffer = SCContext.cameraFrameQueue.sync { SCContext.cameraFrameCache }
+        guard let cameraPixelBuffer else { return false }
+
+        var outputPixelBuffer: CVPixelBuffer?
+        guard CVPixelBufferPoolCreatePixelBuffer(nil, pixelBufferPool, &outputPixelBuffer) == kCVReturnSuccess,
+              let outputPixelBuffer else { return false }
+
+        let screenImage = CIImage(cvPixelBuffer: screenPixelBuffer)
+        let cameraImage = CIImage(cvPixelBuffer: cameraPixelBuffer)
+        let outputExtent = screenImage.extent
+        let cameraSize = min(CGFloat(max(80, ud.double(forKey: "cameraOverlayWidth"))), min(outputExtent.width, outputExtent.height) / 2)
+        let cameraOrigin = cameraOverlayOrigin(size: cameraSize, outputExtent: outputExtent)
+        let cameraRect = CGRect(origin: cameraOrigin, size: CGSize(width: cameraSize, height: cameraSize))
+
+        let croppedCamera = centerCrop(image: cameraImage)
+        let cameraSquare = ud.bool(forKey: "cameraMirrored") ? mirrorHorizontally(image: croppedCamera) : croppedCamera
+        let scaledCamera = cameraSquare
+            .transformed(by: CGAffineTransform(
+                scaleX: cameraSize / cameraSquare.extent.width,
+                y: cameraSize / cameraSquare.extent.height
+            ))
+            .transformed(by: CGAffineTransform(
+                translationX: cameraRect.minX,
+                y: cameraRect.minY
+            ))
+
+        let mask = radialMask(in: cameraRect)
+        let composited = scaledCamera
+            .applyingFilter("CIBlendWithMask", parameters: [
+                kCIInputBackgroundImageKey: screenImage,
+                kCIInputMaskImageKey: mask
+            ])
+            .cropped(to: outputExtent)
+
+        SCContext.cameraCompositeContext.render(composited, to: outputPixelBuffer)
+        let pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        return adaptor.append(outputPixelBuffer, withPresentationTime: pts)
+    }
+
+    private func cameraOverlayOrigin(size: CGFloat, outputExtent: CGRect) -> CGPoint {
+        let margin: CGFloat = 24
+        guard let savedX = ud.object(forKey: "cameraOverlayX") as? Double,
+              let savedY = ud.object(forKey: "cameraOverlayY") as? Double else {
+            return CGPoint(x: outputExtent.maxX - size - margin, y: outputExtent.minY + margin)
+        }
+
+        var sourceFrame = SCContext.screen?.frame ?? SCContext.getScreenWithMouse()?.frame ?? .zero
+        if SCContext.streamType == .screenarea, let screenArea = SCContext.screenArea {
+            sourceFrame = screenArea
+        }
+
+        guard sourceFrame.width > 0, sourceFrame.height > 0 else {
+            return CGPoint(x: outputExtent.maxX - size - margin, y: outputExtent.minY + margin)
+        }
+
+        let scaleX = outputExtent.width / sourceFrame.width
+        let scaleY = outputExtent.height / sourceFrame.height
+        let mappedX = outputExtent.minX + (CGFloat(savedX) - sourceFrame.minX) * scaleX
+        let mappedY = outputExtent.minY + (CGFloat(savedY) - sourceFrame.minY) * scaleY
+        let minX = outputExtent.minX + margin
+        let maxX = outputExtent.maxX - size - margin
+        let minY = outputExtent.minY + margin
+        let maxY = outputExtent.maxY - size - margin
+        return CGPoint(x: min(max(mappedX, minX), maxX), y: min(max(mappedY, minY), maxY))
+    }
+
+    private func centerCrop(image: CIImage) -> CIImage {
+        let extent = image.extent
+        let side = min(extent.width, extent.height)
+        let cropRect = CGRect(
+            x: extent.midX - side / 2,
+            y: extent.midY - side / 2,
+            width: side,
+            height: side
+        )
+        return image.cropped(to: cropRect).transformed(by: CGAffineTransform(translationX: -cropRect.minX, y: -cropRect.minY))
+    }
+
+    private func mirrorHorizontally(image: CIImage) -> CIImage {
+        return image
+            .transformed(by: CGAffineTransform(scaleX: -1, y: 1))
+            .transformed(by: CGAffineTransform(translationX: image.extent.width, y: 0))
+    }
+
+    private func radialMask(in rect: CGRect) -> CIImage {
+        let radius = rect.width / 2
+        let center = CIVector(x: rect.midX, y: rect.midY)
+        return CIFilter(
+            name: "CIRadialGradient",
+            parameters: [
+                "inputCenter": center,
+                "inputRadius0": radius - 1,
+                "inputRadius1": radius,
+                "inputColor0": CIColor.white,
+                "inputColor1": CIColor.clear
+            ]
+        )!.outputImage!.cropped(to: rect)
     }
 }
 

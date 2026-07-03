@@ -147,7 +147,7 @@ struct WinSelector: View {
                         }
                     }
                 }
-                HStack(spacing: 4) {
+                HStack(spacing: 14) {
                     Button(action: {
                         self.viewModel.setupStreams(filter: !disableFilter, capture: !donotCapture)
                         self.selected.removeAll()
