@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, for example 1.7.0 or v1.7.0'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -15,7 +20,24 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Resolve release version
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          VERSION="${VERSION#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid version: $VERSION"
+            echo "Use a version like 1.7.0 or v1.7.0."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=v$VERSION" >> "$GITHUB_ENV"
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
@@ -52,6 +74,7 @@ jobs:
               -configuration Release \
               -destination 'platform=macOS,arch=arm64' \
               -derivedDataPath build/DerivedData \
+              MARKETING_VERSION="$VERSION" \
               DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
               build
           else
@@ -61,6 +84,7 @@ jobs:
               -configuration Release \
               -destination 'platform=macOS,arch=arm64' \
               -derivedDataPath build/DerivedData \
+              MARKETING_VERSION="$VERSION" \
               CODE_SIGNING_ALLOWED=NO \
               build
           fi
@@ -69,7 +93,11 @@ jobs:
         run: |
           set -euo pipefail
           APP_PATH="build/DerivedData/Build/Products/Release/QuickRecorder.app"
-          VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Contents/Info.plist")
+          APP_VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Contents/Info.plist")
+          if [ "$APP_VERSION" != "$VERSION" ]; then
+            echo "Built app version $APP_VERSION does not match release version $VERSION."
+            exit 1
+          fi
           DMG_PATH="QuickRecorder_v${VERSION}.dmg"
           mkdir -p build/dmg-root
           cp -R "$APP_PATH" build/dmg-root/
@@ -81,17 +109,17 @@ jobs:
             -format UDZO \
             "$DMG_PATH"
           echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: QuickRecorder-dmg
-          path: ${{ env.DMG_PATH }}
 
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ env.DMG_PATH }}
-          generate_release_notes: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "$DMG_PATH" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$DMG_PATH" \
+              --title "QuickRecorder $RELEASE_TAG" \
+              --target "$GITHUB_SHA" \
+              --generate-notes
+          fi
