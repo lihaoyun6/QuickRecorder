@@ -9,6 +9,10 @@ import Foundation
 import AVFoundation
 import UserNotifications
 
+extension Notification.Name {
+    static let cameraSettingsPreviewDidChange = Notification.Name("cameraSettingsPreviewDidChange")
+}
+
 extension AppDelegate {
     private func selectedCamera(from cameras: [AVCaptureDevice]) -> AVCaptureDevice? {
         let savedCamera = ud.string(forKey: "recordCameraDevice") ?? ""
@@ -19,6 +23,8 @@ extension AppDelegate {
     }
 
     func startCameraPreviewForSettings() {
+        SCContext.isCameraSettingsPreview = true
+        NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
         if SCContext.isCameraRunning() {
             startCameraOverlayer(showsControls: false)
             return
@@ -28,6 +34,18 @@ extension AppDelegate {
         SCContext.recordCam = camera.localizedName
         ud.set(camera.uniqueID, forKey: "recordCameraDevice")
         recordingCamera(with: camera, showsControls: false)
+    }
+
+    func closeCameraPreviewForSettings() {
+        guard SCContext.isCameraSettingsPreview || camWindow.isVisible else { return }
+        SCContext.isCameraSettingsPreview = false
+        saveCameraOverlayerPosition()
+        if camWindow.isVisible { camWindow.close() }
+        if SCContext.isCameraRunning() {
+            SCContext.captureSession.stopRunning()
+            SCContext.cameraFrameQueue.sync { SCContext.cameraFrameCache = nil }
+        }
+        NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
     }
 
     func ensureRecordingCameraRunning(showOverlay: Bool = true) {
@@ -73,6 +91,7 @@ extension AppDelegate {
     }
     
     func closeCamera() {
+        SCContext.isCameraSettingsPreview = false
         saveCameraOverlayerPosition()
         if camWindow.isVisible { camWindow.close() }
         if SCContext.isCameraRunning() {

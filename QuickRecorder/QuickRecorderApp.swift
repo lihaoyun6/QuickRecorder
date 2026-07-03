@@ -74,6 +74,10 @@ struct QuickRecorderApp: App {
                             if let w = w {
                                 //w.level = .floating
                                 w.titlebarSeparatorStyle = .none
+                                if let closeButton = w.standardWindowButton(.closeButton) {
+                                    closeButton.target = AppDelegate.shared
+                                    closeButton.action = #selector(AppDelegate.closeSettingsWindow(_:))
+                                }
                                 guard let nsSplitView = findNSSplitVIew(view: w.contentView),
                                       let controller = nsSplitView.delegate as? NSSplitViewController else { return }
                                 controller.splitViewItems.first?.canCollapse = false
@@ -113,6 +117,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isResizing = false
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
+
+    @objc func closeSettingsWindow(_ sender: Any?) {
+        closeCameraPreviewForSettings()
+        if let window = (sender as? NSView)?.window ?? NSApp.keyWindow {
+            window.close()
+        }
+    }
     
     @AppStorage("showOnDock")       var showOnDock: Bool = true
     @AppStorage("showMenubar")      var showMenubar: Bool = false
@@ -344,12 +355,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     }
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(settingsWindowWillClose(_:)),
+            name: NSWindow.willCloseNotification,
+            object: nil
+        )
         closeAllWindow()
         if showOnDock { _ = applicationShouldHandleReopen(NSApp, hasVisibleWindows: true) }
         tips("Would you like to use H.265 format for better video quality and smaller file size?",
              id: "qr.switch-to-h265.note", buttonTitle: "Use H.265", switchButton: true) {
             ud.setValue(Encoder.h265.rawValue, forKey: "encoder")
         }
+    }
+
+    @objc func settingsWindowWillClose(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow,
+              window.title.contains("QuickRecorder") || findNSSplitVIew(view: window.contentView) != nil else { return }
+        closeCameraPreviewForSettings()
     }
     
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

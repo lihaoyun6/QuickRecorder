@@ -176,12 +176,12 @@ struct RecorderView: View {
                 SItem(label: "Camera Position") {
                     Button((isCameraPreviewVisible ? "Hide Preview" : "Show Preview to Adjust Position").local) {
                         if isCameraPreviewVisible {
-                            AppDelegate.shared.closeCamera()
+                            AppDelegate.shared.closeCameraPreviewForSettings()
                             isCameraPreviewVisible = false
                         } else {
                             AppDelegate.shared.startCameraPreviewForSettings()
                             DispatchQueue.main.async {
-                                isCameraPreviewVisible = SCContext.isCameraRunning() && camWindow.isVisible
+                                isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
                             }
                         }
                     }
@@ -204,7 +204,14 @@ struct RecorderView: View {
         .onAppear{
             userColor = ud.color(forKey: "userColor") ?? Color.black
             normalizeSelectedCamera()
-            isCameraPreviewVisible = SCContext.isCameraRunning() && camWindow.isVisible
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+        }
+        .onDisappear {
+            AppDelegate.shared.closeCameraPreviewForSettings()
+            isCameraPreviewVisible = false
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .cameraSettingsPreviewDidChange)) { _ in
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
         }
     }
 
@@ -224,7 +231,7 @@ struct RecorderView: View {
         AppDelegate.shared.closeCamera()
         if shouldShowPreview {
             AppDelegate.shared.startCameraPreviewForSettings()
-            isCameraPreviewVisible = SCContext.isCameraRunning() && camWindow.isVisible
+            isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
         } else if shouldKeepRecordingCamera {
             AppDelegate.shared.ensureRecordingCameraRunning()
         }

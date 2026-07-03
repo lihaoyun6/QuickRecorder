@@ -25,6 +25,7 @@ class SCContext {
     static var frameCache: CMSampleBuffer?
     static var cameraFrameCache: CVPixelBuffer?
     static let cameraFrameQueue = DispatchQueue(label: "quickrecorder.camera.frame")
+    static var isCameraSettingsPreview = false
     static var filter: SCContentFilter?
     static var isMagnifierEnabled = false
     static var saveFrame = false
