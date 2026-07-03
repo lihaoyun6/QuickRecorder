@@ -401,6 +401,7 @@ class SCContext {
                 if let preview = previewSession { preview.stopRunning() }
                 if let capture = captureSession { capture.stopRunning() }
             }
+            NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
         }
         
         audioFile = nil // close audio file

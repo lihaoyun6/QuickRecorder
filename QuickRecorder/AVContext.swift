@@ -37,8 +37,12 @@ extension AppDelegate {
     }
 
     func closeCameraPreviewForSettings() {
-        guard SCContext.isCameraSettingsPreview || camWindow.isVisible else { return }
+        guard SCContext.isCameraSettingsPreview else { return }
         SCContext.isCameraSettingsPreview = false
+        if SCContext.stream != nil {
+            NotificationCenter.default.post(name: .cameraSettingsPreviewDidChange, object: nil)
+            return
+        }
         saveCameraOverlayerPosition()
         if camWindow.isVisible { camWindow.close() }
         if SCContext.isCameraRunning() {

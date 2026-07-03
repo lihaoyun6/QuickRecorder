@@ -113,6 +113,7 @@ struct RecorderView: View {
     @State private var userColor: Color = Color.black
     @State private var cameras = SCContext.getCameras()
     @State private var isCameraPreviewVisible = false
+    @State private var cameraStateVersion = 0
 
     var body: some View {
         SForm(spacing: 10) {
@@ -174,7 +175,7 @@ struct RecorderView: View {
                 }
                 SDivider()
                 SItem(label: "Camera Position") {
-                    Button((isCameraPreviewVisible ? "Hide Preview" : "Show Preview to Adjust Position").local) {
+                    Button(cameraPositionButtonTitle.local) {
                         if isCameraPreviewVisible {
                             AppDelegate.shared.closeCameraPreviewForSettings()
                             isCameraPreviewVisible = false
@@ -185,6 +186,7 @@ struct RecorderView: View {
                             }
                         }
                     }
+                    .disabled(isRecordingCameraVisible)
                 }
                 SDivider()
                 SItem(label: "Camera Size") {
@@ -212,6 +214,7 @@ struct RecorderView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .cameraSettingsPreviewDidChange)) { _ in
             isCameraPreviewVisible = SCContext.isCameraSettingsPreview && camWindow.isVisible
+            cameraStateVersion += 1
         }
     }
 
@@ -222,6 +225,16 @@ struct RecorderView: View {
         if let camera = cameras.first(where: { $0.localizedName == recordCameraDevice }) {
             recordCameraDevice = camera.uniqueID
         }
+    }
+
+    private var isRecordingCameraVisible: Bool {
+        _ = cameraStateVersion
+        return ud.bool(forKey: "recordCameraEnabled") && SCContext.stream != nil && !SCContext.isCameraSettingsPreview
+    }
+
+    private var cameraPositionButtonTitle: String {
+        if isRecordingCameraVisible { return "Recording" }
+        return isCameraPreviewVisible ? "Hide Preview" : "Show Preview to Adjust Position"
     }
 
     private func restartCameraIfNeeded() {

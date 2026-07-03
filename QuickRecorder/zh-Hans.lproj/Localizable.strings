@@ -226,6 +226,7 @@
 "Position" = "位置";
 "Show Preview to Adjust Position" = "预览";
 "Hide Preview" = "关闭预览";
+"Recording" = "录制中";
 "Enable Camera" = "开启摄像头";
 "capture failed" = "捕获失败";
 "unknown audio format while setting audio settings: " = "更改音频设置时设置了未知的音频格式";
