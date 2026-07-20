@@ -45,6 +45,7 @@ class SCContext {
     static var startTime: Date?
     static var timePassed: TimeInterval = 0
     static var stream: SCStream!
+    static var usesScreenCaptureKitMicrophone = false
     static var screen: SCDisplay?
     static var window: [SCWindow]?
     static var application: [SCRunningApplication]?
@@ -343,11 +344,13 @@ class SCContext {
         stream = nil
         if ud.bool(forKey: "recordMic") {
             micInput.markAsFinished()
-            AudioRecorder.shared.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
-            audioEngine.stop()
-            //DispatchQueue.global().async { try? audioEngine.inputNode.setVoiceProcessingEnabled(false) }
-            if ud.bool(forKey: "enableAEC") { try? AECEngine.stopAudioUnit() }
+            if !usesScreenCaptureKitMicrophone {
+                AudioRecorder.shared.stop()
+                audioEngine.inputNode.removeTap(onBus: 0)
+                audioEngine.stop()
+                //DispatchQueue.global().async { try? audioEngine.inputNode.setVoiceProcessingEnabled(false) }
+                if ud.bool(forKey: "enableAEC") { try? AECEngine.stopAudioUnit() }
+            }
         }
         if streamType != .systemaudio {
             let dispatchGroup = DispatchGroup()
@@ -473,6 +476,7 @@ class SCContext {
         }
         
         streamType = nil
+        usesScreenCaptureKitMicrophone = false
         firstFrame = nil
     }
     

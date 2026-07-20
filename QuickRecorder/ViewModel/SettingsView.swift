@@ -106,6 +106,7 @@ struct RecorderView: View {
     @AppStorage("preventSleep")     private var preventSleep: Bool = true
     @AppStorage("showPreview")      private var showPreview: Bool = true
     @AppStorage("hideCCenter")      private var hideCCenter: Bool = false
+    @AppStorage("useScreenCaptureKitMicrophone") private var useScreenCaptureKitMicrophone: Bool = supportsScreenCaptureKitMicrophone
     
     @State private var userColor: Color = Color.black
 
@@ -113,6 +114,13 @@ struct RecorderView: View {
         SForm(spacing: 10) {
             SGroupBox(label: "Recorder") {
                 SSteper("Delay Before Recording", value: $countdown, min: 0, max: 99)
+                SDivider()
+                SToggle(
+                    "Use ScreenCaptureKit for Microphone Recording",
+                    isOn: $useScreenCaptureKitMicrophone,
+                    tips: "Use the modern microphone capture path on macOS 15 or later. Turn this off to use the legacy AVAudioEngine path."
+                )
+                .disabled(!supportsScreenCaptureKitMicrophone)
                 SDivider()
                 if #available(macOS 14, *) {
                     SSteper("Presenter Overlay Delay", value: $poSafeDelay, min: 0, max: 99, tips: "If enabling Presenter Overlay causes recording failure, please increase this value.")
