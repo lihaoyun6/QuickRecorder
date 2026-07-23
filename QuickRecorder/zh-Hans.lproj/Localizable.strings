@@ -214,7 +214,7 @@
 "QuickRecorder needs this permission to record your camera or mobile device." = "QuickRecorder 需要使用此权限以录制来自摄像头或移动设备的画面.";
 "Select Window Directly" = "直接点选窗口";
 "Use ScreenCaptureKit for Microphone Recording" = "使用 ScreenCaptureKit 录制麦克风";
-"Use the modern microphone capture path on macOS 15 or later. Turn this off to use the legacy AVAudioEngine path." = "在 macOS 15 或更高版本上使用新的麦克风录制方式。关闭后将使用旧版 AVAudioEngine 录制方式。";
+"Use the modern microphone capture path on macOS 15 or later. Enabling this is recommended." = "在 macOS 15 或更高版本上使用新的麦克风录制方式。建议开启。";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

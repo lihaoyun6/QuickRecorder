@@ -29,13 +29,13 @@ struct SettingsView: View {
                 NavigationLink(destination: HotkeyView(), tag: "Hotkey", selection: $selectedItem) {
                     Label("Hotkey", image: "hotkey")
                 }
-                NavigationLink(destination: BlocklistView(), tag: "Blaoklist", selection: $selectedItem) {
+                NavigationLink(destination: BlocklistView(), tag: "Blocklist", selection: $selectedItem) {
                     Label("Blocklist", image: "blacklist")
                 }
             }
             .listStyle(.sidebar)
             .padding(.top, 9)
-        }.frame(width: 600, height: 512)
+        }.frame(width: 600, height: 560)
     }
 }
 
@@ -118,7 +118,7 @@ struct RecorderView: View {
                 SToggle(
                     "Use ScreenCaptureKit for Microphone Recording",
                     isOn: $useScreenCaptureKitMicrophone,
-                    tips: "Use the modern microphone capture path on macOS 15 or later. Turn this off to use the legacy AVAudioEngine path."
+                    tips: "Use the modern microphone capture path on macOS 15 or later. Enabling this is recommended."
                 )
                 .disabled(!supportsScreenCaptureKitMicrophone)
                 SDivider()
