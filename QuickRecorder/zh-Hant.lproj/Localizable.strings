@@ -211,6 +211,8 @@
 "Would you like to use H.265 format for better video quality and smaller file size?" = "是否使用 H.265 編碼以獲得更好的錄影畫質和更小的檔案體積?";
 "QuickRecorder needs this permission to record your camera or mobile device." = "QuickRecorder 需要此權限以錄製來自攝像頭或行動裝置的畫面.";
 "Select Window Directly" = "直接點選視窗";
+"Use ScreenCaptureKit for Microphone Recording" = "使用 ScreenCaptureKit 錄製麥克風";
+"Use the modern microphone capture path on macOS 15 or later. Enabling this is recommended." = "在 macOS 15 或更高版本上使用新的麥克風錄製方式。建議開啟。";
 
 // Please don't translate the following warning strings, it will make it difficult for me to read the logs
 "failed to fetch file for size indicator: %@" = "获取文件大小失败: ";

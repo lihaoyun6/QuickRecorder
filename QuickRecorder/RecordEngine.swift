@@ -218,6 +218,20 @@ extension AppDelegate {
             conf.sampleRate = 48000
             conf.channelCount = 2
         }
+
+        SCContext.usesScreenCaptureKitMicrophone = false
+#if compiler(>=6.0)
+        if #available(macOS 15.0, *), recordMic && useScreenCaptureKitMicrophone {
+            SCContext.usesScreenCaptureKitMicrophone = true
+            conf.captureMicrophone = true
+            if micDevice != "default", let microphone = SCContext.getCurrentMic() {
+                conf.microphoneCaptureDeviceID = microphone.uniqueID
+            }
+        }
+#endif
+        if recordMic {
+            print("Microphone capture method: \(SCContext.usesScreenCaptureKitMicrophone ? "ScreenCaptureKit" : "Legacy")")
+        }
         
 
         //  conf.minimumFrameInterval = CMTime(value: 1, timescale: audioOnly ? CMTimeScale.max : CMTimeScale(frameRate))
@@ -286,14 +300,20 @@ extension AppDelegate {
         do {
             try SCContext.stream.addStreamOutput(self, type: .screen, sampleHandlerQueue: .global())
             if #available(macOS 13, *) { try SCContext.stream.addStreamOutput(self, type: .audio, sampleHandlerQueue: .global()) }
+#if compiler(>=6.0)
+            if #available(macOS 15.0, *), SCContext.usesScreenCaptureKitMicrophone {
+                try SCContext.stream.addStreamOutput(self, type: .microphone, sampleHandlerQueue: screenCaptureKitMicrophoneQueue)
+            }
+#endif
             if !audioOnly {
                 initVideo(conf: conf)
             } else {
                 //SCContext.startTime = Date.now
-                if recordMic { startMicRecording() }
+                if recordMic && !SCContext.usesScreenCaptureKitMicrophone { startMicRecording() }
             }
             try await SCContext.stream.startCapture()
         } catch {
+            SCContext.usesScreenCaptureKitMicrophone = false
             assertionFailure("capture failed".local)
             return
         }
@@ -430,7 +450,7 @@ extension AppDelegate {
             SCContext.micInput = AVAssetWriterInput(mediaType: AVMediaType.audio, outputSettings: settings)
             SCContext.micInput.expectsMediaDataInRealTime = true
             if SCContext.vW.canAdd(SCContext.micInput) { SCContext.vW.add(SCContext.micInput) }
-            startMicRecording()
+            if !SCContext.usesScreenCaptureKitMicrophone { startMicRecording() }
         }
         SCContext.vW.startWriting()
     }
@@ -614,7 +634,13 @@ extension AppDelegate {
             }
 #if compiler(>=6.0)
         case .microphone:
-            break
+            guard SCContext.usesScreenCaptureKitMicrophone, SCContext.startTime != nil else { return }
+            if SCContext.timeOffset.value > 0 {
+                SampleBuffer = SCContext.adjustTime(sample: SampleBuffer, by: SCContext.timeOffset) ?? sampleBuffer
+            }
+            if SCContext.micInput.isReadyForMoreMediaData {
+                SCContext.micInput.append(SampleBuffer)
+            }
 #endif
         @unknown default:
             assertionFailure("unknown stream type".local)

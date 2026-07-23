@@ -19,6 +19,12 @@ import Sparkle
 let isMacOS12 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 12
 let isMacOS14 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 14
 let isMacOS15 = ProcessInfo.processInfo.operatingSystemVersion.majorVersion == 15
+let supportsScreenCaptureKitMicrophone: Bool = {
+#if compiler(>=6.0)
+    if #available(macOS 15.0, *) { return true }
+#endif
+    return false
+}()
 var scPerm = false
 let fd = FileManager.default
 let ud = UserDefaults.standard
@@ -113,12 +119,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
     var isResizing = false
     var presenterType = "OFF"
     var frameQueue = FixedLengthArray<CMTime>(maxLength: 20)
+    let screenCaptureKitMicrophoneQueue = DispatchQueue(label: "com.lihaoyun6.QuickRecorder.screencapturekit.microphone")
     
     @AppStorage("showOnDock")       var showOnDock: Bool = true
     @AppStorage("showMenubar")      var showMenubar: Bool = false
     @AppStorage("enableAEC")        var enableAEC: Bool = false
     @AppStorage("recordMic")        var recordMic: Bool = false
     @AppStorage("micDevice")        var micDevice: String = "default"
+    @AppStorage("useScreenCaptureKitMicrophone") var useScreenCaptureKitMicrophone: Bool = supportsScreenCaptureKitMicrophone
     @AppStorage("remuxAudio")       var remuxAudio: Bool = true
     @AppStorage("recordWinSound")   var recordWinSound: Bool = true
     @AppStorage("recordHDR")        var recordHDR: Bool = false
@@ -231,6 +239,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
                 "saveDirectory": userDesktop as NSString,
                 "showMouse": true,
                 "recordMic": false,
+                "useScreenCaptureKitMicrophone": supportsScreenCaptureKitMicrophone,
                 "remuxAudio": isMacOS12 ? false : true,
                 "recordWinSound": isMacOS12 ? false : true,
                 "trimAfterRecord": false,
@@ -245,6 +254,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, SCStreamDelegate, SCStreamOu
         )
         
         if highRes == 0 { highRes = 2 }
+        if !supportsScreenCaptureKitMicrophone { useScreenCaptureKitMicrophone = false }
         if showOnDock { NSApp.setActivationPolicy(.regular) }
         if isMacOS12 { showPreview = false; remuxAudio = false }
         
