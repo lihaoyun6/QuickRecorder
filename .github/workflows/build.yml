@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    env:
+      XCODE: /Applications/Xcode_16.4.app
+      PRODUCT: build/Build/Products/Debug/QuickRecorder.app/Contents/MacOS/QuickRecorder
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select toolchain
+        run: sudo xcode-select -s "$XCODE" && xcodebuild -version
+
+      - name: Build
+        run: xcodebuild build -project QuickRecorder.xcodeproj -scheme QuickRecorder -configuration Debug -destination 'platform=macOS' -derivedDataPath build ONLY_ACTIVE_ARCH=NO CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" DEVELOPMENT_TEAM=""
+
+      - name: Verify universal binary
+        run: |
+          lipo -archs "$PRODUCT"
+          lipo -archs "$PRODUCT" | grep -q x86_64 || { echo "::error::missing x86_64 slice"; exit 1; }
+          lipo -archs "$PRODUCT" | grep -q arm64 || { echo "::error::missing arm64 slice"; exit 1; }

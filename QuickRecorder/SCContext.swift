@@ -42,6 +42,9 @@ class SCContext {
     static var audioFile2: AVAudioFile?
     static var vW: AVAssetWriter!
     static var vwInput, awInput, micInput: AVAssetWriterInput!
+    static var writeFailureHandled = false
+    static var permissionRetries = 0
+    static let maxPermissionRetries = 3
     static var startTime: Date?
     static var timePassed: TimeInterval = 0
     static var stream: SCStream!
@@ -70,8 +73,13 @@ class SCContext {
             if let error = error {
                 switch error {
                 case SCStreamError.userDeclined:
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-                        self.updateAvailableContent() {_ in}
+                    if permissionRetries < maxPermissionRetries {
+                        permissionRetries += 1
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+                            self.updateAvailableContent() {_ in}
+                        }
+                    } else {
+                        requestPermissions()
                     }
                 default:
                     print("Error: failed to fetch available content: ".local, error.localizedDescription)
@@ -80,6 +88,7 @@ class SCContext {
                 return
             }
 
+            permissionRetries = 0
             availableContent = content
             if let displays = content?.displays, !displays.isEmpty {
                 completion(content) // 返回成功获取的 content
@@ -326,7 +335,52 @@ class SCContext {
         }
     }
     
+    static func append(_ sample: @autoclosure () -> CMSampleBuffer?, to input: AVAssetWriterInput) {
+        guard !writeFailureHandled, input.isReadyForMoreMediaData, let sample = sample() else { return }
+        if input.append(sample) { return }
+        guard vW?.status == .failed else { return } // a rejected sample on a healthy writer is a normal drop
+        abortRecording()
+    }
+
+    static func abortRecording(reason: String? = nil) {
+        guard !writeFailureHandled else { return }
+        DispatchQueue.main.async { // serialises the flag against the capture queues; stream is ScreenCaptureKit-only
+            guard !writeFailureHandled, stream != nil else { return }
+            writeFailureHandled = true
+            let message = reason ?? vW?.error?.localizedDescription ?? "Unknown Error".local
+            showNotification(title: "Recording Stopped".local, body: message, id: "quickrecorder.error.\(UUID().uuidString)")
+            stopRecording()
+        }
+    }
+
+    static func mixIntermediateURL(for videoURL: URL) -> URL {
+        return videoURL.deletingPathExtension()
+    }
+
+    static func mixOutputURL(for videoURL: URL) -> URL {
+        return videoURL.deletingPathExtension().deletingPathExtension()
+    }
+
+    private static func hasSpaceToMix() -> Bool {
+        guard let size = DiskSpace.fileSize(at: filePath),
+              let free = DiskSpace.availableBytes(at: filePath) else { return true }
+        return free > size + DiskSpace.stopThreshold // mixAudioTracks writes a full copy next to the source
+    }
+
+    private static func salvageUnmixedRecording(reason: String) {
+        let source = filePath.url
+        let target = mixOutputURL(for: source)
+        try? fd.removeItem(at: mixIntermediateURL(for: source))
+        var saved = source
+        if !fd.fileExists(atPath: target.path), (try? fd.moveItem(at: source, to: target)) != nil { saved = target }
+        showNotification(title: "Audio Not Mixed".local,
+                         body: reason + " " + String(format: "The recording was saved with separate audio tracks to: %@".local, saved.path),
+                         id: "quickrecorder.error.\(UUID().uuidString)")
+        DispatchQueue.main.async { showPreview(path: saved.path) }
+    }
+
     static func stopRecording() {
+        DiskSpace.stopMonitoring()
         if ud.bool(forKey: "preventSleep") { SleepPreventer.shared.allowSleep() }
         autoStop = 0
         lastPTS = nil
@@ -355,12 +409,17 @@ class SCContext {
             vwInput.markAsFinished()
             if #available(macOS 13, *) { awInput.markAsFinished() }
             vW.finishWriting {
+                defer { dispatchGroup.leave() }
                 if vW.status != .completed {
                     print("Video writing failed with status: \(vW.status), error: \(String(describing: vW.error))")
                     let err = vW.error?.localizedDescription ?? "Unknow Error"
-                    showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(UUID().uuidString)")
+                    if !writeFailureHandled { showNotification(title: "Failed to save file".local, body: "\(err)", id: "quickrecorder.error.\(UUID().uuidString)") }
                 } else {
                     if ud.bool(forKey: "recordMic") && ud.bool(forKey: "recordWinSound") && ud.bool(forKey: "remuxAudio") {
+                        guard hasSpaceToMix() else {
+                            salvageUnmixedRecording(reason: "Not enough free disk space to mix the audio tracks.".local)
+                            return
+                        }
                         mixAudioTracks(videoURL: filePath.url) { result in
                             switch result {
                             case .success(let url):
@@ -377,11 +436,11 @@ class SCContext {
                                 }
                             case .failure(let error):
                                 print("Failed to export video: \(error.localizedDescription)")
+                                salvageUnmixedRecording(reason: error.localizedDescription)
                             }
                         }
                     }
                 }
-                dispatchGroup.leave()
             }
             dispatchGroup.wait()
         } else {
@@ -715,8 +774,8 @@ class SCContext {
         showNotification(title: "Still Processing".local, body: "Mixing audio track...".local, id: "quickrecorder.processing.\(UUID().uuidString)")
         
         let asset = AVAsset(url: videoURL)
-        let audioOutputURL = videoURL.deletingPathExtension()
-        let outputURL = audioOutputURL.deletingPathExtension()
+        let audioOutputURL = mixIntermediateURL(for: videoURL)
+        let outputURL = mixOutputURL(for: videoURL)
         let audioOnlyComposition = AVMutableComposition()
         
         let fileEnding = ud.string(forKey: "videoFormat") ?? ""

@@ -225,3 +225,10 @@
 "audio file writing issue" = "音频文件写入出错";
 "closing stream with error:\n" = "关闭流时发生错误:\n";
 "\nthis might be due to the window closing or the user stopping from the sonoma ui" = "\n这可能是有由于用户关闭了正在录制中的窗口, 或使用窗口上的附加按钮停止了录制.";
+"Unknown Error" = "未知錯誤";
+"Recording Stopped" = "錄製已停止";
+"Audio Not Mixed" = "音軌未混縮";
+"Not enough free disk space! Only %@ left on the output volume." = "磁碟可用空間不足! 輸出磁碟僅剩 %@.";
+"The output disk is almost full, only %@ left." = "輸出磁碟即將寫滿, 僅剩 %@.";
+"Not enough free disk space to mix the audio tracks." = "磁碟可用空間不足, 無法混縮音軌.";
+"The recording was saved with separate audio tracks to: %@" = "錄製檔案已儲存為多音軌格式: %@";

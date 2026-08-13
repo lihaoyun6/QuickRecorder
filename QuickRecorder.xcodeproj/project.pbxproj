@@ -23,6 +23,7 @@
 		18A551F62D0749C3008FC5F6 /* AppleScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551EE2D0749C3008FC5F6 /* AppleScript.swift */; };
 		18A551F72D0749C3008FC5F6 /* GroupForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551EF2D0749C3008FC5F6 /* GroupForm.swift */; };
 		18A551F82D0749C3008FC5F6 /* SleepPreventer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */; };
+		1AD5C0022BCEC847006CFFC0 /* DiskSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD5C0012BCEC847006CFFC0 /* DiskSpace.swift */; };
 		18A551F92D0749C3008FC5F6 /* Sparkle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F22D0749C3008FC5F6 /* Sparkle.swift */; };
 		18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */; };
 		18A551FB2D0749C3008FC5F6 /* WindowHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */; };
@@ -64,6 +65,7 @@
 		18A551EF2D0749C3008FC5F6 /* GroupForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupForm.swift; sourceTree = "<group>"; };
 		18A551F02D0749C3008FC5F6 /* Scriptable.sdef */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Scriptable.sdef; sourceTree = "<group>"; };
 		18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepPreventer.swift; sourceTree = "<group>"; };
+		1AD5C0012BCEC847006CFFC0 /* DiskSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskSpace.swift; sourceTree = "<group>"; };
 		18A551F22D0749C3008FC5F6 /* Sparkle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sparkle.swift; sourceTree = "<group>"; };
 		18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowAccessor.swift; sourceTree = "<group>"; };
 		18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowHighlighter.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				18A551EF2D0749C3008FC5F6 /* GroupForm.swift */,
 				18A551F02D0749C3008FC5F6 /* Scriptable.sdef */,
 				18A551F12D0749C3008FC5F6 /* SleepPreventer.swift */,
+				1AD5C0012BCEC847006CFFC0 /* DiskSpace.swift */,
 				18A551F22D0749C3008FC5F6 /* Sparkle.swift */,
 				18A551F32D0749C3008FC5F6 /* WindowAccessor.swift */,
 				18A551F42D0749C3008FC5F6 /* WindowHighlighter.swift */,
@@ -304,6 +307,7 @@
 				18944C642D0AD36C00B6C811 /* SurpriseView.swift in Sources */,
 				18A551F72D0749C3008FC5F6 /* GroupForm.swift in Sources */,
 				18A551F82D0749C3008FC5F6 /* SleepPreventer.swift in Sources */,
+				1AD5C0022BCEC847006CFFC0 /* DiskSpace.swift in Sources */,
 				18CEED922D08312C00FBC4BF /* PreviewView.swift in Sources */,
 				18A551F92D0749C3008FC5F6 /* Sparkle.swift in Sources */,
 				18A551FA2D0749C3008FC5F6 /* WindowAccessor.swift in Sources */,

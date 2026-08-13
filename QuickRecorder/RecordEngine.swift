@@ -24,24 +24,29 @@ extension AppDelegate {
         case "audio":   SCContext.streamType = .systemaudio
             default: return // if we don't even know what to record I don't think we should even try
         }
+        func failToRecord(_ message: String) {
+            SCContext.streamType = nil
+            _ = createAlert(title: "Failed to Record".local, message: message, button1: "OK").runModal()
+        }
+
         var isDirectory: ObjCBool = false
         let outputPath = saveDirectory!
         if fd.fileExists(atPath: outputPath, isDirectory: &isDirectory) {
             if !isDirectory.boolValue {
-                SCContext.streamType = nil
-                _ = createAlert(title: "Failed to Record".local, message: "The output path is a file instead of a folder!".local, button1: "OK").runModal()
-                return
+                return failToRecord("The output path is a file instead of a folder!".local)
             }
         } else {
             do {
                 try fd.createDirectory(atPath: outputPath, withIntermediateDirectories: true, attributes: nil)
             } catch {
-                SCContext.streamType = nil
-                _ = createAlert(title: "Failed to Record".local, message: "Unable to create output folder!".local, button1: "OK").runModal()
-                return
+                return failToRecord("Unable to create output folder!".local)
             }
         }
-        
+
+        if let free = DiskSpace.availableBytes(at: outputPath), free < DiskSpace.startThreshold {
+            return failToRecord(String(format: "Not enough free disk space! Only %@ left on the output volume.".local, DiskSpace.formatted(free)))
+        }
+
         // file preparation
         if let screens = screens {
             SCContext.screen = SCContext.availableContent!.displays.first(where: { $0 == screens })
@@ -141,7 +146,8 @@ extension AppDelegate {
         SCContext.timeOffset = CMTimeMake(value: 0, timescale: 0)
         SCContext.isPaused = false
         SCContext.isResume = false
-        
+        SCContext.writeFailureHandled = false
+
         let audioOnly = SCContext.streamType == .systemaudio
         
         let conf: SCStreamConfiguration
@@ -299,6 +305,9 @@ extension AppDelegate {
         }
         if !audioOnly { registerGlobalMouseMonitor() }
         DispatchQueue.main.async { updateStatusBar() }
+        DiskSpace.startMonitoring(SCContext.filePath) { free in
+            SCContext.abortRecording(reason: String(format: "The output disk is almost full, only %@ left.".local, DiskSpace.formatted(free)))
+        }
         if preventSleep { SleepPreventer.shared.preventSleep(reason: "Screen recording in progress") }
     }
 
@@ -446,18 +455,14 @@ extension AppDelegate {
                 }
                 try? SCContext.AECEngine.startAudioStream(enableAEC: enableAEC, duckingLevel: level, audioBufferHandler: { pcmBuffer in
                     if SCContext.isPaused || SCContext.startTime == nil { return }
-                    if SCContext.micInput.isReadyForMoreMediaData {
-                        SCContext.micInput.append(pcmBuffer.asSampleBuffer!)
-                    }
+                    SCContext.append(pcmBuffer.asSampleBuffer, to: SCContext.micInput)
                 })
             } else {
                 let input = SCContext.audioEngine.inputNode
                 let inputFormat = input.inputFormat(forBus: 0)
                 input.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { buffer, time in
                     if SCContext.isPaused || SCContext.startTime == nil { return }
-                    if SCContext.micInput.isReadyForMoreMediaData {
-                        SCContext.micInput.append(buffer.asSampleBuffer!)
-                    }
+                    SCContext.append(buffer.asSampleBuffer, to: SCContext.micInput)
                 }
                 try! SCContext.audioEngine.start()
             }
@@ -595,7 +600,7 @@ extension AppDelegate {
                 }
                 if isPresenterON && !isCameraReady { break }
                 if SCContext.firstFrame == nil { SCContext.firstFrame = SampleBuffer }
-                SCContext.vwInput.append(SampleBuffer)
+                SCContext.append(SampleBuffer, to: SCContext.vwInput)
             }
             break
         case .audio:
@@ -607,10 +612,13 @@ extension AppDelegate {
                 if SCContext.startTime == nil { SCContext.startTime = Date.now }
                 guard let samples = SampleBuffer.asPCMBuffer else { return }
                 do { try SCContext.audioFile?.write(from: samples) }
-                catch { assertionFailure("audio file writing issue".local) }
+                catch {
+                    assertionFailure("audio file writing issue".local)
+                    SCContext.abortRecording(reason: error.localizedDescription)
+                }
             } else {
                 if SCContext.lastPTS == nil { return }
-                if SCContext.awInput.isReadyForMoreMediaData { SCContext.awInput.append(SampleBuffer) }
+                SCContext.append(SampleBuffer, to: SCContext.awInput)
             }
 #if compiler(>=6.0)
         case .microphone:
@@ -690,9 +698,7 @@ class AudioRecorder: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate {
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         if SCContext.isPaused || SCContext.startTime == nil { return }
-        if SCContext.micInput.isReadyForMoreMediaData {
-            SCContext.micInput.append(sampleBuffer)
-        }
+        SCContext.append(sampleBuffer, to: SCContext.micInput)
     }
 }
 
